@@ -63,16 +63,20 @@ loader.load = (router, upload) => {
             const Controller = require('../controllers/' + item.file);
             const controller = new Controller();
             
-            item.method.forEach((methodItem, methodIndex) => {
-                logger.debug('method #' + methodIndex + ' -> ' + methodItem);
-            
-                // in case of file upload controller
-                if (item.upload) {
-                    router.route(item.path)[methodItem](upload.array('photo', 1), controller[item.func]);
-                } else {
-                    router.route(item.path)[methodItem](controller[item.func]);
-                }
-            });
+            if (controller[item.func]) {
+                item.method.forEach((methodItem, methodIndex) => {
+                    logger.debug('method #' + methodIndex + ' -> ' + methodItem);
+                
+                    // in case of file upload controller
+                    if (item.upload) {
+                        router.route(item.path)[methodItem](upload.array('photo', 1), controller[item.func]);
+                    } else {
+                        router.route(item.path)[methodItem](controller[item.func]);
+                    }
+                });
+            } else {
+                console.log(`${item.func} not found in the controller.`);
+            }    
         } else {
             logger.debug(`Unknown controller type -> ${item.type}`);
         }
