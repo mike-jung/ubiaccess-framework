@@ -137,3 +137,54 @@ If you define `list` method in a service, `doList` method will be automatically 
 Model is a representation of database object or schematic model. It means that the parameters sent from client can be used to make a model.
 
 - See `models/person.js`
+
+
+## SQL
+
+SQL file is separated in the config/sql-config.js file. 
+
+Here is an example :
+
+```js
+// sql-config.js
+
+module.exports = {
+    person_login: {
+        sql: "select \
+                id \
+            from test.users \
+            where id = ? and password = ?",
+        params: [
+            'id',
+            'password'
+        ]
+    },
+    ...
+```
+
+The name of SQL attribute is used to determine which SQL statement needs to be executed by controllers or services.
+Request parameters from client can be used here and params array let us know which parameter is used for the SQL statement. 
+
+This sql statement can be executed as follows:
+
+```js
+// profile-controller.js
+
+async add(req, res) {
+  const params = param.parse(req);
+	
+		try {
+			const sqlName = 'person_add';
+			const rows = await database.execute(sqlName, params);
+
+			util.sendRes(res, 200, 'OK', rows);
+		} catch(err) {
+			util.sendError(res, 400, 'Error in execute -> ' + err);
+		}
+
+	}
+
+```
+
+util/param.js utility parses request parameters regardless of GET or POST request methods. Even URL parameters can be parsed.
+
