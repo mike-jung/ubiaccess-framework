@@ -15,7 +15,10 @@ import passport from 'passport';
 import flash from 'connect-flash';
 
 import config from './config/config';
+
+import serviceLoader from './loader/service_loader';
 import controllerLoader from './loader/controller_loader';
+
 import local_login from './passport/local_login';
 
 // logger
@@ -54,6 +57,9 @@ const createApp = () => {
     const router = express.Router();
     app.use('/', router);
 
+
+    // load registered services
+    serviceLoader.load();
 
     // load registered controllers
     controllerLoader.load(router, upload);

@@ -4,6 +4,7 @@ import Person from '../models/person';
 import PersonService from '../services/person-service';
 
 import param from '../util/param';
+import util from '../util/util';
 
 const personService = new PersonService();
 
@@ -25,17 +26,17 @@ class PersonController {
      * @returns {object} 200 - An array of person info
      * @returns {Error}  default - Unexpected error
      */
-	list(req, res) {
-        console.log('list called.');
+	async list(req, res) {
+        console.log('PersonController:list called.');
         const params = param.parse(req);
 
-		personService.list(req, res, params, (err, rows) => {
-			if (err) {
-				return res.json({error: 'Could not retrieve persons.'});
-            }
-            
-			return res.json({persons: rows});
-		});
+        try {
+            const rows = await personService.doList(req, res, params);
+            util.sendRes(res, 200, 'OK', rows);
+        } catch(err) {
+            util.sendError(res, 400, err);
+        }
+ 
 	}
  
     /**
@@ -50,16 +51,17 @@ class PersonController {
      * @returns {object} 200 - An array of person info
      * @returns {Error}  default - Unexpected error
      */
-	read(req, res) {
+	async read(req, res) {
+        console.log('PersonController:read called.');
         const params = param.parse(req);
  
-		personService.read(params.id, req, res, params, (err, rows) => {
-			if (err) {
-				return res.json({error: 'Could not retrieve persons.'});
-            }
-            
-			return res.json({persons: rows});
-		});
+        try {
+            const rows = await personService.doRead(req, res, params);
+            util.sendRes(res, 200, 'OK', rows);
+        } catch(err) {
+            util.sendError(res, 400, err);
+        }
+ 
 	}
  
     /**
@@ -74,21 +76,17 @@ class PersonController {
      * @returns {object} result
      * @returns {Error}  default - Unexpected error
      */
-	create(req, res) {
+	async create(req, res) {
+        console.log('PersonController:create called.');
         const params = param.parse(req);
   
-		if (params.id) {
-			const person = new Person(params.id, params.name, params.age, params.mobile);
-
-			personService.create(person, req, res, params, (err, result) => {
-				if (err) {
-					return res.status(500).json({error: 'Something went wrong saving the record.'});
-				}
-				return res.json({result: `Last inserted id : ${result.insertId}`});
-			});
-		} else {
-			return res.status(400).json({msg: 'Bad request.'});
-		}
+        try {
+            const rows = await personService.doCreate(req, res, params);
+            util.sendRes(res, 200, 'OK', rows);
+        } catch(err) {
+            util.sendError(res, 400, err);
+        }
+ 
 	}
  
     /**
@@ -103,17 +101,17 @@ class PersonController {
      * @returns {object} result
      * @returns {Error}  default - Unexpected error
      */
-	update(req, res) {
+	async update(req, res) {
+        console.log('PersonController:update called.');
 		const params = param.parse(req);
    
-		const person = new Person(params.id, params.name, params.age, params.mobile);
-
-		personService.update(person, req, res, params, (err, result) => {
-			if (err) {
-				return res.status(400).json({message: 'Something went wrong updating the record'});
-			}
-			return res.json({message: 'Succesfully updated the record!'});
-		});
+        try {
+            const rows = await personService.doUpdate(req, res, params);
+            util.sendRes(res, 200, 'OK', rows);
+        } catch(err) {
+            util.sendError(res, 400, err);
+        }
+ 
     }
     
     /**
@@ -125,15 +123,17 @@ class PersonController {
      * @returns {object} result
      * @returns {Error}  default - Unexpected error
      */
-	delete(req, res) {
+	async delete(req, res) {
+        console.log('PersonController:delete called.');
         const params = param.parse(req);
 
-		personService.delete(params.id, req, res, params, (err, result) => {
-			if (err) {
-				return res.status(400).json({message: 'Something went wrong updating the record'});
-			}
-			return res.json({message: 'Succesfully updated the record!'});
-		});
+        try {
+            const rows = await personService.doDelete(req, res, params);
+            util.sendRes(res, 200, 'OK', rows);
+        } catch(err) {
+            util.sendError(res, 400, err);
+        }
+ 
     }
     
 }

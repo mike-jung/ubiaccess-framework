@@ -3,6 +3,7 @@
 import mysql from 'mysql';
 import config from'../config/config';
 import sqlConfig from'../config/sql_config';
+import logger from '../util/logger';
 
 const pool = mysql.createPool(config.database);
 
@@ -10,6 +11,11 @@ const database = {};
 
 
 database.execute = (sqlName, params) => new Promise((resolve, reject) => {
+    // check SQL definition
+    if (!sqlConfig[sqlName]) {
+        reject(`Sql definition for ${sqlName} not found in sql_config`);
+    }
+
     let sql = sqlConfig[sqlName].sql;
 
     let sqlParams = [];
@@ -27,6 +33,12 @@ database.execute = (sqlName, params) => new Promise((resolve, reject) => {
 });
 
 database.executeSql = function (sqlName, params, callback) {
+    // check SQL definition
+    if (!sqlConfig[sqlName]) {
+        callback(new Error(`Sql definition for ${sqlName} not found in sql_config`), null);
+        return;
+    }
+    
     let sql = sqlConfig[sqlName].sql;
 
     let sqlParams = [];

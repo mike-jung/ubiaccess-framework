@@ -11,7 +11,7 @@ class ProfileController {
     }
 
     /**
-     * This function get a profile
+     * Get a profile from person table
      * 
      * @route GET /profile/get
      * @group profile - Operations about profile
@@ -20,7 +20,7 @@ class ProfileController {
      * @returns {Error}  default - Unexpected error
      */
     /**
-     * This function get a profile
+     * Get a profile from person table
      * 
      * @route POST /profile/get
      * @group profile - Operations about profile
@@ -40,38 +40,34 @@ class ProfileController {
 				return;
 			}
 			
-			const output = JSON.stringify(rows);
-			util.sendResponse(res, output);
+			util.sendRes(res, 200, 'OK', rows);
 		});
 	}
  
     /**
-     * This function creates a profile
+     * Add a profile in person table
+	 * This example shows how to call database.execute method
      * 
-     * @route POST /profile/add
+     * @route GET /profile/add
      * @group profile - Operations about profile
-     * @param {string} id.query.required profile's id
      * @param {string} name profile's name
      * @param {number} age profile's age
      * @param {string} mobile profile's mobile
      * @returns {object} result
      * @returns {Error}  default - Unexpected error
      */
-	add(req, res) {
+	async add(req, res) {
         const params = param.parse(req);
-    
-		const sqlName = 'person_add';
-		database.executeSql(sqlName, params, (err, rows) => {
-			if (err) {
-				console.log('executeSql error -> ' + err);
-				util.sendError(res, 400, 'executeSql error -> ' + err);
+	
+		try {
+			const sqlName = 'person_add';
+			const rows = await database.execute(sqlName, params);
 
-				return;
-			}
+			util.sendRes(res, 200, 'OK', rows);
+		} catch(err) {
+			util.sendError(res, 400, 'Error in execute -> ' + err);
+		}
 
-			const output = JSON.stringify(rows);
-			util.sendResponse(res, output);
-		});
 	}
  
 	upload(req, res) {
@@ -88,20 +84,18 @@ class ProfileController {
 			fs.rename(oldFile, newFile, (err) => {
 				if (err) {
 					console.log('Error in moving file : ' + err);
+					util.sendError(res, 400, 'Error in moving file : ' + err);
 					return;
 				}
 	
-				console.log('File copied : ' + newFile);
+				console.log('File copied to ' + newFile);
 	
 				// include uploaded file path
 				const output = {
-					code:200,
-					message:'OK',
 					filename:'/images/' + req.files[0].filename
 				}
 	
-				util.sendResponse(res, JSON.stringify(output));
-	
+				util.sendRes(res, 200, 'OK', output);
 			})
 		}	
 	}
