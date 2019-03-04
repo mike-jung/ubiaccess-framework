@@ -69,6 +69,12 @@ module.exports = {
 
 ```
     
+Example URL for simple fetch from database is as follows:
+
+  * http://localhost:7001/person
+  * http://localhost:7001/profile/get
+  * http://localhost:7001/set_cookie
+
 
 ## Auto-loading
 
