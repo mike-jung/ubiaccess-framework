@@ -48,7 +48,7 @@ There is a fair amount of auto-loading built into this application structure.
   
 ## ES2015
 
-This boilerplate use ES6 syntax with Node.js 10.0, you can check out the [feature available here](https://nodejs.org/en/docs/es6/)
+This boilerplate uses ES6 syntax with Node.js 10.0, you can check out the [feature available here](https://nodejs.org/en/docs/es6/)
 
 
 ### Configuration
