@@ -145,7 +145,7 @@ Model is a representation of database object or schematic model. It means that t
 - See `models/person.js`
 
 
-## SQL
+## SQL Execution
 
 SQL file is separated in the config/sql-config.js file. 
 
