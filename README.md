@@ -4,8 +4,6 @@ This is a boilerplate project for MVC architecture using node, express and MySQL
 
 ## Application Structure
 
-  * `bin/`
-    * `server` - Server startup script.
   * `config/`
     * ... - Application configuration.
   * `controllers/`
