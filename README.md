@@ -20,10 +20,20 @@ This is a boilerplate project for MVC architecture using node, express and MySQL
     * ... - Put public files in css and js folders
      
 
-## Installation / Usage
+## Getting Started
 
-  1. RUN `npm install` to install external modules.
-  2. RUN `npm start` to start the server.
+The easiest way to get started is to clone the repository:
+
+```sh
+# Get the latest snapshot
+$ git clone https://github.com/mike-jung/node-web-starter.git myproject
+$ cd myproject
+
+# Install dependencies
+$ npm install
+
+$ npm start
+```
 
 
 ## Auto-loading
