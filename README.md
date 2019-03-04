@@ -35,15 +35,43 @@ $ npm install
 $ npm start
 ```
 
+Connection to MySQL(or Maria DB) is needed:
+
+  * Load the SQL file in database folder using GUI manager tool for MySQL
+    (sample_database_person.sql)
+  * Change the config/config.js file to set server port and database connection
+    Here is an example :
+    
+```js
+// config.js
+
+module.exports = {
+    server: {
+        port: 7001
+    },
+    database: {
+        type:'mysql',
+        host:'localhost',
+        port:3306,
+        user:'root',
+        password:'admin',
+        database:'test',
+        connectionLimit:10,
+        debug:false
+    }
+}
+
+```
+    
 
 ## Auto-loading
 
 There is a fair amount of auto-loading built into this application structure.
 
-  * Registered controllers in config/controller-config file will be autoloaded.
-  * Registered services in config/service-config file will be autoloaded.
+  * Registered controllers in config/controller-config.js file will be autoloaded.
+  * Registered services in config/service-config.js file will be autoloaded.
       if you defined list method in a service, doList method will be automatically added as a Promise object
-  * Registered SQL statements in config/sql-config file will be autoloaded.
+  * Registered SQL statements in config/sql-config.js file will be autoloaded.
   
   
 ## ES2015
@@ -51,7 +79,7 @@ There is a fair amount of auto-loading built into this application structure.
 This boilerplate uses ES6 syntax with Node.js 10.0, you can check out the [feature available here](https://nodejs.org/en/docs/es6/)
 
 
-### Configuration
+## Configuration
 
 A configuration is designed to register controllers, services, SQL and so on. so it will show components registered. You should add a line after created a new controller. This configuration allows you to quickly find components.
 
