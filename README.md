@@ -127,7 +127,7 @@ Service is used to handle dedicated work for controllers.
 Methods created for a service are especially supported to be called using Promise object. In other words, Promise objects for REST methods are added automatically. 
 
 If you define `list` method in a service, `doList` method will be automatically added as a Promise object.
-(The first character is capitalized and `do` is prepended)
+(`do` is prepended after the first character of the method is capitalized)
 
 - See `services/person-service.js`
 
