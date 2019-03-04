@@ -45,7 +45,12 @@ There is a fair amount of auto-loading built into this application structure.
       if you defined list method in a service, doList method will be automatically added as a Promise object
   * Registered SQL statements in config/sql-config file will be autoloaded.
   
- 
+  
+## ES2015
+
+This boilerplate use ES6 syntax with Node.js 10.0, you can check out the [feature available here](https://nodejs.org/en/docs/es6/)
+
+
 ## Sample Controller
 
 See `controllers/person-controller.js` for REST type controller
