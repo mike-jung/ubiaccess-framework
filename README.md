@@ -5,6 +5,7 @@ This is a boilerplate project for MVC architecture using node, express and MySQL
 - MVC architecture - Model, View, Controller architecture is designed for general usage
 - Autoloading - controllers, services and SQL are loaded automatically if you register them
 - SQL management - SQL statements are separated from controllers or services. So they can be managed easily
+- ES6 and Promise support - ES6 is used and Promise objects are created automatically if you define services
 
 
 ## Application Structure
@@ -100,8 +101,6 @@ module.exports = [
 
 If the type attribute is set to 'rest', methods for REST are registered automatically. (list, read, create, update, delete) The unit attribute is used to find the controller file. For example, if you created person-controller.js file in controllers folder it is designated by 'person'. You should set the file name using the unit attribute registered. The request path for the methods are determined by the standards for REST.
 
-Promise objects for REST methods are added automatically. If you defined list method in a service, doList method will be automatically added as a Promise object.
-
 If the type attribute is set to 'path', the method is loaded using path, method, file and func attributes.
 
   * path - request path
@@ -110,18 +109,30 @@ If the type attribute is set to 'path', the method is loaded using path, method,
   * func - function in the controller file used for callback method
 
 
-## Sample Controller
+## Controller
+
+Controller handles client's request.
+
+If you create a controller, it needs to be registered in the config/controller-config.js file. In case you define a controller according to the REST standards, only unit name is needed to register in the configuration file. Unit name is used to find the controller file you created.
 
 - See `controllers/person-controller.js` for REST type controller
 - See `controllers/profile-controller.js` for API type controller
 - See `controllers/test-controller.js` for cookie and session test
 
 
-## Sample Service
+## Service
+
+Service is used to handle dedicated work for controllers.
+
+Methods created for a service are especially supported to be called using Promise object. In other words, Promise objects for REST methods are added automatically. 
+
+If you define `list` method in a service, `doList` method will be automatically added as a Promise object.
 
 - See `services/person-service.js`
 
 
-## Sample Model
+## Model
+
+Model is a representation of database object or schematic model. It means that the parameters sent from client can be used to make a model.
 
 - See `models/person.js`
