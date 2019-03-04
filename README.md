@@ -2,6 +2,11 @@
 
 This is a boilerplate project for MVC architecture using node, express and MySQL (or MariaDB)
 
+- MVC architecture - Model, View, Controller architecture is designed for general usage
+- Autoloading - controllers, services and SQL are loaded automatically if you register them
+- SQL management - SQL statements are separated from controllers or services. So they can be managed easily
+
+
 ## Application Structure
 
   * `config/`
