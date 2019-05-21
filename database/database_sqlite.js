@@ -91,7 +91,7 @@ class DatabaseSqlite {
                             if (this.failoverCount > config.database[dbName].retryStrategy.failoverLimit) {
                                 callback(err, null);
                             } else {
-                                executeRaw(sql, sqlParams, retryCount, callback);
+                                this.executeRaw(sql, sqlParams, retryCount, callback);
                             }
                         } else {
                             // change database config
@@ -123,7 +123,7 @@ class DatabaseSqlite {
                                     callback(err, null);
                                 } else {
                                     const newRetryCount = 0;
-                                    executeRaw(sql, sqlParams, newRetryCount, callback);
+                                    this.executeRaw(sql, sqlParams, newRetryCount, callback);
                                 }
                             }, config.database[dbName].retryStrategy.interval);
                             

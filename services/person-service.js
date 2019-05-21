@@ -6,8 +6,6 @@ import util from '../util/util';
 class PersonService {
 
     constructor() {
-        console.log(`PersonService initialized.`);
-
         this.database = new Database('database_mysql');
     }
 

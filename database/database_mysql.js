@@ -5,24 +5,32 @@ import config from'../config/config';
 import sqlConfig from'../config/sql_config';
 import logger from '../util/logger';
  
-const pool = mysql.createPool(config.database['database_mysql'].master);
+const dbName = 'database_mysql';
+let isMaster = true;
+let failoverCount = 0;
+let isFailovering = false;
+let pool = null;
+
+const getPool = () => {
+    console.log('getPool called.');
+
+    if (isMaster) {
+        pool = mysql.createPool(config.database[dbName].master);
+    } else {
+        pool = mysql.createPool(config.database[dbName].slave);
+    }
+}
+
+getPool();
+console.log('database_mysql file loaded.');
+
 
 class DatabaseMySQL {
 
     constructor(dbName) {
-        logger.debug('DatabaseMySQL initialized -> ' + dbName);
- 
-        this.isMaster = true;
-        this.retryCount = 0;
-        this.failoverCount = 0;
-    }
- 
-    getPool() {
-        console.log('getPool called.');
-    
-        return pool;
-    }
 
+    }
+ 
     execute(sqlName, params) {
         return new Promise((resolve, reject) => {
             // check SQL definition
@@ -37,7 +45,7 @@ class DatabaseMySQL {
                 sqlParams.push(params[item]);
             })
 
-            this.executeRaw(sql, sqlParams, (err, rows) => {
+            this.executeRaw(sql, sqlParams, 0, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -61,15 +69,76 @@ class DatabaseMySQL {
             sqlParams.push(params[item]);
         })
 
-        this.executeRaw(sql, sqlParams, callback);
+        this.executeRaw(sql, sqlParams, 0, callback);
     }
 
-    executeRaw(sql, sqlParams, callback) {
+    executeRaw(sql, sqlParams, retryCount, callback) {
         
         pool.getConnection((err, conn) => {
+
             if (err) {
                 console.log('Error in fetching database connection -> ' + err);
-                callback(err, null);
+                
+                if (err.code === 'ECONNREFUSED') {
+                    retryCount += 1;
+                    console.log('retryCount : ' + retryCount + '/' + config.database[dbName].retryStrategy.limit);
+
+                    if (retryCount < config.database[dbName].retryStrategy.limit) {
+                        console.log('Retrying #' + retryCount);
+                        
+                        if (failoverCount > config.database[dbName].retryStrategy.failoverLimit) {
+                            callback(err, null);
+                        } else {
+                            this.executeRaw(sql, sqlParams, retryCount, callback);
+                        }
+                    } else {
+                        if (!isFailovering) {
+                            isFailovering = true;
+
+                            // change database config
+                            setTimeout(() => {
+                                if (isMaster) {
+                                    // only if config.slave exists
+                                    if (config.database[dbName].slave) {
+                                        isMaster = false;
+                                    }
+                                } else {
+                                    isMaster = true;
+                                }
+            
+                                pool.end(() => {
+                                    console.log('existing pool ended.');
+ 
+                                    getPool();
+                                    console.log('database connection pool is failovered to ');
+                                    if (isMaster) {
+                                        console.log('master config -> ' + config.database[dbName].master.host + ':' + config.database[dbName].master.port);
+                                    } else {
+                                        console.log('slave config -> ' + config.database[dbName].slave.host + ':' + config.database[dbName].slave.port);
+                                    }
+
+                                    failoverCount += 1;
+                                    console.log('failoverCount : ' + failoverCount + '/' + config.database[dbName].retryStrategy.failoverLimit);
+
+                                    if (failoverCount > config.database[dbName].retryStrategy.failoverLimit) {
+                                        callback(err, null);
+                                    } else {
+                                        isFailovering = false;
+
+                                        const newRetryCount = 0;
+                                        this.executeRaw(sql, sqlParams, newRetryCount, callback);
+                                    }
+                                });
+
+                            }, config.database[dbName].retryStrategy.interval);
+                            
+                        }
+
+                    }
+                } else {
+                    callback(err, null);
+                }
+
                 return;
             }
 

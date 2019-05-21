@@ -22,9 +22,9 @@ module.exports = {
             },
             slave: {
                 host:'localhost',
-                port:3306,
+                port:4407,
                 user:'root',
-                password:'admin',
+                password:'',
                 database:'test',
                 connectionLimit:10,
                 debug:false
