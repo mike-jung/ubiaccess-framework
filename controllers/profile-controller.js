@@ -1,13 +1,15 @@
 'use strict';
  
-import database from '../database/database';
+import Database from '../database/database_mysql';
 import util from '../util/util';
 import param from '../util/param';
  
 class ProfileController {
 
     constructor() {
-        console.log(`ProfileController initialized.`);
+			console.log(`ProfileController initialized.`);
+			
+			this.database = new Database('database_mysql');
     }
 
     /**
@@ -32,7 +34,7 @@ class ProfileController {
 		const params = param.parse(req);
 
 		const sqlName = 'person_get';
-		database.executeSql(sqlName, params, (err, rows) => {
+		this.database.executeSql(sqlName, params, (err, rows) => {
 			if (err) {
 				console.log('executeSql error -> ' + err);
 				util.sendError(res, 400, 'executeSql error -> ' + err);
@@ -61,7 +63,7 @@ class ProfileController {
 	
 		try {
 			const sqlName = 'person_add';
-			const rows = await database.execute(sqlName, params);
+			const rows = await this.database.execute(sqlName, params);
 
 			util.sendRes(res, 200, 'OK', rows);
 		} catch(err) {

@@ -1,12 +1,14 @@
 'use strict';
 
-import database from '../database/database';
+import Database from '../database/database_mysql';
 import util from '../util/util';
 
 class PersonService {
 
     constructor() {
         console.log(`PersonService initialized.`);
+
+        this.database = new Database('database_mysql');
     }
 
     async list(req, res, params, callback) {
@@ -14,7 +16,7 @@ class PersonService {
 
         try {
             const sqlName = 'person_list';
-            const rows = await database.execute(sqlName, params);
+            const rows = await this.database.execute(sqlName, params);
 
             callback(null, rows);
         } catch(err) {
@@ -28,7 +30,7 @@ class PersonService {
 
         try {
             const sqlName = 'person_read';
-            const rows = await database.execute(sqlName, params);
+            const rows = await this.database.execute(sqlName, params);
             
             callback(null, rows);
         } catch(err) {
@@ -42,7 +44,7 @@ class PersonService {
 
         try {
             const sqlName = 'person_create';
-            const rows = await database.execute(sqlName, params);
+            const rows = await this.database.execute(sqlName, params);
             
             callback(null, rows);
         } catch(err) {
@@ -56,7 +58,7 @@ class PersonService {
 
         try {
             const sqlName = 'person_update';
-            const rows = await database.execute(sqlName, params);
+            const rows = await this.database.execute(sqlName, params);
             
             callback(null, rows);
         } catch(err) {
@@ -70,7 +72,7 @@ class PersonService {
 
         try {
             const sqlName = 'person_delete';
-            const rows = await database.execute(sqlName, params);
+            const rows = await this.database.execute(sqlName, params);
            
             callback(null, rows);
         } catch(err) {

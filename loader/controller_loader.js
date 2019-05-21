@@ -1,3 +1,9 @@
+/*
+ * controller loader
+ * 
+ * @author Mike
+ */
+
 'use strict';
 
 import controllerConfig from '../config/controller_config';
@@ -56,7 +62,7 @@ loader.load = (router, upload) => {
                 }
                 logger.debug(`rest request method -> ${restRequestMethod}, path -> ${restPath}, func -> ${restType}`);
 
-                router.route(restPath)[restRequestMethod](controller[restType]);
+                router.route(restPath)[restRequestMethod](controller[restType].bind(controller));
             });
 
         } else if (item.type == 'path') {
@@ -69,9 +75,9 @@ loader.load = (router, upload) => {
                 
                     // in case of file upload controller
                     if (item.upload) {
-                        router.route(item.path)[methodItem](upload.array('photo', 1), controller[item.func]);
+                        router.route(item.path)[methodItem](upload.array('photo', 1), controller[item.func].bind(controller));
                     } else {
-                        router.route(item.path)[methodItem](controller[item.func]);
+                        router.route(item.path)[methodItem](controller[item.func].bind(controller));
                     }
                 });
             } else {

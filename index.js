@@ -24,6 +24,19 @@ import local_login from './passport/local_login';
 // logger
 import logger from './util/logger';
 
+//===== Socket.IO =====//
+import socketio from'socket.io';
+
+// socketio_loader for socket.io
+import socketioLoader from './loader/socketio_loader';
+//=====================//
+
+const sessionMiddleware = expressSession({
+    secret: 'my key',
+    resave: true,
+    saveUninitialized: true
+});
+
 
 // Declaration of createApp function
 const createApp = () => {
@@ -41,11 +54,7 @@ const createApp = () => {
 
     app.use(cookieParser());
     
-    app.use(expressSession({
-        secret: 'my key',
-        resave: true,
-        saveUninitialized: true
-    }));
+    app.use(sessionMiddleware);
     
     app.use(passport.initialize());
     app.use(passport.session());
@@ -60,9 +69,11 @@ const createApp = () => {
 
     // load registered services
     serviceLoader.load();
+    logger.info('service loader called.');
 
     // load registered controllers
     controllerLoader.load(router, upload);
+    logger.info('controller loader called.');
 
 
     initSwagger(app);
@@ -139,15 +150,20 @@ const main = () => {
 
     const app = createApp();
     const server = http.createServer(app).listen(config.server.port, () => {
-        logger.debug('Server started -> ' + config.server.port);
+        logger.info('Server started -> ' + config.server.port);
     
         const serverHost = server.address().address;
         const serverPort = server.address().port;
         namespace = serverHost + '_' + serverPort + '_' + process.pid;
-        logger.debug('Namespace -> ' + namespace);
-    
+        logger.info('Namespace -> ' + namespace);
+        
+        // load registered socket.io handlers
+        socketioLoader.load(server, app, sessionMiddleware, socketio, namespace);
+        logger.info('socket.io loader called.');
+
     });
         
+
     return server;
 };
 

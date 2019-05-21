@@ -1,3 +1,9 @@
+/**
+ * Test Controller
+ * 
+ * @author Mike
+ */
+
 'use strict';
 
 import util from '../util/util';

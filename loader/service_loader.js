@@ -1,3 +1,9 @@
+/*
+ * service loader
+ * 
+ * @author Mike
+ */
+
 'use strict';
 
 import serviceConfig from '../config/service_config';
@@ -38,7 +44,8 @@ loader.addDoMethods = (klass) => {
  
         klass.prototype[method] = (req, res, params) => {
             return new Promise((resolve, reject) => {
-                klass.prototype[item](req, res, params, (err, result) => {
+                const curInstance = new klass();
+                curInstance[item](req, res, params, (err, result) => {
                     if (err) {
                         reject(err);
                     }
