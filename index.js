@@ -27,8 +27,7 @@ import logger from './util/logger';
 //===== Socket.IO =====//
 import socketio from'socket.io';
 
-// socketio_loader for socket.io
-import socketioLoader from './loader/socketio_loader';
+
 //=====================//
 
 const sessionMiddleware = expressSession({
@@ -158,8 +157,13 @@ const main = () => {
         logger.info('Namespace -> ' + namespace);
         
         // load registered socket.io handlers
-        socketioLoader.load(server, app, sessionMiddleware, socketio, namespace);
-        logger.info('socket.io loader called.');
+        if (config.socketio.active) {
+            // socketio_loader for socket.io
+            const socketioLoader = require('./loader/socketio_loader');
+
+            socketioLoader.load(server, app, sessionMiddleware, socketio, namespace);
+            logger.info('socket.io loader called.');
+        }
 
     });
         

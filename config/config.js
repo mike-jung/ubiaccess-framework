@@ -58,6 +58,9 @@ module.exports = {
             { host:'127.0.0.1', port: 11427 }
         ],
         name: 'mymaster'
+    },
+    socketio: {
+        active: false
     }
     
 }

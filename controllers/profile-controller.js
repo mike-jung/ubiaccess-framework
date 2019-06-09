@@ -71,6 +71,23 @@ class ProfileController {
 		}
 
 	}
+
+	/*
+	async list(req, res) {
+        const params = param.parse(req);
+	
+		try {
+			const sqlName = 'person_list';
+			const rows = await this.database.execute(sqlName, params);
+
+			util.sendRes(res, 200, 'OK', rows);
+		} catch(err) {
+			util.sendError(res, 400, 'Error in execute -> ' + err);
+		}
+
+	}
+	*/
+
  
 	upload(req, res) {
 		const params = param.parse(req);
