@@ -92,6 +92,7 @@ MySQL(MariaDB), SQLite and Oracle database are supported
 
   * Failover for Redis is also supported and you can set connection information for sentinels as follows.
     (Redis is used only for SocketIO messaging if you do not use it for other purposes)
+    If you have no idea on Redis sentinels, see [guides here](https://redis.io/topics/sentinel) 
   
 ```js
 // config.js
