@@ -48,9 +48,10 @@ $ npm install
 $ npm start
 ```
 
-Connection to MySQL(or Maria DB) is needed:
+MySQL database and Redis need to be installed first.
+After installing database and Redis, you can modify config/config.js file for configuration.
 
-  * Load the SQL file in database folder using GUI manager tool such as HeidiSQL for MySQL
+  * Load the sample SQL file in database folder using GUI manager tool such as HeidiSQL for MySQL
     (sample_database_person.sql)
   * Change the config/config.js file to set server port and database connection
     Here is an example :
@@ -89,6 +90,24 @@ module.exports = {
 Failover for database connection is supported and master and slave connection information need to be provided.
 MySQL(MariaDB), SQLite and Oracle database are supported
 (oracle module is necessary to be installed and configured if you want to use Oracle)
+
+  * Failover for Redis is also supported and you can set connection information for sentinels as follows.
+  
+```js
+// config.js
+...
+
+redis: {
+        sentinels: [
+            { host:'127.0.0.1', port: 11425 },
+            { host:'127.0.0.1', port: 11426 },
+            { host:'127.0.0.1', port: 11427 }
+        ],
+        name: 'mymaster'
+    },
+
+...
+```
 
 Example URL for simple response is as follows:
 
