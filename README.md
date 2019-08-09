@@ -106,6 +106,7 @@ Example URL for simple fetch from database is as follows:
 There is a fair amount of auto-loading built into this application structure.
 
   * Registered controllers in config/controller-config.js file will be autoloaded.
+  * Controllers with annotation will be autoloaded without any configuration. 
   * Registered services in config/service-config.js file will be autoloaded.
       if you defined list method in a service, doList method will be automatically added as a Promise object
   * Registered SQL statements in config/sql-config.js file will be autoloaded.
