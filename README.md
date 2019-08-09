@@ -8,7 +8,7 @@ This is a boilerplate project for MVC architecture using node, express and MySQL
 - SQL management - SQL statements are separated from controllers or services. So they can be managed easily
 - ES6 and Promise support - ES6 is used and Promise objects are created automatically if you define services
 - Spring like annotation support - Controllers can be scanned and loaded automatically with annotation
-- Database Failover - Relational databases such as MySQL(MariaDB), SQLite and Oracle are supported and failover features are embedded
+- Database Failover - Relational databases such as MySQL(MariaDB), SQLite and Oracle are supported and failover features are embedded for easy configuration
 - SocketIO - chat implementation using SocketIO messaging is easy because handlers are separated
 - WebRTC - audio and video streaming for your multimedia needs
 
