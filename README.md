@@ -29,6 +29,8 @@ This is a boilerplate project for MVC architecture using node, express and MySQL
     * ... - Put utilities here
   * `public/`
     * ... - Put public files in css and js folders
+  * `socketio/`
+    * ... - Put SocketIO handlers here    
      
 
 ## Getting Started
