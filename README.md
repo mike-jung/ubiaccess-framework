@@ -156,7 +156,7 @@ If you create a controller, it needs to be registered in the config/controller-c
 ## Controller with annotation
 
 Controller can be configured without any configuration if you use annotation.
-Annotation is supported like Spring but it is inside comment for class and methods.
+Annotation is supported like Spring web framework but it is inside comment for class and methods.
 
 - See `controllers/tiger-controller.js` for @RequestMapping annotation
 
