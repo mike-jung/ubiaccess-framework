@@ -10,7 +10,7 @@ This is a boilerplate project for MVC architecture using node, express and MySQL
 - Spring like annotation support - Controllers can be scanned and loaded automatically with annotation
 - Database Failover - Relational databases such as MySQL(MariaDB), SQLite and Oracle are supported and failover features are embedded for easy configuration
 - SocketIO - chat implementation using SocketIO messaging is easy because handlers are separated
-- WebRTC - audio and video streaming for your multimedia needs
+- WebRTC - audio and video streaming for your multimedia needs are supported
 
 
 ## Application Structure
