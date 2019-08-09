@@ -5,13 +5,14 @@ import PersonService from '../services/person-service';
 
 import param from '../util/param';
 import util from '../util/util';
+import logger from '../util/logger';
 
 const personService = new PersonService();
 
 class PersonController {
 
     constructor() {
-        console.log(`PersonController initialized.`);
+        logger.debug(`PersonController initialized.`);
     }
 
     /**
@@ -27,7 +28,7 @@ class PersonController {
      * @returns {Error}  default - Unexpected error
      */
 	async list(req, res) {
-        console.log('PersonController:list called.');
+        logger.debug('PersonController:list called.');
         const params = param.parse(req);
 
         try {
@@ -52,7 +53,7 @@ class PersonController {
      * @returns {Error}  default - Unexpected error
      */
 	async read(req, res) {
-        console.log('PersonController:read called.');
+        logger.debug('PersonController:read called.');
         const params = param.parse(req);
  
         try {
@@ -77,7 +78,7 @@ class PersonController {
      * @returns {Error}  default - Unexpected error
      */
 	async create(req, res) {
-        console.log('PersonController:create called.');
+        logger.debug('PersonController:create called.');
         const params = param.parse(req);
   
         try {
@@ -102,7 +103,7 @@ class PersonController {
      * @returns {Error}  default - Unexpected error
      */
 	async update(req, res) {
-        console.log('PersonController:update called.');
+        logger.debug('PersonController:update called.');
 		const params = param.parse(req);
    
         try {
@@ -124,7 +125,7 @@ class PersonController {
      * @returns {Error}  default - Unexpected error
      */
 	async delete(req, res) {
-        console.log('PersonController:delete called.');
+        logger.debug('PersonController:delete called.');
         const params = param.parse(req);
 
         try {

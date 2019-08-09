@@ -1,8 +1,11 @@
 module.exports = {
     server: {
-        port: 7001
+        host: '192.168.0.4',
+        port: 7001,
+        backlog: 50000,
+        https: false
     },
-    database: {                                 // database array
+    database: {                                                 // database array
         database_mysql: {                                       // #0 test database for MySQL
             type: 'mysql',
             failover: 'true',
@@ -60,7 +63,7 @@ module.exports = {
         name: 'mymaster'
     },
     socketio: {
-        active: false
+        active: true
     }
     
 }

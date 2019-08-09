@@ -68,6 +68,22 @@
                     socket.emit('login', output);
                 });
 
+				// event handler for logout button
+                $("#logoutButton").bind('click', function(event) {
+                    var id = $('#idInput').val();
+                    var requestCode = generateRequestCode();
+
+                    var output = {requestCode:requestCode, userId:id, id:id};
+                    console.log('OUTPUT : ' + JSON.stringify(output));
+
+                    if (socket == undefined) {
+                        alert('Server is not connected. Connect to the server first.');
+                        return;
+                    }
+
+                    socket.emit('logout', output);
+                });
+
             });
             
 			// function for connection

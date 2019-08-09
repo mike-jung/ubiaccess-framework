@@ -3,11 +3,12 @@
 import Database from '../database/database_sqlite';
 import util from '../util/util';
 import param from '../util/param';
- 
+import logger from '../util/logger';
+
 class SqliteController {
 
     constructor() {
-        console.log(`SqliteController initialized.`);
+        logger.debug(`SqliteController initialized.`);
         
         this.database = new Database('database_sqlite');
     }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    <meta charset="UTF-8">
+    <title>Profile List</title>
+  </head>
+	<body>
+        
+      <div>
+        <ul>
+          <%
+            try {
+              for (var i = 0; i < results.length; i++) {
+                var item = JSON.stringify(results[i]);
+          %>
+                <li><p><%= item %></p></li>
+          <%
+              }
+            } catch(err) {
+              console.log('Error -> ' + err);
+            }
+          %>
+        </ul>
+      </div>
+        
+	</body>
+    
+</html>
+

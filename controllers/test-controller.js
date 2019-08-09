@@ -8,11 +8,12 @@
 
 import util from '../util/util';
 import param from '../util/param';
- 
+import logger from '../util/logger';
+
 class TestController {
 
     constructor() {
-        console.log(`TestController initialized.`);
+        logger.debug(`TestController initialized.`);
     }
 
     /**

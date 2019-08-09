@@ -1,9 +1,11 @@
 'use strict';
 
 import http from 'http';
+import https from 'https';
 import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
+import fs from 'fs';
 
 import cors from 'cors';
 import multer from 'multer';
@@ -142,14 +144,34 @@ const initSwagger = (app) => {
 }
 
 
+var options = {  
+    key: fs.readFileSync('private.pem'),
+    cert: fs.readFileSync('cert.pem'),
+    passphrase: '123456'
+};
+
 let namespace;
 
 // Declaration of main function
 const main = () => {
 
     const app = createApp();
-    const server = http.createServer(app).listen(config.server.port, () => {
-        logger.info('Server started -> ' + config.server.port);
+
+    let server;
+    if (config.server.https) {
+        server = https.createServer(options, app);
+    } else {
+        server = http.createServer(app);
+    }
+    
+    server.listen(config.server.port, config.server.host, config.server.backlog, () => {
+        if (config.server.https) {
+            logger.info('Https Server started.');
+            logger.info('Base URL -> ' + 'https://' + config.server.host + ':' + config.server.port);
+        } else {
+            logger.info('Http Server started.');
+            logger.info('Base URL -> ' + 'http://' + config.server.host + ':' + config.server.port);
+        }
     
         const serverHost = server.address().address;
         const serverPort = server.address().port;

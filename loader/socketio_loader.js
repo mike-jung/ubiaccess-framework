@@ -17,6 +17,10 @@ import util from '../util/socketio_util';
 const socketioFolder = '../socketio';
 
 
+import Database from '../database/database_mysql';
+const database = new Database('database_mysql');
+
+
 var fs = require('fs');
 var path = require("path");
 
@@ -37,11 +41,11 @@ const pubClient = new ioRedis(ioRedisOptions);
 const subClient = new ioRedis(ioRedisOptions);
 
 pubClient.on('error', (err) => {
-    console.log('pubClient error -> ' + err);
+    logger.debug('pubClient error -> ' + err);
 });
 
 subClient.on('error', (err) => {
-    console.log('subClient error -> ' + err);
+    logger.debug('subClient error -> ' + err);
 });
 
 
@@ -50,22 +54,49 @@ const pub = new ioRedis(ioRedisOptions);
 const sub = new ioRedis(ioRedisOptions);
 
 store.on('error', (err) => {
-    console.log('store error -> ' + err);
+    logger.debug('store error -> ' + err);
 });
 
 pub.on('error', (err) => {
-    console.log('pub error -> ' + err);
+    logger.debug('pub error -> ' + err);
 });
 
 sub.on('error', (err) => {
-    console.log('sub error -> ' + err);
+    logger.debug('sub error -> ' + err);
 });
 
 const channel = 'myapp_message';
 
-socketio_loader.load = (server, app, sessionMiddleware, socketio, namespace) => {
+socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespace) => {
 	logger.debug('socketio_loader.load called.');
     
+    const namespaceFilename = './socketio.pid';
+
+    // reset old presence information
+    let contents;
+
+    try {
+        // read in namespace file
+        contents = fs.readFileSync(namespaceFilename, {encoding:'utf8'});
+        logger.debug('read namespace file -> ' + contents);
+    } catch(err) {
+        logger.debug('Error in reading namespace file -> ' + err);
+    }
+
+    try {
+        if (contents && contents.length > 0) {
+            const sqlName = 'chat_reset_presence';
+            const params = {
+                namespace: contents
+            };
+            const rows = await database.execute(sqlName, params);
+            logger.debug('chat_reset_presence sql executed.');
+        }
+    } catch(err) {
+        logger.debug('Error in executing sql -> ' + err);
+    }
+
+
     // starting socket.io server
     const io = socketio.listen(
         server, 
@@ -74,15 +105,20 @@ socketio_loader.load = (server, app, sessionMiddleware, socketio, namespace) => 
             pingTimeout: 5000,
             transports: [
 		      'websocket', 
-		      'flashsocket', 
-		      'htmlfile', 
-		      'xhr-polling', 
-		      'jsonp-polling', 
 		      'polling'
 		    ]
         }
     );
      
+
+    // save namespace to config/socketio.namespace
+    try {
+        fs.writeFileSync(namespaceFilename, namespace, {encoding:'utf8'});
+        
+        logger.debug('namespace file saved to -> ' + namespaceFilename);
+    } catch(err) {
+        logger.debug('Error in saving file -> ' + err);
+    }
     
     app.io = io;
     io.app = app;
@@ -100,7 +136,7 @@ socketio_loader.load = (server, app, sessionMiddleware, socketio, namespace) => 
     }));
  
     sub.subscribe(channel);
-    console.log('redis subscribed -> ' + channel);
+    logger.debug('redis subscribed -> ' + channel);
     
     const redis = {
         store: store,
@@ -110,25 +146,60 @@ socketio_loader.load = (server, app, sessionMiddleware, socketio, namespace) => 
 
 
     // event processing for connection
-    io.sockets.on('connection', (socket) => {
+    io.sockets.on('connection', async (socket) => {
         logger.debug('connection -> ' + JSON.stringify(socket.request.connection._peername));
         logger.debug('socket id -> ' + socket.id);
  
+        // save this connection event in chat.connection table
+        try {
+            const sqlName = 'chat_save_connection';
+            const params = {
+                socket_id: socket.id,
+                namespace: namespace
+            };
+			const rows = await database.execute(sqlName, params);
+            logger.debug('chat_save_connection sql executed.');
+		} catch(err) {
+			logger.debug('Error in executing sql -> ' + err);
+		}
+
         // disconnect event
-        socket.on('disconnect', (reason) => {
-            logger.debug('disconnect called. -> ' + socket.userId + ', ' + socket.id);
+        socket.on('disconnect', async (reason) => {
+            logger.debug('disconnect called. -> ' + socket.id);
+            //logger.debug('disconnect called. -> ' + socket.userId + ', ' + socket.id);
             logger.debug('reason -> ' + reason);
 
+
+            // save this disconnect event in chat.connection table
+            try {
+                const sqlName = 'chat_save_disconnect';
+                const params = {
+                    socket_id: socket.id
+                };
+                const rows = await database.execute(sqlName, params);
+                logger.debug('chat_save_disconnect sql executed.');
+            } catch(err) {
+                logger.debug('Error in executing sql -> ' + err);
+            }
+
+
+            
             if (socket.userId) {
-                store.hdel('myapp_user', socket.userId, (err) => {  
+                const curUserId = socket.userId;
+                delete socket.userId;
+
+                store.hdel('myapp_user', curUserId, (err) => {  
                     if (err) {
-                        logger.debug('Error in redis hdel for userId -> ' + socket.userId);
+                        logger.debug('Error in redis hdel for userId -> ' + curUserId);
                         return;
                     }
 
-                    logger.debug('redis hdel success for userId -> ' + socket.userId);
+                    logger.debug('redis hdel success for userId -> ' + curUserId);
                 });
+                
             }
+            
+
         });
 
         // load handlers

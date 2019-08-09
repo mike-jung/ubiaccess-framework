@@ -3,12 +3,13 @@
 import Database from '../database/database_mysql';
 import util from '../util/util';
 import param from '../util/param';
- 
+import logger from '../util/logger';
+
 class ProfileController {
 
     constructor() {
-			console.log(`ProfileController initialized.`);
-			
+			logger.debug(`ProfileController initialized.`);
+				
 			this.database = new Database('database_mysql');
     }
 
