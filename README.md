@@ -191,15 +191,16 @@ Request path is /tiger/hello and you can send a request using the following URL:
 
   * http://localhost:7001/tiger/hello
 
-@RequestMapping annotation can have the following attributes.R
+@RequestMapping annotation can have the following attributes.
 
-  * path    Request path
-  * method  Request method such as get, post
-            If not set, 'get,post' is default and it means GET and POST methods are set.
+  * path : Request path
+  * method : Request method such as get, post
+             Default value is 'get,post' and it means GET and POST methods are set.
 	    
-Other examples for annotation for controllers are as follows:
+@Controller annotation can be set for class level configuration for setting base URI
+Examples for @Controller annotation are as follows:
 
-  * controllers/dog-controller.js    annotation for class can be set for base information for request path
+  * controllers/dog-controller.js    annotation for class can be set for base URI of request path
   
 ```js
 // dog-controller.js
