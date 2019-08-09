@@ -44,8 +44,7 @@ $ cd myproject
 
 # Install dependencies
 $ npm install
-
-$ npm start
+ 
 ```
 
 MySQL database and Redis need to be installed first.
@@ -110,6 +109,16 @@ redis: {
 ...
 ```
 
+After finished installation and configuration of database and Redis, you can start the server.
+
+```sh
+
+# Start the server
+$ npm start
+
+```
+
+Now you can test if the server started correctly or not.
 Example URL for simple response is as follows:
 
   * http://localhost:7001/tiger/hello
