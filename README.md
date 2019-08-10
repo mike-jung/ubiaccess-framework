@@ -50,8 +50,7 @@ $ npm install
 MySQL database and Redis need to be installed first.
 After installing database and Redis, you can modify config/config.js file for configuration.
 
-  * Load the sample SQL file in database folder using GUI manager tool such as HeidiSQL for MySQL
-    (sample_database_person.sql)
+  * Load the sample database schema and sample records file(SQL file for MySQL) in database folder using GUI manager tool such as HeidiSQL (sample_database_person.sql)
   * Change the config/config.js file to set server port and database connection
     Here is an example :
     
