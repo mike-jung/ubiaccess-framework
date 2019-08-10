@@ -370,3 +370,6 @@ redis: {
 ...
 ```
 
+
+## License
+MIT © Mike Jung
