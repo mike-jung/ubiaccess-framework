@@ -349,6 +349,7 @@ SocketIO messaging is enabled if you change config/config.js file.
 ```
 
 You can create handler files for SocketIO and put them into socketio folder.
+
 Redis is used for SocketIO and failover for Redis is basically supported.
 Redis sentinels can be configured as follows.
     (Redis is used only for SocketIO messaging if you do not use it for other purposes)
