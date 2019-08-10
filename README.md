@@ -62,8 +62,8 @@ module.exports = {
     server: {
         port: 7001
     },
-    database: {
-        database_mysql: {
+    database: {  
+        database_mysql: { 
             type: 'mysql',
             failover: 'true',
             retryStrategy: {
@@ -79,36 +79,25 @@ module.exports = {
                 database:'test',
                 connectionLimit:10,
                 debug:false
+            },
+            slave: {
+                host:'localhost',
+                port:3306,
+                user:'root',
+                password:'admin',
+                database:'test',
+                connectionLimit:10,
+                debug:false
             }
-	}
+        }
     }
 }
 
 ```
 
-Failover for database connection is supported and master and slave connection information need to be provided.
-MySQL(MariaDB), SQLite and Oracle database are supported
+As a simplest configuration file, master and slave has the sample connection information.
+Currently, MySQL(MariaDB), SQLite and Oracle database are supported
 (oracle module is necessary to be installed and configured if you want to use Oracle)
-
-  * Failover for Redis is also supported and you can set connection information for sentinels as follows.
-    (Redis is used only for SocketIO messaging if you do not use it for other purposes)
-    If you have no idea on Redis sentinels, see [guides here](https://redis.io/topics/sentinel) 
-  
-```js
-// config.js
-...
-
-redis: {
-        sentinels: [
-            { host:'127.0.0.1', port: 11425 },
-            { host:'127.0.0.1', port: 11426 },
-            { host:'127.0.0.1', port: 11427 }
-        ],
-        name: 'mymaster'
-    },
-
-...
-```
 
 After finished installation and configuration of database and Redis, you can start the server.
 
@@ -336,4 +325,45 @@ async add(req, res) {
 ```
 
 util/param.js utility parses request parameters regardless of GET or POST request methods. Even URL parameters can be parsed.
+
+
+## SocketIO and Redis
+
+SocketIO messaging is enabled if you change config/config.js file.
+
+```js
+// config.js
+...
+
+    socketio: {
+        active: true
+    }
+    
+}
+
+...
+
+```
+
+You can create handler files for SocketIO and put them into socketio folder.
+Redis is used for SocketIO and failover for Redis is basically supported.
+Redis sentinels can be configured as follows.
+    (Redis is used only for SocketIO messaging if you do not use it for other purposes)
+    If you have no idea on Redis sentinels, see [guides here](https://redis.io/topics/sentinel) 
+  
+```js
+// config.js
+...
+
+redis: {
+        sentinels: [
+            { host:'127.0.0.1', port: 11425 },
+            { host:'127.0.0.1', port: 11426 },
+            { host:'127.0.0.1', port: 11427 }
+        ],
+        name: 'mymaster'
+    },
+
+...
+```
 
