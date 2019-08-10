@@ -112,6 +112,8 @@ Now you can test if the server started correctly or not.
 Example URL for simple response is as follows:
 
   * http://localhost:7001/tiger/hello
+  * http://localhost:7001/dog/list
+  * http://localhost:7001/cat/list
 
 Example URL for simple fetch from database is as follows:
 
