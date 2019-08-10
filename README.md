@@ -59,7 +59,8 @@ After installing database and Redis, you can modify config/config.js file for co
 
 module.exports = {
     server: {
-        port: 7001
+        port: 7001,
+	https: false
     },
     database: {  
         database_mysql: { 
