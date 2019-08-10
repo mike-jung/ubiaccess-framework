@@ -177,6 +177,7 @@ If you create a controller, it needs to be registered in the config/controller-c
 Controller can be configured without any configuration if you use annotation.
 Annotation is supported like Spring web framework but it is inside comment for class and methods.
 
+- Warning : this project uses babel for ES6 support and it means all source files are transpiled and moved into dist folder. However, annotation can only be used for ES6 classes and methods. Therefore, you should maintain ES6 source files in deploying to clould server.
 - See `controllers/tiger-controller.js` for @RequestMapping annotation
 
 ```js
