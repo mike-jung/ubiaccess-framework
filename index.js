@@ -164,22 +164,37 @@ const main = () => {
         server = http.createServer(app);
     }
     
-    server.listen(config.server.port, config.server.host, config.server.backlog, () => {
+    const serverCallback = () => {
+        let baseUrl;
         if (config.server.https) {
             logger.info('Https Server started.');
-            logger.info('Base URL -> ' + 'https://' + config.server.host + ':' + config.server.port);
+
+            if (config.server.host) {
+                baseUrl = 'https://' + config.server.host + ':' + config.server.port;
+            } else {
+                baseUrl = 'https://localhost:' + config.server.port;
+            }
+            
         } else {
             logger.info('Http Server started.');
-            logger.info('Base URL -> ' + 'http://' + config.server.host + ':' + config.server.port);
+            
+            if (config.server.host) {
+                baseUrl = 'http://' + config.server.host + ':' + config.server.port;
+            } else {
+                baseUrl = 'http://localhost:' + config.server.port;
+            }
+            
         }
     
+        logger.info('Base URL -> ' + baseUrl);
+
         const serverHost = server.address().address;
         const serverPort = server.address().port;
         namespace = serverHost + '_' + serverPort + '_' + process.pid;
         logger.info('Namespace -> ' + namespace);
         
         // load registered socket.io handlers
-        if (config.socketio.active) {
+        if (config.socketio && config.socketio.active) {
             // socketio_loader for socket.io
             const socketioLoader = require('./loader/socketio_loader');
 
@@ -187,12 +202,17 @@ const main = () => {
             logger.info('socket.io loader called.');
         }
 
-    });
-        
+    };
+
+    if (config.server.host) {
+        server.listen(config.server.port, config.server.host, config.server.backlog, serverCallback);
+    } else {
+        server.listen(config.server.port, serverCallback);
+    }
 
     return server;
 };
 
 // Call main function
-const server = main();
+const webServer = main();
 
