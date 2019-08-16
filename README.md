@@ -122,6 +122,37 @@ Example URL for simple fetch from database is as follows:
   * http://localhost:7001/set_cookie
 
 
+## Errors in installing modules on Windows OS
+
+In case your OS is windows, Python and Visual Studio development environment are needed. 
+If you don't have both Python and Visual Studio, type the following command before installing modules.
+Windows-build-tools module will install both Python and Visual Studio modules automatically.
+
+```sh
+
+# Install windows-build-tools before installing other modules
+$ npm install -g windows-build-tools
+
+# Install dependencies
+$ npm install
+
+```
+
+In case you already installed Python and Visual Studio 2012 or later, apply msvs_version option using the following command.
+
+```sh
+
+# Set msvs_version option according to the installed Visual Studio version
+$ npm config set msvs_version 2013 --g
+
+# Install dependencies
+$ npm install
+
+```
+
+In case you already installed Python and Visual Studio 2010, there will be no problem in executing npm install command.
+
+
 ## Auto-loading
 
 There is a fair amount of auto-loading built into this application structure.
