@@ -10,6 +10,17 @@ import logger from '../util/logger';
 class Dog {
 
     /**
+     * @RequestMapping(path="/index")
+     */
+    index(req, res) {
+        logger.debug('Dog:index called for path /dog/index');
+
+        const params = param.parse(req);
+        
+        util.render(req, res, 'dog_index', {});
+    }
+ 
+    /**
      * @RequestMapping(path="/list")
      */
     list(req, res) {

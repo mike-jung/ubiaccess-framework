@@ -9,6 +9,7 @@ import fs from 'fs';
 import config from'../config/config';
 import sqlConfig from'../config/sql_config';
 import logger from '../util/logger';
+import util from '../util/util';
  
 const dbName = 'database_mysql';
 let isMaster = true;
@@ -29,7 +30,7 @@ const getPool = () => {
 getPool();
 console.log('database_mysql file loaded.');
 
-const sqlDir = '../database/sql';
+const sqlDir = __dirname + '/sql';
 let sqlObj = {};
 
 const loadSql = () => {
@@ -70,7 +71,10 @@ class DatabaseMySQL {
 
     }
  
-    execute(sqlName, params) {
+    execute(queryParams) {
+        const sqlName = queryParams.sqlName;
+        const params = queryParams.params;
+
         return new Promise((resolve, reject) => {
             // check SQL definition
             if (!sqlConfig[sqlName] && !sqlObj[sqlName]) {
@@ -91,7 +95,10 @@ class DatabaseMySQL {
                 sqlParams.push(params[item]);
             })
 
-            this.executeRaw(sql, sqlParams, 0, (err, rows) => {
+            queryParams.sql = sql;
+            queryParams.sqlParams = sqlParams;
+
+            this.executeRaw(queryParams, 0, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -101,7 +108,10 @@ class DatabaseMySQL {
         });
     }
 
-    executeSql(sqlName, params, callback) {
+    executeSql(queryParams, callback) {
+        const sqlName = queryParams.sqlName;
+        const params = queryParams.params;
+
         // check SQL definition
         if (!sqlConfig[sqlName] && !sqlObj[sqlName]) {
             callback(new Error(`Sql definition for ${sqlName} not found in sql_config`), null);
@@ -122,14 +132,17 @@ class DatabaseMySQL {
             sqlParams.push(params[item]);
         })
 
-        this.executeRaw(sql, sqlParams, 0, callback);
+        queryParams.sql = sql;
+        queryParams.sqlParams = sqlParams;
+         
+        this.executeRaw(queryParams, 0, callback);
     }
 
 
     // query sql statement
-    query(sql, sqlParams) {
+    query(queryParams) {
         return new Promise((resolve, reject) => {
-            this.executeRaw(sql, sqlParams, 0, (err, rows) => {
+            this.executeRaw(queryParams, 0, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -138,14 +151,16 @@ class DatabaseMySQL {
             });
         });
     }
+ 
 
-    // query sql statement with callback
-    querySql(sql, sqlParams, callback) {
-        this.executeRaw(sql, sqlParams, 0, callback);
-    }
+    executeRaw(executeParams, retryCount, callback) {
+        console.log('executeRaw called.');
+        console.log('Execute Params -> ' + JSON.stringify(executeParams));
 
-
-    executeRaw(sql, sqlParams, retryCount, callback) {
+        const sqlName = executeParams.sqlName;
+        let sql = executeParams.sql;
+        const sqlParams = executeParams.sqlParams;
+        const mapper = executeParams.mapper;
         
         pool.getConnection((err, conn) => {
 
@@ -162,7 +177,7 @@ class DatabaseMySQL {
                         if (failoverCount > config.database[dbName].retryStrategy.failoverLimit) {
                             callback(err, null);
                         } else {
-                            this.executeRaw(sql, sqlParams, retryCount, callback);
+                            this.executeRaw(executeParams, retryCount, callback);
                         }
                     } else {
                         if (!isFailovering) {
@@ -199,7 +214,7 @@ class DatabaseMySQL {
                                         isFailovering = false;
 
                                         const newRetryCount = 0;
-                                        this.executeRaw(sql, sqlParams, newRetryCount, callback);
+                                        this.executeRaw(executeParams, newRetryCount, callback);
                                     }
                                 });
 
@@ -215,6 +230,45 @@ class DatabaseMySQL {
                 return;
             }
 
+            console.log('current SQL -> ' + sql);
+
+            // apply sqlReplaces
+            if (executeParams.sqlReplaces) {
+                for (let i = 0; i < executeParams.sqlReplaces.length; i++) {
+                    sql = util.replace(sql, '#', executeParams.sqlReplaces[i], 0);
+                }
+            }
+
+            // apply conditional where
+            if (executeParams.whereParams) {
+                if (sqlName) {
+                    const whereKeys = Object.keys(executeParams.whereParams);
+                    for (let i = 0; i < whereKeys.length; i++) {
+                        if (executeParams.whereParams[whereKeys[i]]) {
+                            for (let j = 0; j < sqlObj[sqlName].where.length; j++) {
+                                if (sqlObj[sqlName].where[j][whereKeys[i]]) {
+                                    let elem;
+                                    if (typeof(executeParams.whereParams[whereKeys[i]]) == 'string') {
+                                        elem = "'" + executeParams.whereParams[whereKeys[i]] + "'";
+                                    } else {
+                                        elem = executeParams.whereParams[whereKeys[i]];
+                                    }
+
+                                    const curWhere = util.replace(sqlObj[sqlName].where[j][whereKeys[i]], '#', elem, 0);
+                                    
+                                    if (!sql.includes('where')) {
+                                        sql += ' where ' + curWhere
+                                    } else {
+                                        sql += ' and ' + curWhere;
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             const query = conn.query(sql, sqlParams, (err, rows) => {
                 if (conn) {
                     conn.release();
@@ -228,10 +282,49 @@ class DatabaseMySQL {
                     return;
                 }
         
-                callback(null, rows);
+                const results = this.applyMapper(mapper, rows);
+
+                callback(null, results);
             });
 
         });
+    }
+
+    applyMapper(mapper, rows) {
+        logger.debug('applyMapper called.');
+
+        let results = [];
+         
+        if (mapper) {
+            logger.debug('mapper found with attributes ' + Object.keys(mapper).length);
+            rows.forEach((item, index) => {
+                console.log('INPUT ITEM -> ' + JSON.stringify(item));
+
+                let outputItem = {};
+                Object.keys(mapper).forEach((key, position) => {
+                    try {
+                        if (index == 0) {
+                            logger.debug('mapping #' + position + ' [' + key + '] -> [' + mapper[key] + ']');
+                        }
+                        
+                        outputItem[key] = item[mapper[key]];
+                        if (!outputItem[key]) {
+                            outputItem[key] = item[mapper[key].toUpperCase()] || item[mapper[key].toLowerCase()];
+                        }
+                    } catch(err2) {
+                        logger.debug('mapping error : ' + JSON.stringify(err2));
+                    }
+                });
+                console.log('OUTPUT ITEM -> ' + JSON.stringify(outputItem));
+
+                results.push(outputItem);
+            });
+        } else {
+            logger.debug('mapper not found. query result will be set to output.');
+            results = rows;
+        }
+
+        return results;
     }
 
 

@@ -35,7 +35,12 @@ class TableController {
           sql = sql + ' ' + util.replace(sqlConfig.table_list.where, "#", params.search + " like '%" + params.searchValue + "%'", 0);
         }
   
-        const rows = await this.database.query(sql, []);
+        const queryParams = {
+          sql: sql,
+          sqlParams: []
+        }
+
+        const rows = await this.database.query(queryParams);
         const total = rows[0].total;
 
         // get list
@@ -72,7 +77,12 @@ class TableController {
           sql2 = sql2 + ' ' + util.replace(sqlConfig.table_list.page, '#', (curPage-1) * curPerPage + ', ' + curPerPage, 0);
         }
         
-        const rows2 = await this.database.query(sql2, []);
+        const queryParams2 = {
+          sql: sql2,
+          sqlParams: []
+        }
+
+        const rows2 = await this.database.query(queryParams2);
 
         const output = {
           header: {
@@ -140,8 +150,13 @@ class TableController {
         sql = util.replace(sql, "#", columnNames, 0);
         sql = util.replace(sql, "#", columnValues, 0);
 
+        
+        const queryParams = {
+          sql: sql,
+          sqlParams: []
+        }
 
-			  const rows = await this.database.query(sql, []);
+			  const rows = await this.database.query(queryParams);
  
         const output = {
           header: {},
@@ -183,7 +198,12 @@ class TableController {
           sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", "id = " + params.id, 0);
         }
         
-        const rows = await this.database.query(sql, []);
+        const queryParams = {
+          sql: sql,
+          sqlParams: []
+        }
+
+        const rows = await this.database.query(queryParams);
 
         const output = {
           header: {
@@ -245,8 +265,13 @@ class TableController {
         if (params.id) {
           sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", "id = " + params.id, 0);
         }
-        
-        const rows = await this.database.query(sql, []);
+         
+        const queryParams = {
+          sql: sql,
+          sqlParams: []
+        }
+
+        const rows = await this.database.query(queryParams);
 
         const output = {
           header: {},
@@ -305,8 +330,13 @@ class TableController {
         if (params.id) {
           sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", "id = " + params.id, 0);
         }
-        
-        const rows = await this.database.query(sql, []);
+         
+        const queryParams = {
+          sql: sql,
+          sqlParams: []
+        }
+
+        const rows = await this.database.query(queryParams);
 
         const output = {
           header: {},

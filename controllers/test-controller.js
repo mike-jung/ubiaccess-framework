@@ -52,7 +52,7 @@ class TestController {
 			results: req.cookies
 		}
 
-		util.sendResponse(res, JSON.stringify(output));
+        util.sendRes(res, 200, 'OK', output);
 	}
   
 }

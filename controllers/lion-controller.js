@@ -31,7 +31,12 @@ class Lion {
           sql = sql + ' ' + util.replace(sqlConfig.lion_list.where, "#", params.search + " like '%" + params.searchValue + "%'", 0);
         }
   
-        const rows = await this.database.query(sql, []);
+        const queryParams = {
+          sql: sql,
+          sqlParams: []
+        }
+
+        const rows = await this.database.query(queryParams);
         const total = rows[0].total;
 
         // get list
@@ -53,8 +58,13 @@ class Lion {
           const curPerPage = Number(params.perPage);
           sql2 = sql2 + ' ' + util.replace(sqlConfig.lion_list.page, '#', (curPage-1) * curPerPage + ', ' + curPerPage, 0);
         }
-        
-        const rows2 = await this.database.query(sql2, []);
+                
+        const queryParams2 = {
+          sql: sql2,
+          sqlParams: []
+        }
+
+        const rows2 = await this.database.query(queryParams2);
 
         const output = {
           header: {
@@ -85,8 +95,13 @@ class Lion {
       const params = param.parse(req);
         
       try {
-			  const sqlName = 'lion_create';
-			  const rows = await this.database.execute(sqlName, params);
+               
+        const queryParams = {
+          sqlName: 'lion_create',
+          params: params
+        }
+
+			  const rows = await this.database.execute(queryParams);
 
 			  util.sendRes(res, 200, 'OK', rows);
 		  } catch(err) {
@@ -103,8 +118,13 @@ class Lion {
       const params = param.parse(req);
         
       try {
-			  const sqlName = 'lion_read';
-			  const rows = await this.database.execute(sqlName, params);
+              
+        const queryParams = {
+          sqlName: 'lion_read',
+          params: params
+        }
+ 
+			  const rows = await this.database.execute(queryParams);
 
 			  util.sendRes(res, 200, 'OK', rows);
 		  } catch(err) {
@@ -121,8 +141,13 @@ class Lion {
       const params = param.parse(req);
         
       try {
-			  const sqlName = 'lion_update';
-			  const rows = await this.database.execute(sqlName, params);
+            
+        const queryParams = {
+          sqlName: 'lion_update',
+          params: params
+        }
+  
+			  const rows = await this.database.execute(queryParams);
 
 			  util.sendRes(res, 200, 'OK', rows);
 		  } catch(err) {
@@ -139,8 +164,13 @@ class Lion {
       const params = param.parse(req);
         
       try {
-			  const sqlName = 'lion_delete';
-			  const rows = await this.database.execute(sqlName, params);
+           
+        const queryParams = {
+          sqlName: 'lion_delete',
+          params: params
+        }
+
+			  const rows = await this.database.execute(queryParams);
 
 			  util.sendRes(res, 200, 'OK', rows);
 		  } catch(err) {

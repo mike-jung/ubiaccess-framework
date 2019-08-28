@@ -34,8 +34,12 @@ class ProfileController {
 	get(req, res) {
 		const params = param.parse(req);
 
-		const sqlName = 'person_get';
-		this.database.executeSql(sqlName, params, (err, rows) => {
+		const queryParams = {
+			sqlName: 'person_get',
+			params: params
+		}
+
+		this.database.executeSql(queryParams, (err, rows) => {
 			if (err) {
 				console.log('executeSql error -> ' + err);
 				util.sendError(res, 400, 'executeSql error -> ' + err);
@@ -63,8 +67,12 @@ class ProfileController {
         const params = param.parse(req);
 	
 		try {
-			const sqlName = 'person_add';
-			const rows = await this.database.execute(sqlName, params);
+			const queryParams = {
+				sqlName: 'person_add',
+				params: params
+			}
+
+			const rows = await this.database.execute(queryParams);
 
 			util.sendRes(res, 200, 'OK', rows);
 		} catch(err) {
@@ -73,13 +81,27 @@ class ProfileController {
 
 	}
 
-	/*
+	/**
+	 * Example for mapper usage
+	 * The following result columns will be mapped
+	 * 
+	 * name -> alias
+	 * mobile -> phone
+	 */
 	async list(req, res) {
         const params = param.parse(req);
 	
 		try {
-			const sqlName = 'person_list';
-			const rows = await this.database.execute(sqlName, params);
+			const queryParams = {
+				sqlName: 'person_list',
+				params: params,
+				mapper: {
+					alias: 'name',
+					phone: 'mobile'
+				}
+			}
+  
+			const rows = await this.database.execute(queryParams);
 
 			util.sendRes(res, 200, 'OK', rows);
 		} catch(err) {
@@ -87,9 +109,36 @@ class ProfileController {
 		}
 
 	}
-	*/
 
  
+	/**
+	 * List using where conditions
+	 */
+	async list2(req, res) {
+        const params = param.parse(req);
+	
+		try {
+			const queryParams = {
+				sqlName: 'person_list',
+				params: params,
+				mapper: {
+					alias: 'name',
+					phone: 'mobile'
+				}
+			}
+  
+			const rows = await this.database.execute(queryParams);
+
+			util.sendRes(res, 200, 'OK', rows);
+		} catch(err) {
+			util.sendError(res, 400, 'Error in execute -> ' + err);
+		}
+
+	}
+
+	/**
+	 * Upload file
+	 */
 	upload(req, res) {
 		const params = param.parse(req);
 

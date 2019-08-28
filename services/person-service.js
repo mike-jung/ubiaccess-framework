@@ -13,8 +13,12 @@ class PersonService {
         console.log('PersonService:list called.');
 
         try {
-            const sqlName = 'person_list';
-            const rows = await this.database.execute(sqlName, params);
+            const queryParams = {
+				sqlName: 'person_list',
+				params: params
+            }
+            
+            const rows = await this.database.execute(queryParams);
 
             callback(null, rows);
         } catch(err) {
@@ -27,8 +31,12 @@ class PersonService {
         console.log('PersonService:read called.');
 
         try {
-            const sqlName = 'person_read';
-            const rows = await this.database.execute(sqlName, params);
+            const queryParams = {
+				sqlName: 'person_read',
+				params: params
+            }
+ 
+            const rows = await this.database.execute(queryParams);
             
             callback(null, rows);
         } catch(err) {
@@ -41,8 +49,12 @@ class PersonService {
         console.log('PersonService:create called.');
 
         try {
-            const sqlName = 'person_create';
-            const rows = await this.database.execute(sqlName, params);
+            const queryParams = {
+				sqlName: 'person_create',
+				params: params
+            }
+
+            const rows = await this.database.execute(queryParams);
             
             callback(null, rows);
         } catch(err) {
@@ -55,8 +67,12 @@ class PersonService {
         console.log('PersonService:update called.');
 
         try {
-            const sqlName = 'person_update';
-            const rows = await this.database.execute(sqlName, params);
+            const queryParams = {
+				sqlName: 'person_update',
+				params: params
+            }
+
+            const rows = await this.database.execute(queryParams);
             
             callback(null, rows);
         } catch(err) {
@@ -69,8 +85,12 @@ class PersonService {
         console.log('PersonService:delete called.');
 
         try {
-            const sqlName = 'person_delete';
-            const rows = await this.database.execute(sqlName, params);
+            const queryParams = {
+				sqlName: 'person_delete',
+				params: params
+            }
+
+            const rows = await this.database.execute(queryParams);
            
             callback(null, rows);
         } catch(err) {
