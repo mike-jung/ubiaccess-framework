@@ -29,7 +29,7 @@ const getPool = () => {
 getPool();
 console.log('database_mysql file loaded.');
 
-const sqlDir = __dirname + '\\..\\..\\database\\sql';
+const sqlDir = '../database/sql';
 let sqlObj = {};
 
 const loadSql = () => {
@@ -44,7 +44,7 @@ const loadSql = () => {
 
         // listing all filenames
         filenames.forEach((filename) => {
-            const filePath = path.join(sqlDir, filename);
+            const filePath = sqlDir + '/' + filename;
             console.log('sql file path -> ' + filePath);
 
             const curObj = require(filePath);

@@ -4,7 +4,7 @@ import util from '../util/util';
 import param from '../util/param';
 import logger from '../util/logger';
 import Database from '../database/database_mysql';
-import sqlConfig from '../config/sql_config';
+import sqlConfig from '../database/sql/lion_sql';
 
 /**
  * @Controller(path="/lion")
