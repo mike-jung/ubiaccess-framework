@@ -349,12 +349,12 @@ Model is a representation of database object or schematic model. It means that t
 
 ## SQL Execution
 
-SQL file is separated in the config/sql-config.js file. 
+SQL file is separated in the database/sql/person_sql.js file. 
 
 Here is an example :
 
 ```js
-// sql-config.js
+// person_sql.js
 
 module.exports = {
     person_login: {
