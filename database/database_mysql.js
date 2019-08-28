@@ -1,6 +1,11 @@
 'use strict';
 
 import mysql from 'mysql';
+import mysqlUtilities from 'mysql-utilities';
+
+import path from 'path';
+import fs from 'fs';
+
 import config from'../config/config';
 import sqlConfig from'../config/sql_config';
 import logger from '../util/logger';
@@ -24,6 +29,40 @@ const getPool = () => {
 getPool();
 console.log('database_mysql file loaded.');
 
+const sqlDir = __dirname + '\\..\\..\\database\\sql';
+let sqlObj = {};
+
+const loadSql = () => {
+    console.log('loadSql called.');
+
+    // check all sql files
+    fs.readdir(sqlDir, (err, filenames) => {
+        if (err) {
+            console.log('Unable to scan sql directory: ' + err);
+            return;
+        } 
+
+        // listing all filenames
+        filenames.forEach((filename) => {
+            const filePath = path.join(sqlDir, filename);
+            console.log('sql file path -> ' + filePath);
+
+            const curObj = require(filePath);
+            Object.assign(sqlObj, curObj);
+        });
+
+        const sqlNames = Object.keys(sqlObj);
+        console.log('SQL count -> ' + sqlNames.length);
+        console.log('SQL names -> ' + sqlNames.join());
+
+        console.log('database SQL file loaded.');
+    });
+
+}
+
+loadSql();
+
+
 
 class DatabaseMySQL {
 
@@ -34,14 +73,21 @@ class DatabaseMySQL {
     execute(sqlName, params) {
         return new Promise((resolve, reject) => {
             // check SQL definition
-            if (!sqlConfig[sqlName]) {
+            if (!sqlConfig[sqlName] && !sqlObj[sqlName]) {
                 reject(`Sql definition for ${sqlName} not found in sql_config`);
             }
 
-            let sql = sqlConfig[sqlName].sql;
+            let curSqlObj;
+            if (sqlConfig[sqlName]) {
+                curSqlObj = sqlConfig[sqlName];
+            } else if (sqlObj[sqlName]) {
+                curSqlObj = sqlObj[sqlName];
+            }
+
+            let sql = curSqlObj.sql;
 
             let sqlParams = [];
-            sqlConfig[sqlName].params.forEach((item, index) => {
+            curSqlObj.params.forEach((item, index) => {
                 sqlParams.push(params[item]);
             })
 
@@ -57,20 +103,47 @@ class DatabaseMySQL {
 
     executeSql(sqlName, params, callback) {
         // check SQL definition
-        if (!sqlConfig[sqlName]) {
+        if (!sqlConfig[sqlName] && !sqlObj[sqlName]) {
             callback(new Error(`Sql definition for ${sqlName} not found in sql_config`), null);
             return;
         }
         
-        let sql = sqlConfig[sqlName].sql;
+        let curSqlObj;
+        if (sqlConfig[sqlName]) {
+            curSqlObj = sqlConfig[sqlName];
+        } else if (sqlObj[sqlName]) {
+            curSqlObj = sqlObj[sqlName];
+        }
+
+        let sql = curSqlObj.sql;
 
         let sqlParams = [];
-        sqlConfig[sqlName].params.forEach((item, index) => {
+        curSqlObj.params.forEach((item, index) => {
             sqlParams.push(params[item]);
         })
 
         this.executeRaw(sql, sqlParams, 0, callback);
     }
+
+
+    // query sql statement
+    query(sql, sqlParams) {
+        return new Promise((resolve, reject) => {
+            this.executeRaw(sql, sqlParams, 0, (err, rows) => {
+                if (err) {
+                    reject(err);
+                }
+
+                resolve(rows);
+            });
+        });
+    }
+
+    // query sql statement with callback
+    querySql(sql, sqlParams, callback) {
+        this.executeRaw(sql, sqlParams, 0, callback);
+    }
+
 
     executeRaw(sql, sqlParams, retryCount, callback) {
         
@@ -160,6 +233,52 @@ class DatabaseMySQL {
 
         });
     }
+
+
+    // fetch fields metadata
+    fields(tableName) {
+        return new Promise((resolve, reject) => {
+            this.fieldsRaw(tableName, (err, rows) => {
+                if (err) {
+                    reject(err);
+                }
+
+                resolve(rows);
+            });
+        });
+    }
+
+    fieldsRaw(tableName, callback) {
+        
+        pool.getConnection((err, conn) => {
+
+            if (err) {
+                console.log('Error in fetching database connection -> ' + err);
+                callback(err, null);
+
+                return;
+            }
+
+            mysqlUtilities.upgrade(conn);
+            mysqlUtilities.introspection(conn);
+
+            conn.fields(tableName, (err, fields) => {
+                if (conn) {
+                    conn.release();
+                }
+
+                if (err) {
+                    console.log('Error in fetching fields -> ' + err);
+                    callback(err, null);
+                    return;
+                }
+
+                callback(null, fields);
+            });
+ 
+        });
+    }
+
 
 }
 

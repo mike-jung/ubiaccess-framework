@@ -1,0 +1,211 @@
+<!--
+  -- This page shows how to make pagination in normal jquery style
+  -- 
+  -- @author Mike    
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Lion</title>
+		
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        
+        <script>
+            var seqCode = 0;
+             
+         	// document ready
+            $(function() {
+
+            	// listButton event
+				$("#listButton").bind('click', function(event) {
+					println('listButton clicked.');
+                     
+                    requestLionList(1, 10, 'name', 'john', 'id', 'asc');
+                });
+
+            })
+
+
+            function requestLionList(page, perPage, search, searchValue, order, orderDirection) {
+                println('requestLionList called : ' + page + ', ' + perPage);
+
+                var requestCode = generateRequestCode();
+                
+                var params = 'requestCode=' + requestCode
+                                + '&' + 'page=' + page
+                                + '&' + 'perPage=' + perPage
+                                + '&' + 'order=' + order
+                                + '&' + 'orderDirection=' + orderDirection
+                                + '&' + 'search=' + search
+                                + '&' + 'searchValue=' + searchValue;
+
+                var url = 'http://localhost:7001/lion/'
+                            + '?' + params;
+
+                axios({
+                    method:'get',
+                    url: url,
+                    responseType:'json'
+                }).then((response) => {
+                    console.log('Response -> ' + JSON.stringify(response));
+                    
+                    $('#result').html(JSON.stringify(response.data.output));
+
+                    makePage(response.data.output.header);
+                }).catch((error) => {
+                    console.log('Error -> ' + JSON.stringify(error));
+                });
+                
+            }
+
+
+            function makePage(header) {
+                try {
+                    if (header.page) {
+                        var curPage = Number(header.page);
+                        var perPage = Number(header.perPage);
+                        var totalRecords = header.total;
+                        var pageCount = Math.ceil(totalRecords / perPage);
+
+                        var noStart = (curPage-1) * perPage;
+                        console.log('pageCount : ' + pageCount + ', noStart : ' + noStart);
+ 
+                        // start tags
+                        var pagination = '';
+                        pagination += '<nav aria-label="Pagination">';
+                        pagination += '  <ul class="pagination justify-content-center">';
+                        pagination += ' ';
+                        
+                        // first and previous buttons
+                        if (curPage > 1) {
+                            pagination += '    <li class="page-item">';
+                            pagination += '      <a class="page-link" href="javascript:requestLionList(1, ' + perPage + ', \'' + header.search + '\', \'' + header.searchValue + '\', \'' + header.order + '\', \'' + header.orderDirection + '\')" tabindex="-1"><i class="material-icons text-primary">first_page</i></a>';
+                            pagination += '    </li>';
+                            pagination += '    <li class="page-item">';
+                            pagination += '      <a class="page-link" href="javascript:requestLionList(' + (curPage-1) + ', ' + perPage + ', \'' + header.search + '\', \'' + header.searchValue + '\', \'' + header.order + '\', \'' + header.orderDirection + '\')" tabindex="-1">Previous</a>';
+                            pagination += '    </li>';
+                        } else {
+                            pagination += '    <li class="page-item disabled">';
+                            pagination += '      <a class="page-link" href="#" tabindex="-1"><i class="material-icons text-default">first_page</i></a>';
+                            pagination += '    </li>';
+                            pagination += '    <li class="page-item disabled">';
+                            pagination += '      <a class="page-link" href="#" tabindex="-1">Previous</a>';
+                            pagination += '    </li>';
+                        }
+                        
+                        // calculate initial and max
+                        var initial = Math.floor(curPage / 10) * 10;
+                        console.log('initial : ' + initial);
+
+                        var max = pageCount - initial;
+                        if (max > perPage) {
+                            max = initial + perPage;
+                        } else {
+                            max = initial + max;
+                        }
+                        console.log('max : ' + max);
+
+                        // page buttons
+                        for (var i = initial; i < max; i++) {
+                            if ((i+1) != curPage) {
+                                pagination += '    <li class="page-item"><a class="page-link" href="javascript:requestLionList(' + (i+1) + ', ' + perPage + ', \'' + header.search + '\', \'' + header.searchValue + '\', \'' + header.order + '\', \'' + header.orderDirection + '\')">' + (i+1) + '</a></li>';
+                            } else {
+                                pagination += '    <li class="page-item active"><a class="page-link" href="#">' + (i+1) + '</a></li>';
+                            }
+                        }
+
+                        if ((curPage) < pageCount) {
+                            pagination += '    <li class="page-item">';
+                            pagination += '      <a class="page-link" href="javascript:requestLionList(' + (curPage+1) + ', ' + perPage + ', \'' + header.search + '\', \'' + header.searchValue + '\', \'' + header.order + '\', \'' + header.orderDirection + '\')" tabindex="-1">Next</a>';
+                            pagination += '    </li>';
+                            pagination += '    <li class="page-item">';
+                            pagination += '      <a class="page-link" href="javascript:requestLionList(' + pageCount + ', ' + perPage + ', \'' + header.search + '\', \'' + header.searchValue + '\', \'' + header.order + '\', \'' + header.orderDirection + '\')" tabindex="-1"><i class="material-icons text-primary">last_page</i></a>';
+                            pagination += '    </li>';
+                        } else {
+                            pagination += '    <li class="page-item disabled">';
+                            pagination += '      <a class="page-link" href="#" tabindex="-1">Next</a>';
+                            pagination += '    </li>';
+                            pagination += '    <li class="page-item disabled">';
+                            pagination += '      <a class="page-link" href="#" tabindex="-1"><i class="material-icons text-default">last_page</i></a>';
+                            pagination += '    </li>';
+                        }
+                           
+
+                        // end tags
+                        pagination += '  </ul>';
+                        pagination += '</nav>';
+                    }
+
+                    $('#result').append(pagination);
+
+                } catch(err) {
+                    console.error('Error -> ' + err);
+                }
+            }
+
+
+            /*
+             * Generate request code (using time and sequence)
+             */
+            function generateRequestCode() {
+                var date = new Date();
+
+                var seqCodeStr = getSeqCode();
+ 
+                var components = [
+                    date.getFullYear(),
+                    ("0" + (date.getMonth() + 1)).slice(-2),
+                    date.getDate(),
+                    date.getHours(),
+                    date.getMinutes(),
+                    date.getSeconds(),
+                    date.getMilliseconds(),
+                    seqCodeStr
+                ];
+ 
+                var curCode = components.join("");
+                return curCode;
+            }
+
+            /*
+             * Get sequence code (01 ~ 99)
+             */
+            function getSeqCode() {
+                seqCode += 1;
+                if (seqCode > 99) {
+                    seqCode = 0;
+                }
+                var seqCodeStr = String(seqCode);
+                if (seqCodeStr.length == 1) {
+                    seqCodeStr = '0' + seqCodeStr;
+                }
+
+                return seqCodeStr;
+            }
+
+            
+			function println(data) {
+				console.log(data);
+				$('#logs').append('<p>' + data + '</p>');
+			}
+        </script>
+	</head>
+    <body>
+        <h3>Lion pagination</h3>
+        <br>
+        <div>
+            <label>Lion List</label>
+            <input type="button" value="List" id="listButton">
+        </div>
+        
+        <hr/>
+        <p>Result : </p>
+        <div id="result"></div>
+
+        <p>Logs : </p>
+        <div id="logs"></div>
+            
+    </body>
+</html>

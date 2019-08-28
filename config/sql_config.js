@@ -1,4 +1,89 @@
 module.exports = {
+    table_list: {
+        sql: "select # \
+              from #",
+        count: "select count(*) as total \
+                from #",
+        where: " where # ",
+        order: " order by # ",
+        page: " limit # ",
+        params: []
+    },
+    table_create: {
+        sql: "insert into # \
+                    (#) \
+              values (#)",
+        params: []
+    },
+    table_read: {
+        sql: "select # \
+            from #",
+        where: " where # ",
+        params: []
+    },
+    table_update: {
+        sql: "update # \
+              set #",
+        where: " where # ",
+        params: []
+    },
+    table_delete: {
+        sql: "delete from #",
+        where: " where # ",
+        params: []
+    },
+    lion_list: {
+        sql: "select \
+                id, \
+                name, \
+                mobile \
+            from test.lion",
+        count: "select count(*) as total \
+                from test.lion",
+        where: " where # ",
+        order: " order by # ",
+        page: " limit # ",
+        params: []
+    },
+    lion_create: {
+        sql: "insert into test.lion \
+                    (id, name, mobile) \
+              values (?, ?, ?)",
+        params: [
+            'id',
+            'name',
+            'mobile'
+        ]
+    },
+    lion_read: {
+        sql: "select \
+                id, \
+                name, \
+                mobile \
+            from test.lion \
+            where id = ?",
+        params: [
+            'id'
+        ]
+    },
+    lion_update: {
+        sql: "update test.lion \
+              set name = ?, \
+                  mobile = ? \
+              where id = ?",
+        params: [
+            'name',
+            'mobile',
+            'id'
+        ]
+    },
+    lion_delete: {
+        sql: "delete from test.lion \
+            where id = ?",
+        params: [
+            'id'
+        ]
+    },
     person_login: {
         sql: "select \
                 id \

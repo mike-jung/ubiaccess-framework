@@ -324,4 +324,16 @@ util.render = (req, res, targetView, targetContext) => {
 }
 
 
+// replace # character in the sql statement
+util.replace = (strData, strTextToReplace, strReplaceWith, replaceAt) => {
+    var index = strData.indexOf(strTextToReplace);
+    for (var i = 1; i < replaceAt; i++)
+        index = strData.indexOf(strTextToReplace, index + 1);
+    if (index >= 0)
+        return strData.substr(0, index) + strReplaceWith + strData.substr(index + strTextToReplace.length, strData.length);
+    return strData;
+}
+
+
+
 module.exports = util;

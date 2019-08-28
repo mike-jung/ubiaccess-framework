@@ -158,20 +158,23 @@ loader.parseFile = (router, upload, reader, filename) => {
     let isRest = false;
     let restPath;
     let restFilePath;
+    let table;
     for (let i = 0; i < definitionAnnotations.length; i++) {
         const annotation = definitionAnnotations[i];
         console.log('#' + i + ' : class name -> ' + annotation.target);
         console.log('#' + i + ' : path -> ' + annotation.path);
         console.log('#' + i + ' : type -> ' + annotation.type);
+        console.log('#' + i + ' : table -> ' + annotation.table);
 
         if (annotation.type == 'rest') {
             isRest = true;
             restPath = annotation.path;
-            
+
             const curExtension = path.extname(annotation.filePath);
             const curFilename = path.basename(annotation.filePath, curExtension);
             restFilePath = '../controllers/' + curFilename;
 
+            table = annotation.table;
         }
 
         classMapping[annotation.target] = annotation.path;
@@ -179,7 +182,7 @@ loader.parseFile = (router, upload, reader, filename) => {
     //console.log('class mapping -> ' + JSON.stringify(classMapping)); 
 
     if (isRest) {
-        loader.registerRest(router, restFilePath, restPath);
+        loader.registerRest(router, restFilePath, restPath, table);
     } else {
 
         if (methodAnnotations.length > 0) {
@@ -216,11 +219,20 @@ loader.parseFile = (router, upload, reader, filename) => {
 
 }
 
-loader.registerRest = (router, filePath, path) => {
-    logger.debug('registerRest called : ' + path + ' -> in file ' + filePath);
+loader.registerRest = (router, filePath, path, table) => {
+    logger.debug('registerRest called : ' + path + ' -> in file ' + filePath + ', table : ' + table);
 
-    const Controller = require(filePath);
-    const controller = new Controller();
+    let Controller;
+    let controller
+
+    // load pre-defined Controller class if table is designated
+    if (table) {
+        Controller = require('./table-controller');
+        controller = new Controller(table, path);
+    } else {
+        Controller = require(filePath);
+        controller = new Controller();
+    }
 
     rest_types.forEach((restType, restIndex) => {
         logger.debug('rest type #' + restIndex + ' -> ' + restType);
