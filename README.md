@@ -312,20 +312,20 @@ class Bear {
  
 You can test REST API requests using POSTMAN or other test tools.
 
-(1) List : GET http://localhost:7001/bear
-(2) Create : POST http://localhost:7001/bear
+- (1) List : GET http://localhost:7001/bear
+- (2) Create : POST http://localhost:7001/bear
              Parameters -> name=john, age=20, mobile=010-1000-1000
-(3) Read : GET http://localhost:7001/bear/1
-(4) Update : PUT http://localhost:7001/bear/1
+- (3) Read : GET http://localhost:7001/bear/1
+- (4) Update : PUT http://localhost:7001/bear/1
              Parameters -> name=john, age=20, mobile=010-1000-1000
-(5) Delete : DELETE http://localhost:7001/bear/1
+- (5) Delete : DELETE http://localhost:7001/bear/1
 
 Pagination, order by and search functions are supported.
 Column names can be sent as request parameters for retrieving only designated columns.
 
-(1) GET http://localhost:7001/bear?page=1&perPage=10
-(2) GET http://localhost:7001/bear?page=1&perPage=10&search=name&searchValue=john&order=name&orderDirection=asc
-(3) GET http://localhost:7001/bear?columns=id,name
+- (1) GET http://localhost:7001/bear?page=1&perPage=10
+- (2) GET http://localhost:7001/bear?page=1&perPage=10&search=name&searchValue=john&order=name&orderDirection=asc
+- (3) GET http://localhost:7001/bear?columns=id,name
 
 
 ## Service
