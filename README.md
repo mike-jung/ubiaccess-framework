@@ -112,12 +112,45 @@ Now you can test if the server started correctly or not.
 Example URL for simple response is as follows:
 
   * http://localhost:7001/tiger/hello
+  * http://localhost:7001/dog/list
+  * http://localhost:7001/cat/list
 
 Example URL for simple fetch from database is as follows:
 
   * http://localhost:7001/person
   * http://localhost:7001/profile/get
   * http://localhost:7001/set_cookie
+
+
+## Errors in installing modules on Windows OS
+
+In case your OS is windows, Python and Visual Studio development environment are needed. 
+If you don't have both Python and Visual Studio, type the following command before installing modules.
+Windows-build-tools module will install both Python and Visual Studio modules automatically.
+
+```sh
+
+# Install windows-build-tools before installing other modules
+$ npm install -g windows-build-tools
+
+# Install dependencies
+$ npm install
+
+```
+
+In case you already installed Python and Visual Studio 2012 or later, apply msvs_version option using the following command.
+
+```sh
+
+# Set msvs_version option according to the installed Visual Studio version
+$ npm config set msvs_version 2013 --g
+
+# Install dependencies
+$ npm install
+
+```
+
+In case you already installed Python and Visual Studio 2010, there will be no problem in executing npm install command.
 
 
 ## Auto-loading
@@ -347,6 +380,7 @@ SocketIO messaging is enabled if you change config/config.js file.
 ```
 
 You can create handler files for SocketIO and put them into socketio folder.
+
 Redis is used for SocketIO and failover for Redis is basically supported.
 Redis sentinels can be configured as follows.
     (Redis is used only for SocketIO messaging if you do not use it for other purposes)
@@ -368,3 +402,6 @@ redis: {
 ...
 ```
 
+
+## License
+MIT © Mike Jung
