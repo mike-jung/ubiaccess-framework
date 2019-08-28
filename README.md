@@ -439,5 +439,12 @@ redis: {
 ```
 
 
+## API documentation
+
+API documentation using swagger is applied. You can access documentation for controllers as the following:
+
+- See http://localhost:7001/api-docs
+
+
 ## License
 MIT © Mike Jung
