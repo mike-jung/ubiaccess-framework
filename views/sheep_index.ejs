@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Sheep Index</title>
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+        <!-- Bootstrap core CSS -->
+        <link href="/mdb/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Material Design Bootstrap -->
+        <link href="/mdb/css/mdb.min.css" rel="stylesheet">
+ 
+    </head>
+    <body>
+  
+        <div id="page1">
+
+            <div class="container-fluid">
+                
+                <div class="card" style="margin:1em;">
+
+                    <div class="card-body">
+                        <div class="list-group" id="list1">
+                            <div class="list-group-item list-group-item-action active">
+                                <div class="row">
+                                    <div class="col-sm-1 text-center align-self-center">
+                                        <img src="/images/group.png" style="width:2em;">
+                                    </div>
+                                    <div class="col-sm-3 text-center align-self-center">
+                                        <span class="font-weight-bold">이름</span>
+                                    </div>
+                                    <div class="col-sm-3 text-center align-self-center">
+                                        <span class="font-weight-bold">전화번호</span>
+                                    </div>
+                                    <div class="col-sm-5 text-center align-self-center">
+                                        <span class="font-weight-bold">기능</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer">
+                        
+                        <div id="pagination"></div>
+
+                        <div class="row" style="margin-top:1em;">
+                            <div class="col-sm-8"></div>
+                            <div class="col-sm-4 text-right">
+                                <button type="button" class="btn btn-primary waves-effect font-weight-bold" onclick="showAddPage()">추가하기</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>            
+
+        <div id="page2" style="display:none;">
+
+            <div class="container-fluid">
+            
+                <div class="card" style="margin:1em;">
+     
+                    <div class="card-header info-color white-text text-center py-4">
+                        <strong id="page2Title">고객 추가</strong>
+                    </div>
+    
+                    <div class="card-body">
+    
+                        <form class="text-center" style="color:#757575; padding:4em;" action="#">
+                        
+                            <div class="md-form mt-3">
+                                <input type="text" id="nameInput" class="form-control">
+                                <label for="nameInput">이름</label>
+                            </div>
+    
+                            <div class="md-form mt-3">
+                                <input type="text" id="mobileInput" class="form-control">
+                                <label for="mobileInput">전화번호</label>
+                            </div>
+    
+                            <div class="row" style="margin-top:3em;">
+                                <div class="col-sm-1"></div>
+                                <div class="col-sm-5">
+                                    <button class="btn btn-outline-primary waves-effect" onclick="saveItem()">저장</button>
+                                </div>
+                                <div class="col-sm-5">
+                                    <button class="btn btn-outline-secondary waves-effect" onclick="showPage(0)">닫기</button>
+                                </div>
+                                <div class="col-sm-1"></div>
+                            </div>
+    
+                        </form>
+    
+                    </div>
+    
+                </div>
+    
+            </div>    
+
+        </div>
+
+
+        <!-- SCRIPTS -->
+        <!-- JQuery -->
+        <script type="text/javascript" src="/mdb/js/jquery-3.4.1.min.js"></script>
+        <!-- Bootstrap tooltips -->
+        <script type="text/javascript" src="/mdb/js/popper.min.js"></script>
+        <!-- Bootstrap core JavaScript -->
+        <script type="text/javascript" src="/mdb/js/bootstrap.min.js"></script>
+        <!-- MDB core JavaScript -->
+        <script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
+
+        <!-- Axios -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+        <script>
+            var mode;
+            var selected;
+
+            $(document).ready(function() {
+                console.log('ready 호출됨');
+
+                showPage(0);
+
+                requestList(1, 10);
+            });
+
+            function requestList(page, perPage) {
+                console.log('requestList 호출됨 : ' + page + ', ' + perPage);
+
+                var params = '?page=' + page
+                            + '&perPage=' + perPage;
+                axios({
+                    method: 'get',
+                    url: '/sheep/' + params,
+                    responseType: 'json'
+                }).then(function(response) {
+                    console.log('응답 -> ' + JSON.stringify(response));
+
+                    // 리스트에서 헤더 아이템만 빼고 모두 삭제
+                    var list1 = document.getElementById('list1');
+                    var firstElementChild = list1.firstElementChild;
+                    list1.innerHTML = '';
+                    list1.append(firstElementChild);
+
+                    // 리스트에 응답 결과 추가
+                    response.data.output.body.forEach(function(item, index) {
+                        addItem(item.id, item.name, item.mobile);
+                    })
+
+                    // 페이지 번호 구성하기
+                    makePage(response.data.output.header);
+
+
+                }).catch(function(err) {
+                    console.error('Error -> ' + err);
+                });
+            }
+
+            function makePage(header) {
+
+                if (header.page) {
+
+                    var page = Number(header.page);
+                    var perPage = Number(header.perPage);
+                    var total = header.total;
+                    var pageCount = Math.ceil(total / perPage);
+
+                    console.log('page -> ' + page + ', ' + perPage + ', ' + total + ', ' + pageCount);
+
+                    var pagination = '';
+                    
+                    // 페이지 시작 태그
+                    pagination += '<nav aria-label="Page navigation">';
+                    pagination += '  <ul class="pagination pagination-circle pg-blue justify-content-end">';
+
+                    // 처음으로, 이전 버튼 태그
+                    if (page > 1) {
+                        pagination += '    <li class="page-item">';
+                        pagination += '      <a class="page-link" href="javascript:requestList(1, ' + perPage + ')">First</a>';
+                        pagination += '    </li>';
+                        pagination += '    <li class="page-item">';
+                        pagination += '      <a class="page-link" aria-label="Previous" href="javascript:requestList(' + (page - 1) + ', ' + perPage + ')">';
+                        pagination += '        <span aria-hidden="true">&laquo;</span>';
+                        pagination += '        <span class="sr-only">Previous</span>';
+                        pagination += '      </a>';
+                        pagination += '    </li>';
+                    } else {
+                        pagination += '    <li class="page-item disabled">';
+                        pagination += '      <a class="page-link">First</a>';
+                        pagination += '    </li>';
+                        pagination += '    <li class="page-item disabled">';
+                        pagination += '      <a class="page-link" aria-label="Previous">';
+                        pagination += '        <span aria-hidden="true">&laquo;</span>';
+                        pagination += '        <span class="sr-only">Previous</span>';
+                        pagination += '      </a>';
+                        pagination += '    </li>';
+                    }
+
+                    // 페이지 번호 버튼
+                    var initial = Math.floor(page / 10) * 10;
+                    var max = pageCount - initial;
+                    if (max > 10) {
+                        max = initial + 10;
+                    } else {
+                        max = initial + max;
+                    }
+                    console.log('initial : ' + initial + ', max : ' + max);
+
+                    for (var i = initial; i < max; i++) {
+                        if ((i+1) != page) {
+                            pagination += '    <li class="page-item"><a class="page-link" href="javascript:requestList(' + (i+1) + ', ' + perPage + ')">' + (i+1) + '</a></li>';
+                        } else {
+                            pagination += '    <li class="page-item active"><a class="page-link">' + (i+1) + '</a></li>';
+                        }
+                    }
+
+                    // 끝으로, 다음 버튼 태그
+                    if (page < pageCount) {
+                        pagination += '    <li class="page-item">';
+                        pagination += '      <a class="page-link" aria-label="Next" href="javascript:requestList(' + (page+1) + ', ' + perPage + ')">';
+                        pagination += '        <span aria-hidden="true">&raquo;</span>';
+                        pagination += '        <span class="sr-only">Next</span>';
+                        pagination += '      </a>';
+                        pagination += '    </li>';
+                        pagination += '    <li class="page-item"><a class="page-link" href="javascript:requestList(' + pageCount + ', ' + perPage + ')">Last</a></li>';
+                    } else {
+                        pagination += '    <li class="page-item disabled">';
+                        pagination += '      <a class="page-link" aria-label="Next">';
+                        pagination += '        <span aria-hidden="true">&raquo;</span>';
+                        pagination += '        <span class="sr-only">Next</span>';
+                        pagination += '      </a>';
+                        pagination += '    </li>';
+                        pagination += '    <li class="page-item disabled"><a class="page-link">Last</a></li>';
+                    }
+
+                    // 페이지 끝 태그
+                    pagination += '  </ul>';
+                    pagination += '</nav>';
+
+                    $('#pagination').html(pagination);
+
+                }
+
+            }
+
+
+            function requestAdd(name, mobile) {
+                console.log('requestAdd 호출됨');
+
+                var params = {
+                    name: name,
+                    age: 20,
+                    mobile: mobile
+                }
+
+                axios({
+                    method: 'post',
+                    url: '/sheep',
+                    data: params,
+                    responseType: 'json'
+                }).then(function(response) {
+                    console.log('응답 -> ' + JSON.stringify(response));
+
+                    if (response.data.output.body.affectedRows > 0) {
+                        console.log('추가 성공');
+
+                        requestList(1, 10);
+                    }
+
+                }).catch(function(err) {
+                    console.error('Error -> ' + err);
+                });
+            }
+
+            function requestModify(id, name, mobile) {
+                console.log('requestModify 호출됨 : ' + id + ', ' + name + ', ' + mobile);
+
+                var params = {
+                    name: name,
+                    age: 20,
+                    mobile: mobile
+                }
+
+                axios({
+                    method: 'put',
+                    url: '/sheep/' + id,
+                    data: params,
+                    responseType: 'json'
+                }).then(function(response) {
+                    console.log('응답 -> ' + JSON.stringify(response));
+
+                    if (response.data.output.body.affectedRows > 0) {
+                        console.log('수정 성공');
+
+                        requestList(1, 10);
+                    }
+
+                }).catch(function(err) {
+                    console.error('Error -> ' + err);
+                });
+            }
+
+            function requestRemove(id) {
+                console.log('requestRemove 호출됨 : ' + id);
+ 
+                axios({
+                    method: 'delete',
+                    url: '/sheep/' + id,
+                    responseType: 'json'
+                }).then(function(response) {
+                    console.log('응답 -> ' + JSON.stringify(response));
+
+                    if (response.data.output.body.affectedRows > 0) {
+                        console.log('삭제 성공');
+
+                        requestList(1, 10);
+                    }
+
+                }).catch(function(err) {
+                    console.error('Error -> ' + err);
+                });
+            }
+
+            function showPage(index) {
+                if (index == 0) {
+                    $('#page1').show();
+                    $('#page2').hide();
+                } else if (index == 1) {
+                    $('#page1').hide();
+                    $('#page2').show();
+                }
+            }
+
+            function showAddPage() {
+                mode = 'add';
+
+                $('#page2Title').text('고객 추가');
+                $('#nameInput').val('');
+                $('#mobileInput').val('');
+
+                showPage(1);
+            }
+
+            function saveItem() {
+                if (mode == 'add') {
+                    addInputItem();
+                } else if (mode == 'modify') {
+                    modifyInputItem();
+                }
+
+                showPage(0);
+            }
+
+            function addInputItem() {
+                var name = $('#nameInput').val();
+                var mobile = $('#mobileInput').val();
+                
+                requestAdd(name, mobile);
+
+            }
+
+            function addItem(index, name, mobile) {
+                console.log('addItem 호출됨 : ' + index + ', ' + name + ', ' + mobile);
+
+                var html = '<div id="item' + index + '" class="list-group-item list-group-item-action waves-effect">'
+                         + '  <div class="row">'
+                         + '    <div class="col-sm-1 text-center align-self-center">'
+                         + '      <img src="/images/person.png" style="width:2em;">'
+                         + '    </div>'
+                         + '    <div class="col-sm-3 text-center align-self-center">'
+                         + '      <span id="item' + index + '_name">' + name + '</span>'
+                         + '    </div>'
+                         + '    <div class="col-sm-3 text-center align-self-center">'
+                         + '      <span id="item' + index + '_mobile">' + mobile + '</span>'
+                         + '    </div>'
+                         + '    <div class="col-sm-5 text-center align-self-center">'
+                         + '      <button type="button" class="btn btn-outline-default btn-sm waves-effect font-weight-bold" onclick="showModifyPage(' + index + ', \'' + name + '\', \'' + mobile + '\')">수정</button>'
+                         + '      <button type="button" class="btn btn-outline-danger btn-sm waves-effect font-weight-bold" onclick="deleteItem(' + index + ')">삭제</button>'
+                         + '    </div>'
+                         + '  </div>'
+                         + '</div>';
+
+                $('#list1').append(html); 
+                 
+            }
+
+            function showModifyPage(index, name, mobile) {
+                console.log('showModifyPage 호출됨 : ' + index + ', ' + name + ', ' + mobile);
+
+                mode = 'modify';
+                selected = index;
+
+                $('#page2Title').text('고객 수정');
+
+                $('#nameInput').val(name);
+                $('#mobileInput').val(mobile);
+
+                showPage(1);
+
+                $('#nameInput').focus();
+                $('#mobileInput').focus();
+            }
+
+            function modifyInputItem() {
+                console.log('modifyInputItem 호출됨');
+
+                var name = $('#nameInput').val();
+                var mobile = $('#mobileInput').val();
+
+                requestModify(selected, name, mobile);
+            }
+
+            function deleteItem(index) {
+                console.log('deleteItem 호출됨');
+
+                requestRemove(index);
+            }
+
+
+        </script>
+
+
+    </body>
+</html>
