@@ -1,3 +1,15 @@
+/**
+ * This controller uses a service for intermediate processing.
+ * See config/service_config.js and services/person-service.js files for service registration.
+ * 
+ * GET http://localhost:7001/person
+ * POST http://localhost:7001/person
+ * GET http://localhost:7001/person/1
+ * PUT http://localhost:7001/person/1
+ * DELETE http://localhost:7001/person/1
+ * 
+ */
+
 'use strict';
 
 import Person from '../models/person';

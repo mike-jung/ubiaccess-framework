@@ -181,41 +181,44 @@ loader.parseFile = (router, upload, reader, filename) => {
     };
     //console.log('class mapping -> ' + JSON.stringify(classMapping)); 
 
+    // register REST type controller
     if (isRest) {
         loader.registerRest(router, restFilePath, restPath, table);
-    } else {
-
-        if (methodAnnotations.length > 0) {
-            console.log('\n@RequestMapping : ' + methodAnnotations.length)
-        }
-
-        for (let i = 0; i < methodAnnotations.length; i++) {
-            const annotation = methodAnnotations[i];
-            console.log('#' + i + ' : function name -> ' + annotation.target);
-            console.log('#' + i + ' : path -> ' + annotation.path);
-            console.log('#' + i + ' : method -> ' + annotation.method);
-            console.log('#' + i + ' : upload -> ' + annotation.upload);
-
-            if (annotation.method == undefined) {
-                annotation.method = ['get', 'post'];
-            } else {
-                annotation.method = annotation.method.split(',');
-            }
-
-            const curExtension = path.extname(annotation.filePath);
-            const curFilename = path.basename(annotation.filePath, curExtension);
-            let curFilePath = '../controllers/' + curFilename;
-
-            let currentPath = annotation.path;
-            if (classMapping[annotation.className]) {
-                currentPath = classMapping[annotation.className] + annotation.path;
-            }
-
-            loader.registerPath(router, upload, curFilePath, annotation.target, annotation.method, currentPath, annotation.upload);
-
-        }
-    
     }
+
+
+    // register methods
+    if (methodAnnotations.length > 0) {
+        console.log('\n@RequestMapping : ' + methodAnnotations.length)
+    }
+
+    for (let i = 0; i < methodAnnotations.length; i++) {
+        const annotation = methodAnnotations[i];
+        console.log('#' + i + ' : function name -> ' + annotation.target);
+        console.log('#' + i + ' : path -> ' + annotation.path);
+        console.log('#' + i + ' : method -> ' + annotation.method);
+        console.log('#' + i + ' : upload -> ' + annotation.upload);
+
+        if (annotation.method == undefined) {
+            annotation.method = ['get', 'post'];
+        } else {
+            annotation.method = annotation.method.split(',');
+        }
+
+        const curExtension = path.extname(annotation.filePath);
+        const curFilename = path.basename(annotation.filePath, curExtension);
+        let curFilePath = '../controllers/' + curFilename;
+
+        let currentPath = annotation.path;
+        if (classMapping[annotation.className]) {
+            currentPath = classMapping[annotation.className] + annotation.path;
+        }
+
+        loader.registerPath(router, upload, curFilePath, annotation.target, annotation.method, currentPath, annotation.upload);
+
+    }
+
+
 
 }
 
@@ -270,6 +273,10 @@ loader.registerPath = (router, upload, filePath, func, method, path, uploadFlag)
         method.forEach((methodItem, methodIndex) => {
             logger.debug('method #' + methodIndex + ' -> ' + methodItem);
         
+            if (methodItem) {
+                methodItem = methodItem.trim();
+            }
+
             // in case of file upload controller
             if (uploadFlag) {
                 router.route(path)[methodItem](upload.array('photo', 1), controller[func].bind(controller));

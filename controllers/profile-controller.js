@@ -1,3 +1,11 @@
+/**
+ * This controller access database and map result columns
+ * 
+ * GET http://localhost:7001/profile/get
+ * GET http://localhost:7001/profile/add
+ * GET http://localhost:7001/profile/list
+ */
+
 'use strict';
  
 import Database from '../database/database_mysql';
@@ -112,7 +120,7 @@ class ProfileController {
 
  
 	/**
-	 * List using where conditions
+	 * List using mapper for result column mapping
 	 */
 	async list2(req, res) {
         const params = param.parse(req);

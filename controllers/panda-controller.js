@@ -1,3 +1,11 @@
+/**
+ * This controller manipulate complex SQL such as conditional where statements.
+ * GET http://localhost:7001/panda/list
+ * GET http://localhost:7001/panda/list?age=21
+ * GET http://localhost:7001/panda/list?age=21&name=john
+ * 
+ */
+
 'use strict'
 
 import util from '../util/util';
@@ -5,24 +13,13 @@ import param from '../util/param';
 import logger from '../util/logger';
 
 import Database from '../database/database_mysql';
-
-/**
- * Example request
- * 
- * GET http://localhost:7001/panda/list
- * GET http://localhost:7001/panda/list?age=21
- * GET http://localhost:7001/panda/list?age=21&name=john
- */
+import TableController from '../loader/table-controller';
 
 /**
  * @Controller(path="/panda")
  */
 class Panda {
-
-    constructor() {
-        this.database = new Database('database_mysql');
-    }
-  
+ 
     /**
      * @RequestMapping(path="/list", method="get")
      */
@@ -45,7 +42,7 @@ class Panda {
                 }
 			}
   
-			const rows = await this.database.execute(queryParams);
+			const rows = await super.database.execute(queryParams);
 
 			util.sendRes(res, 200, 'OK', rows);
 		} catch(err) {
@@ -53,7 +50,7 @@ class Panda {
 		}
 
     }
-  
+   
 }
 
 

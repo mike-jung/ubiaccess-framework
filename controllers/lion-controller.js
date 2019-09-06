@@ -1,3 +1,17 @@
+/**
+ * This controller registers methods inside Lion class.
+ * Each method access database table.
+ *
+ * Example request urls are as follows:
+ * 
+ * (1) http://localhost:7001/lion/list
+ * (3) http://localhost:7001/lion/create
+ * (4) http://localhost:7001/lion/read/1
+ * (5) http://localhost:7001/lion/update/1
+ * (6) http://localhost:7001/lion/delete/1
+ * 
+ */
+
 'use strict'
 
 import util from '../util/util';

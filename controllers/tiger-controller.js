@@ -1,3 +1,9 @@
+/**
+ * This controller shows simple method annotation
+ * 
+ * GET http://localhost:7001/tiger/hello
+ */
+
 'use strict'
 
 import util from '../util/util';

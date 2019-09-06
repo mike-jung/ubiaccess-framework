@@ -1,3 +1,17 @@
+/**
+ * This controller registers methods inside Dog class.
+ *
+ * Example request urls are as follows:
+ * 
+ * (1) http://localhost:7001/cat/index
+ * (2) http://localhost:7001/cat/list
+ * (3) http://localhost:7001/cat/create
+ * (4) http://localhost:7001/cat/read
+ * (5) http://localhost:7001/cat/update
+ * (6) http://localhost:7001/cat/delete
+ * 
+ */
+
 'use strict'
 
 import util from '../util/util';

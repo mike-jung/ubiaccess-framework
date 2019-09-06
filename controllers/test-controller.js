@@ -1,7 +1,6 @@
 /**
- * Test Controller
+ * This controller tests cookies
  * 
- * @author Mike
  */
 
 'use strict';

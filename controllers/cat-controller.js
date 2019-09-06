@@ -1,3 +1,16 @@
+/**
+ * This controller registers REST API functions for methods inside Cat class.
+ *
+ * Example request urls are as follows:
+ * 
+ * (1) http://localhost:7001/cat/list
+ * (2) http://localhost:7001/cat/create
+ * (3) http://localhost:7001/cat/read/1
+ * (4) http://localhost:7001/cat/update/1
+ * (5) http://localhost:7001/cat/delete/1
+ * 
+ */
+
 'use strict'
 
 import util from '../util/util';
