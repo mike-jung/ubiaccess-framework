@@ -64,6 +64,12 @@ const loadSql = () => {
 loadSql();
 
 
+//replaceAll prototype 선언
+String.prototype.replaceAll = function(org, dest) {
+    return this.split(org).join(dest);
+}
+
+
 
 class DatabaseMySQL {
 
@@ -91,9 +97,11 @@ class DatabaseMySQL {
             let sql = curSqlObj.sql;
 
             let sqlParams = [];
-            curSqlObj.params.forEach((item, index) => {
-                sqlParams.push(params[item]);
-            })
+            if (curSqlObj.params) {
+                curSqlObj.params.forEach((item, index) => {
+                    sqlParams.push(params[item]);
+                })
+            }
 
             queryParams.sql = sql;
             queryParams.sqlParams = sqlParams;
@@ -128,9 +136,11 @@ class DatabaseMySQL {
         let sql = curSqlObj.sql;
 
         let sqlParams = [];
-        curSqlObj.params.forEach((item, index) => {
-            sqlParams.push(params[item]);
-        })
+        if (curSqlObj.params) {
+            curSqlObj.params.forEach((item, index) => {
+                sqlParams.push(params[item]);
+            })
+        }
 
         queryParams.sql = sql;
         queryParams.sqlParams = sqlParams;
@@ -159,7 +169,8 @@ class DatabaseMySQL {
 
         const sqlName = executeParams.sqlName;
         let sql = executeParams.sql;
-        const sqlParams = executeParams.sqlParams;
+        let sqlParams = executeParams.sqlParams;
+        let paramType = executeParams.paramType;
         const mapper = executeParams.mapper;
         
         pool.getConnection((err, conn) => {
@@ -267,6 +278,40 @@ class DatabaseMySQL {
                         }
                     }
                 }
+            }
+
+            // : style parameter
+            if (paramType) {
+                logger.debug('Parameter is of colon style.');
+
+                // replace parameters with :name
+                const paramKeys = Object.keys(executeParams.params);
+                for (let i = 0; i < paramKeys.length; i++) {
+                    try {
+                        let curKey = paramKeys[i];
+                        let curValue = executeParams.params[curKey];
+                        if (executeParams.paramType[curKey] == 'string') {
+                            curValue = "'" + curValue + "'";
+                        }
+                        logger.debug('mapping #' + i + ' [' + curKey + '] -> [' + curValue + ']');
+
+                        let replaced = sql.replaceAll(':' + curKey.toUpperCase(), curValue);
+                        if (replaced) {
+                            sql = replaced;
+                        }
+
+                        replaced = sql.replaceAll(':' + curKey.toLowerCase(), curValue);
+                        if (replaced) {
+                            sql = replaced;
+                        }
+                    } catch(err2) {
+                        logger.debug('mapping error : ' + JSON.stringify(err2));
+                    }
+                };
+
+                sqlParams = [];
+            } else {
+                logger.debug('Parameter is of normal style.');
             }
 
             const query = conn.query(sql, sqlParams, (err, rows) => {
