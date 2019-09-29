@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./package-lock.json,./npm-debug.log --copy-files",
-    "start": "npm run build && node dist/index.js"
+    "copy": "copyfiles --up 1 public/**/*.* ./dist/public",
+    "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./package-lock.json,./npm-debug.log,./public --copy-files",
+    "start": "npm run build && npm run copy && node dist/index.js"
   },
   "keywords": [],
   "author": "",
