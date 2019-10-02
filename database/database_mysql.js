@@ -99,6 +99,12 @@ const changeColonToUpperCase = (sql) => {
         } 
     }
 
+    // in case of last word
+    if (beginIndex > -1) {
+        const curToken = curWord.toUpperCase();
+        newSql = newSql.replace(curWord, curToken);
+    }
+
     console.log('colon param to upper case -> ' + newSql);
     
     return newSql;
