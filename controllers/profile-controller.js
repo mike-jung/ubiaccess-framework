@@ -12,6 +12,7 @@ import Database from '../database/database_mysql';
 import util from '../util/util';
 import param from '../util/param';
 import logger from '../util/logger';
+import fs from 'fs';
 
 class ProfileController {
 
