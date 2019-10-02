@@ -70,6 +70,42 @@ String.prototype.replaceAll = function(org, dest) {
 }
 
 
+const changeColonToUpperCase = (sql) => {
+    let beginIndex = -1;
+    let endIndex = -1;
+    let curWord = '';
+    
+    let newSql = sql;
+
+    for (let i = 0; i < sql.length; i++) {
+        const curChar = sql[i];
+        if (curChar == ':') {
+            beginIndex = i;
+        }
+
+        if (beginIndex > -1) {
+            if (curChar == ' ' || curChar == ',' || curChar == ')') {
+                endIndex = i;
+
+                const curToken = curWord.toUpperCase();
+                newSql = newSql.replace(curWord, curToken);
+
+                beginIndex = -1;
+                endIndex = -1;
+                curWord = '';
+            } else {
+                curWord += curChar;
+            }
+        } 
+    }
+
+    console.log('colon param to upper case -> ' + newSql);
+    
+    return newSql;
+}                
+
+
+
 
 class DatabaseMySQL {
 
@@ -284,6 +320,9 @@ class DatabaseMySQL {
             if (paramType) {
                 logger.debug('Parameter is of colon style.');
 
+                // change sql to upper case
+                sql = changeColonToUpperCase(sql);
+
                 // replace parameters with :name
                 const paramKeys = Object.keys(executeParams.params);
                 for (let i = 0; i < paramKeys.length; i++) {
@@ -295,15 +334,16 @@ class DatabaseMySQL {
                         }
                         logger.debug('mapping #' + i + ' [' + curKey + '] -> [' + curValue + ']');
 
-                        let replaced = sql.replaceAll(':' + curKey.toUpperCase(), curValue);
+                        //let replaced = sql.replaceAll(':' + curKey.toUpperCase(), curValue);
+                        let replaced = sql.replace(':' + curKey.toUpperCase(), curValue);
                         if (replaced) {
                             sql = replaced;
                         }
 
-                        replaced = sql.replaceAll(':' + curKey.toLowerCase(), curValue);
-                        if (replaced) {
-                            sql = replaced;
-                        }
+                        //replaced = sql.replaceAll(':' + curKey.toLowerCase(), curValue);
+                        //if (replaced) {
+                        //    sql = replaced;
+                        //}
                     } catch(err2) {
                         logger.debug('mapping error : ' + JSON.stringify(err2));
                     }
