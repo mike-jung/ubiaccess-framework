@@ -578,7 +578,13 @@ class TableController {
             }
           }
         }
-        console.log('columnMapping -> ' + columnMapping);
+        
+        if (columnMapping && columnMapping.length < 1000) {
+          console.log('columnMapping -> ' + columnMapping);
+        } else {
+          console.log('columnMapping -> over 1000 characters.');
+        }
+
 
         sql = util.replace(sql, "#", columnMapping, 0);
 
@@ -739,7 +745,13 @@ class TableController {
             }
           }
         }
-        console.log('columnMapping -> ' + columnMapping);
+        
+        if (columnMapping && columnMapping.length < 1000) {
+          console.log('columnMapping -> ' + columnMapping);
+        } else {
+          console.log('columnMapping -> over 1000 characters.');
+        }
+
 
         sql = util.replace(sql, "#", columnMapping, 0);
 
@@ -820,7 +832,13 @@ class TableController {
             }
           }
         }
-        console.log('columnMapping -> ' + columnMapping);
+        
+        if (columnMapping && columnMapping.length < 1000) {
+          console.log('columnMapping -> ' + columnMapping);
+        } else {
+          console.log('columnMapping -> over 1000 characters.');
+        }
+
 
         sql = util.replace(sql, "#", columnMapping, 0);
 
