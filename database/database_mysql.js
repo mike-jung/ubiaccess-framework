@@ -207,7 +207,13 @@ class DatabaseMySQL {
 
     executeRaw(executeParams, retryCount, callback) {
         console.log('executeRaw called.');
-        console.log('Execute Params -> ' + JSON.stringify(executeParams));
+        
+        const executeParamsText = JSON.stringify(executeParams);
+        if (executeParamsText && executeParamsText.length < 1000) {
+            console.log('Execute Params -> ' + executeParamsText);
+        } else {
+            console.log('Execute Params -> over 1000 characters.');
+        }
 
         const sqlName = executeParams.sqlName;
         let sql = executeParams.sql;
@@ -283,7 +289,11 @@ class DatabaseMySQL {
                 return;
             }
 
-            console.log('current SQL -> ' + sql);
+            if (sql && sql.length < 1000) {
+                console.log('current SQL -> ' + sql);
+            } else {
+                console.log('current SQL -> over 1000 characters');
+            }
 
             // apply sqlReplaces
             if (executeParams.sqlReplaces) {
@@ -365,7 +375,11 @@ class DatabaseMySQL {
                     conn.release();
                 }
 
-                console.log('SQL -> ' + query.sql);
+                if (sql && sql.length < 1000) {
+                    console.log('SQL -> ' + query.sql);
+                } else {
+                    console.log('SQL -> over 1000 characters');
+                }
 
                 if (err) {
                     console.log('Error in executing SQL -> ' + err);
