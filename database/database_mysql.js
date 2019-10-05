@@ -80,7 +80,12 @@ const changeColonToUpperCase = (sql) => {
     for (let i = 0; i < sql.length; i++) {
         const curChar = sql[i];
         if (curChar == ':') {
-            beginIndex = i;
+            // :% 인 경우 제외
+            if (sql[i+1] && sql[i+1] == '%') {
+
+            } else {
+                beginIndex = i;
+            }
         }
 
         if (beginIndex > -1) {
