@@ -50,8 +50,17 @@ const createApp = () => {
     app.use(cors());
     app.use('/', express.static(path.join(__dirname, 'public')));
     
-    app.use(bodyParser.urlencoded({extended:false}));
-    app.use(bodyParser.json());
+    //app.use(bodyParser.urlencoded({extended:false}));
+    app.use(bodyParser.urlencoded({
+        parameterLimit: 50000000,
+        limit: '50mb',
+        extended:true
+    }));
+    app.use(bodyParser.json({
+        parameterLimit: 50000000,
+        limit: '50mb',
+        extended:true
+    }));
     
     
     const upload = initUpload();
@@ -92,7 +101,7 @@ const initUpload = () => {
  
     const storage = multer.diskStorage({
         destination: function(req, file, callback) {
-            callback(null, 'uploads');
+            callback(null, 'dist/uploads');
         },
         filename: function(req, file, callback) {
             const extension = path.extname(file.originalname);
