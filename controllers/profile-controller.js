@@ -4,6 +4,7 @@
  * GET http://localhost:7001/profile/get
  * GET http://localhost:7001/profile/add
  * GET http://localhost:7001/profile/list
+ * GET http://localhost:7001/profile/upload
  */
 
 'use strict';
@@ -17,7 +18,7 @@ import fs from 'fs';
 class ProfileController {
 
     constructor() {
-			logger.debug(`ProfileController initialized.`);
+			logger.debug('ProfileController initialized.');
 				
 			this.database = new Database('database_mysql');
     }
@@ -50,7 +51,7 @@ class ProfileController {
 
 		this.database.executeSql(queryParams, (err, rows) => {
 			if (err) {
-				console.log('executeSql error -> ' + err);
+				logger.error('executeSql error -> ' + err);
 				util.sendError(res, 400, 'executeSql error -> ' + err);
 
 				return;
@@ -151,22 +152,22 @@ class ProfileController {
 	upload(req, res) {
 		const params = param.parse(req);
 
-		console.log('FILES');
-		console.dir(req.files);
+		logger.debug('FILES');
+		logger.debug(JSON.stringify(req.files));
 	
 		// move uploaded files from uploads folder to public/images folder
 		if (req.files.length > 0) {
-			var oldFile = './uploads/' + req.files[0].filename;
-			var newFile = './public/images/' + req.files[0].filename;
+			var oldFile = __dirname + '/../uploads/' + req.files[0].filename;
+			var newFile = __dirname + '/../public/images/' + req.files[0].filename;
 	
 			fs.rename(oldFile, newFile, (err) => {
 				if (err) {
-					console.log('Error in moving file : ' + err);
+					logger.error('Error in moving file : ' + err);
 					util.sendError(res, 400, 'Error in moving file : ' + err);
 					return;
 				}
 	
-				console.log('File copied to ' + newFile);
+				logger.debug('File copied to ' + newFile);
 	
 				// include uploaded file path
 				const output = {
