@@ -148,6 +148,8 @@ $ npm config set msvs_version 2013 --g
 # Install dependencies
 $ npm install
 
+# or install with options
+$ npm install --msvs_version=2013
 ```
 
 In case you already installed Python and Visual Studio 2010, there will be no problem in executing npm install command.
