@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Sheep Index 3</title>
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+        <!-- Bootstrap core CSS -->
+        <link href="/mdb/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Material Design Bootstrap -->
+        <link href="/mdb/css/mdb.min.css" rel="stylesheet">
+ 
+        <style>
+            .double-nav .breadcrumb-dn {
+                color: #fff;
+            }
+            
+            .side-nav.wide.slim .sn-ad-avatar-wrapper a span {
+                display: none;
+            }
+ 
+            table.table td, table.table th {   
+                padding-top: 0.2em;   
+                padding-bottom: 0.2em;
+            }
+
+        </style>
+
+    </head>
+    <body>
+  
+        <div id="container" class="fixed-sn">
+
+            
+            <!--Double navigation-->
+            <header class="indigo-skin">
+                <!-- Sidebar navigation -->
+                <div id="slide-out" class="side-nav fixed wide sn-bg-1">
+                <ul class="custom-scrollbar">
+                    <!-- Logo -->
+                    <li>
+                    <div class="logo-wrapper sn-ad-avatar-wrapper">
+                        <a href="#"><img src="/images/logo.png" class="rounded-circle"><span>Logo</span></a>
+                    </div>
+                    </li>
+                    <!--/. Logo -->
+                    <!-- Side navigation links -->
+                    <li>
+                        <ul class="collapsible collapsible-accordion">
+                            <li><a class="collapsible-header waves-effect arrow-r active"><i class="sv-slim-icon fas fa-chevron-right"></i> 고객 관리 <i class="fas fa-angle-down rotate-icon"></i></a>
+                            <div class="collapsible-body">
+                                <ul>
+                                <li><a href="#" class="waves-effect active">
+                                    <span class="sv-slim"> CL </span>
+                                    <span class="sv-normal">고객 리스트</span></a>
+                                </li>
+                                <li><a href="#" class="waves-effect">
+                                    <span class="sv-slim"> VL </span>
+                                    <span class="sv-normal">방문자 리스트</span></a>
+                                </li>
+                                </ul>
+                            </div>
+                            </li>
+                            <li><a class="collapsible-header waves-effect arrow-r"><i class="sv-slim-icon far fa-hand-point-right"></i> 단말 관리 <i class="fas fa-angle-down rotate-icon"></i></a>
+                            <div class="collapsible-body">
+                                <ul>
+                                <li><a href="#" class="waves-effect">
+                                    <span class="sv-slim"> DB </span>
+                                    <span class="sv-normal">대시보드</span></a>
+                                </li>
+                                <li><a href="#" class="waves-effect">
+                                    <span class="sv-slim"> DL </span>
+                                    <span class="sv-normal">단말 리스트</span></a>
+                                </li>
+                                </ul>
+                            </div>
+                            </li>
+                            <li><a class="collapsible-header waves-effect arrow-r"><i class="sv-slim-icon fas fa-eye"></i> 기타 기능 <i class="fas fa-angle-down rotate-icon"></i></a>
+                            <div class="collapsible-body">
+                                <ul>
+                                <li><a href="#" class="waves-effect">
+                                    <span class="sv-slim"> E1 </span>
+                                    <span class="sv-normal">기능 1</span></a>
+                                </li>
+                                <li><a href="#" class="waves-effect">
+                                    <span class="sv-slim"> E2 </span>
+                                    <span class="sv-normal">기능 2</span></a>
+                                </li>
+                                </ul>
+                            </div>
+                            </li>
+                            
+                            <li><a id="toggle" class="waves-effect"><i class="sv-slim-icon fas fa-angle-double-left"></i>메뉴 작게</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!--/. Side navigation links -->
+                </ul>
+                <div class="sidenav-bg rgba-blue-strong"></div>
+                </div>
+                <!--/. Sidebar navigation -->
+                <!-- Navbar -->
+                <nav class="navbar fixed-top navbar-toggleable-md navbar-expand-lg scrolling-navbar double-nav indigo darken-1">
+                <!-- SideNav slide-out button -->
+                <div class="float-left">
+                    <a href="#" data-activates="slide-out" class="button-collapse"><i class="fas fa-bars"></i></a>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="breadcrumb-dn mr-auto">
+                    <p>클라우드 서비스 관리</p>
+                </div>
+                <ul class="nav navbar-nav nav-flex-icons ml-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link"><i class="fas fa-user"></i> <span class="clearfix d-none d-sm-inline-block">로그인</span></a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"><i class="fas fa-comments"></i> <span class="clearfix d-none d-sm-inline-block">채팅</span></a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            알림 메시지
+                        </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="#">알림 리스트</a>
+                        <a class="dropdown-item" href="#">메일 리스트</a>
+                        <a class="dropdown-item" href="#">기타 알림</a>
+                    </div>
+                    </li>
+                </ul>
+                </nav>
+                <!-- /.Navbar -->
+            </header>
+            <!--/.Double navigation-->
+
+            <!--Main Layout-->
+            <main>
+                <div id="page1">
+                    <div class="container-fluid">
+                         
+                        <!-- Section: Classic admin cards -->
+                        <section class="pb-3">
+
+                            <div class="row mb-1">
+                                <div class="col-md-12">
+                                    <nav aria-label="breadcrumb">
+                                        <ol class="breadcrumb grey lighten-4">
+                                            <li class="breadcrumb-item"><i class="fas fa-grip-vertical" style="margin-right:1em;"></i><a href="javascript:showPage(1);">대시보드</a></li>
+                                            <li class="breadcrumb-item"><a href="#">암병원</a></li>
+                                            <li class="breadcrumb-item active">C11E</li>
+                                        </ol>
+                                    </nav>
+                                </div>
+                            </div>
+                
+                            <!-- Grid row -->
+                            <div class="row">
+
+                                <!-- Grid column -->
+                                <div class="col-sm-2 mb-xl-0 mb-4">
+
+                                    <!-- Card Primary -->
+                                    <div class="card classic-admin-card primary-color">
+                                        <div class="card-body">
+                                            <div class="pull-right">
+                                                <h6 class="check"><i class="fas fa-cog fa-spin fa-md" style="margin-right:1rem;"></i>C11E-56-01</h6>
+                                            </div>
+                                            <p class="white-text"><span style="margin-right:1rem;">11'</span><span>800X600</span></p>
+                                            <h6 class="check" style="margin-top:0.5rem;">34012280 김명자</h6>
+                                            <p><span style="margin-right:1em;">금식</span><span>14시 CT검사</span></p>
+                                        </div>
+                                    </div>
+                                    <!-- Card Primary -->
+
+                                </div>
+                                <!-- Grid column -->
+
+                                <!-- Grid column -->
+                                <div class="col-sm-2 mb-xl-0 mb-4">
+
+                                    <!-- Card Primary -->
+                                    <div class="card classic-admin-card primary-color">
+                                        <div class="card-body">
+                                            <div class="pull-right">
+                                                <h6 class="check"><i class="fas fa-cog fa-spin fa-md" style="margin-right:1rem;"></i>C11E-56-02</h6>
+                                            </div>
+                                            <p class="white-text"><span style="margin-right:1rem;">11'</span><span>800X600</span></p>
+                                            <h6 class="check" style="margin-top:0.5rem;">24551609 박현수</h6>
+                                            <p><span style="margin-right:1em;">금식</span></p>
+                                        </div>    
+                                    </div>
+                                    <!-- Card Primary -->
+            
+                                </div>
+                                <!-- Grid column -->
+
+                                <!-- Grid column -->
+                                <div class="col-sm-2 mb-xl-0 mb-4">
+
+                                    <!-- Card Primary -->
+                                    <div class="card classic-admin-card primary-color">
+                                        <div class="card-body">
+                                            <div class="pull-right">
+                                                <h6 class="check"><i class="fas fa-cog fa-spin fa-md" style="margin-right:1rem;"></i>C11E-56-03</h6>
+                                            </div>
+                                            <p class="white-text"><span style="margin-right:1rem;">11'</span><span>800X600</span></p>
+                                            <h6 class="check" style="margin-top:0.5rem;">32550021 김하늘</h6>
+                                            <p><span style="margin-right:1em;">금식</span></p>
+                                        </div>
+                                    </div>
+                                    <!-- Card Primary -->
+            
+                                </div>
+                                <!-- Grid column -->
+
+                                <!-- Grid column -->
+                                <div class="col-sm-2 mb-xl-0 mb-4">
+
+                                    <!-- Card Red -->
+                                    <div class="card classic-admin-card red accent-2">
+                                        <div class="card-body">
+                                            <div class="pull-right">
+                                                <h6 class="check"><i class="fas fa-cog animated heartBeat infinite" style="margin-right:1rem;"></i>C11E-56-04</h6>
+                                            </div>
+                                            <p class="white-text"><span style="margin-right:1rem;">11'</span><span>800X600</span></p>
+                                            <h6 class="check" style="margin-top:0.5rem;">24108778 박한수</h6>
+                                            <p><span>Battery low : 10%</span></p>
+                                        </div>
+                                    </div>
+                                    <!-- Card Red -->
+
+                                </div>
+                                <!-- Grid column -->
+
+
+                                <!-- Grid column -->
+                                <div class="col-sm-2 mb-xl-0 mb-4">
+
+                                    <!-- Card Primary -->
+                                    <div class="card classic-admin-card primary-color">
+                                        <div class="card-body">
+                                            <div class="pull-right">
+                                                <h6 class="check"><i class="fas fa-cog fa-spin fa-md" style="margin-right:1rem;"></i>C11E-56-05</h6>
+                                            </div>
+                                            <p class="white-text"><span style="margin-right:1rem;">11'</span><span>800X600</span></p>
+                                            <h6 class="check" style="margin-top:0.5rem;">16006443 한지수</h6>
+                                            <p><span>10시 내시경</span></p>
+                                        </div>
+                                    </div>
+                                    <!-- Card Primary -->
+            
+                                </div>
+                                <!-- Grid column -->
+        
+                                
+                                <!-- Grid column -->
+                                <div class="col-sm-2 mb-xl-0 mb-4">
+
+                                    <!-- Card Primary -->
+                                    <div class="card classic-admin-card primary-color">
+                                        <div class="card-body">
+                                            <div class="pull-right">
+                                                <h6 class="check"><i class="fas fa-cog fa-spin fa-md" style="margin-right:1rem;"></i>C11E-56-06</h6>
+                                            </div>
+                                            <p class="white-text"><span style="margin-right:1rem;">11'</span><span>800X600</span></p>
+                                            <h6 class="check" style="margin-top:0.5rem;">38103412 박현진</h6>
+                                            <p><span>금식</span></p>
+                                        </div>
+                                    </div>
+                                    <!-- Card Primary -->
+            
+                                </div>
+                                <!-- Grid column -->
+        
+                            </div>
+                            <!-- Grid row -->
+
+
+                            <!-- Grid row -->
+                            <div class="row" style="margin-top:2rem;">
+
+                                <!-- Grid column -->
+                                <div class="col-sm-2 mb-xl-0 mb-4">
+
+                                    <!-- Card Primary -->
+                                    <div class="card classic-admin-card primary-color">
+                                    <div class="card-body">
+                                        <div class="pull-right">
+                                            <h6 class="check"><i class="fas fa-cog fa-spin fa-md" style="margin-right:1rem;"></i>C11E-57-01</h6>
+                                        </div>
+                                        <p class="white-text"><span style="margin-right:1rem;">11'</span><span>800X600</span></p>
+                                        <h6 class="check" style="margin-top:0.5rem;">26092234 이수민</h6>
+                                        <p><span>금식</span></p>
+                                    </div>
+                                    </div>
+                                    <!-- Card Primary -->
+
+                                </div>
+                                <!-- Grid column -->
+    
+                                <!-- Grid column -->
+                                <div class="col-sm-2 mb-xl-0 mb-4">
+
+                                    <!-- Card Primary -->
+                                    <div class="card classic-admin-card primary-color">
+                                    <div class="card-body">
+                                        <div class="pull-right">
+                                            <h6 class="check"><i class="fas fa-cog fa-spin fa-md" style="margin-right:1rem;"></i>C11E-57-02</h6>
+                                        </div>
+                                        <p class="white-text"><span style="margin-right:1rem;">11'</span><span>800X600</span></p>
+                                        <h6 class="check" style="margin-top:0.5rem;">28341109 박완규</h6>
+                                        <p><span>금식</span></p>
+                                    </div>
+                                    </div>
+                                    <!-- Card Primary -->
+
+                                </div>
+                                <!-- Grid column -->
+    
+                            </div>
+
+                        </section>
+                        <!-- Section: Classic admin cards -->
+
+                    </div>
+                </div>
+                
+                <div id="page2" style="display:none;">
+
+                    <div class="container-fluid">
+                                        
+                        <!-- Section: Cards color -->
+                        <section class="mt-2">
+
+                            <div class="row mb-1">
+                                <div class="col-md-12">
+                                    <nav aria-label="breadcrumb">
+                                        <ol class="breadcrumb grey lighten-4">
+                                            <li class="breadcrumb-item"><i class="fas fa-grip-vertical" style="margin-right:1em;"></i><a href="javascript:showPage(1);">대시보드</a></li>
+                                            <li class="breadcrumb-item"><a href="#">암병원</a></li>
+                                        </ol>
+                                    </nav>
+                                </div>
+                            </div>
+                
+                            <!-- Grid row -->
+                            <div class="row">
+
+                            <!-- Grid column -->
+                            <div class="col-xl-3 col-md-3 col-sm-4 mb-4">
+
+                                <!-- Panel -->
+                                <div class="card">
+
+                                <div class="card-header white-text red accent-2">
+                                    C11E
+                                </div>
+ 
+                                <!-- Card content -->
+                                <div class="card-body">
+
+                                    <a class="text-info">
+                                        <h6 class="py-1 mt-3 font-weight-500"><i class="fas fa-laptop mr-2"></i>Normal: <span>26</span></h6>
+                                    </a>
+
+                                    <a class="text-danger">
+                                        <h6 class="py-1 mt-3 font-weight-500"><i class="fas fa-laptop mr-2"></i>Alert: <span>1</span></h6>
+                                    </a>
+
+                                    <div class="progress">
+                                        <div class="progress-bar blue" role="progressbar" style="width: 95%" aria-valuenow="95"
+                                            aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <!-- Text -->
+                                    <p class="font-small grey-text">Device health (95%)</p>
+
+                                    <button type="button" class="btn btn-outline-primary btn-rounded btn-sm px-2 float-right" onclick="showPage(0)">상세보기</button>
+                                </div>
+                                <!-- Card content -->
+
+                                </div>
+                                <!-- Panel -->
+
+                            </div>
+                            <!-- Grid column -->
+
+                            <!-- Grid column -->
+                            <div class="col-xl-3 col-md-3 col-sm-4 mb-4">
+
+                                <!-- Panel -->
+                                <div class="card">
+
+                                <div class="card-header white-text primary-color">
+                                    C10E
+                                </div>
+
+                                <!-- Card content -->
+                                <div class="card-body">
+
+                                    <a class="text-info">
+                                        <h6 class="py-1 mt-3 font-weight-500"><i class="fas fa-laptop mr-2"></i>Normal: <span>24</span></h6>
+                                    </a>
+
+                                    <a class="text-danger">
+                                        <h6 class="py-1 mt-3 font-weight-500"><i class="fas fa-laptop mr-2"></i>Alert: <span>0</span></h6>
+                                    </a>
+
+                                    <div class="progress">
+                                        <div class="progress-bar blue" role="progressbar" style="width: 95%" aria-valuenow="95"
+                                            aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <!-- Text -->
+                                    <p class="font-small grey-text">Device health (95%)</p>
+                                    
+                                    <button type="button" class="btn btn-outline-primary btn-rounded btn-sm px-2 float-right" onclick="showPage(0)">상세보기</button>
+                                </div>
+                                <!-- Card content -->
+    
+                                </div>
+                                <!-- Panel -->
+
+                            </div>
+                            <!-- Grid column -->
+
+                            <!-- Grid column -->
+                            <div class="col-xl-3 col-md-3 col-sm-4 mb-4">
+
+                                <!-- Panel -->
+                                <div class="card">
+
+                                <div class="card-header white-text primary-color">
+                                    C10W
+                                </div>
+ 
+                                <!-- Card content -->
+                                <div class="card-body">
+
+                                    <a class="text-info">
+                                        <h6 class="py-1 mt-3 font-weight-500"><i class="fas fa-laptop mr-2"></i>Normal: <span>27</span></h6>
+                                    </a>
+
+                                    <a class="text-danger">
+                                        <h6 class="py-1 mt-3 font-weight-500"><i class="fas fa-laptop mr-2"></i>Alert: <span>0</span></h6>
+                                    </a>
+
+                                    <div class="progress">
+                                        <div class="progress-bar blue" role="progressbar" style="width: 95%" aria-valuenow="95"
+                                            aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <!-- Text -->
+                                    <p class="font-small grey-text">Device health (95%)</p>
+                                    
+                                    <button type="button" class="btn btn-outline-primary btn-rounded btn-sm px-2 float-right" onclick="showPage(0)">상세보기</button>
+                                </div>
+                                <!-- Card content -->
+    
+                                </div>
+                                <!-- Panel -->
+
+                            </div>
+                            <!-- Grid column -->
+
+                            <!-- Grid column -->
+                            <div class="col-xl-3 col-md-3 col-sm-4 mb-4">
+
+                                <!-- Panel -->
+                                <div class="card">
+                                <div class="card-header white-text primary-color">
+                                    C09E
+                                </div>
+ 
+                                <!-- Card content -->
+                                <div class="card-body">
+
+                                    <a class="text-info">
+                                        <h6 class="py-1 mt-3 font-weight-500"><i class="fas fa-laptop mr-2"></i>Normal: <span>19</span></h6>
+                                    </a>
+
+                                    <a class="text-danger">
+                                        <h6 class="py-1 mt-3 font-weight-500"><i class="fas fa-laptop mr-2"></i>Alert: <span>0</span></h6>
+                                    </a>
+
+                                    <div class="progress">
+                                        <div class="progress-bar blue" role="progressbar" style="width: 95%" aria-valuenow="95"
+                                            aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <!-- Text -->
+                                    <p class="font-small grey-text">Device health (95%)</p>
+                                    
+                                    <button type="button" class="btn btn-outline-primary btn-rounded btn-sm px-2 float-right" onclick="showPage(0)">상세보기</button>
+                                </div>
+                                <!-- Card content -->
+    
+                                </div>
+                                <!-- Panel -->
+
+
+                            </div>
+                            <!-- Grid column -->
+                            </div>
+                            <!-- Grid row -->
+
+                        </section>
+                        <!-- Section: Cards color -->
+                        
+                    </div>    
+
+                </div>
+
+
+            </main>
+            <!--Main Layout-->
+
+
+
+
+        </div>            
+
+        
+        <!--Modal: modalConfirmDelete-->
+        <div class="modal fade" id="modalConfirmDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+            <div class="modal-dialog modal-notify modal-info" role="document">
+                <!--Content-->
+                <div class="modal-content text-center">
+                    <!--Header-->
+                    <div class="modal-header d-flex justify-content-center">
+                        <p class="heading">삭제 확인</p>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="col-3">
+                                <p></p>
+                                <p class="text-center"><i class="fas fa-times fa-4x animated rotateIn"></i></i></p>
+                            </div>
+                    
+                            <div class="col-9 align-self-center">
+                                <p></p>
+                                <p>선택한 항목을 삭제하시겠습니까?</p>
+                            </div>
+                        </div>
+ 
+                    </div>
+
+                    <!--Footer-->
+                    <div class="modal-footer flex-center">
+                        <a href="" class="btn btn-info waves-effect" data-dismiss="modal" onclick="requestRemove()"> 예 </a>
+                        <a type="button" class="btn  btn-outline-info waves-effect" data-dismiss="modal">아니오</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+        <!--Modal: modalConfirmDelete-->
+
+
+        <!-- SCRIPTS -->
+        <!-- JQuery -->
+        <script type="text/javascript" src="/mdb/js/jquery-3.4.1.min.js"></script>
+        <!-- Bootstrap tooltips -->
+        <script type="text/javascript" src="/mdb/js/popper.min.js"></script>
+        <!-- Bootstrap core JavaScript -->
+        <script type="text/javascript" src="/mdb/js/bootstrap.js"></script>
+        <!-- MDB core JavaScript -->
+        <script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
+
+        <!-- Axios -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+        <script>
+            var mode;
+            var selected;
+            var search;
+            var searchValue;
+
+            $(document).ready(function() {
+                console.log('ready 호출됨');
+
+                // SideNav Initialization
+                $(".button-collapse").sideNav();
+                new WOW().init();
+
+                $('.mdb-select').materialSelect();
+
+                //showPage(0);
+
+                requestList(1, 10);
+            });
+
+            function requestList(page, perPage) {
+                console.log('requestList 호출됨 : ' + page + ', ' + perPage);
+ 
+                requestSearch(page, perPage);
+            }
+
+            function requestSearch(page, perPage) {
+                console.log('requestSearch 호출됨');
+
+                var params = '?page=' + page
+                            + '&perPage=' + perPage;
+
+                if (searchValue) {
+                    params += '&search=' + search;
+                    params += '&searchValue=' + searchValue;
+                }
+                 
+                // show progressbar
+                $('#progress1').show();
+
+                axios({
+                    method: 'get',
+                    url: '/sheep/' + params,
+                    responseType: 'json'
+                }).then(function(response) {
+                    // hide progressbar
+                    $('#progress1').hide();
+
+                    console.log('응답 -> ' + JSON.stringify(response));
+
+                    // 테이블에서 헤더 아이템만 빼고 모두 삭제
+                    var table1 = document.getElementById('table1');
+                    var firstElementChild = table1.firstElementChild;
+                    table1.innerHTML = '';
+                    table1.append(firstElementChild);
+
+                    // 테이블에 응답 결과 추가
+                    response.data.output.body.forEach(function(item, index) {
+                        addItem(item.id, item.name, item.age, item.mobile);
+                    })
+
+                    // 페이지 번호 구성하기
+                    makePage(response.data.output.header);
+
+                    // 검색 정보 설정
+                    $('#search').val(search);
+                    $('#searchValue').val(searchValue);
+
+                    // 총 갯수 표시
+                    $('#totalOutput').text('결과 ' + response.data.output.header.total);
+
+                }).catch(function(err) {
+                    // hide progressbar
+                    $('#progress1').hide();
+
+                    console.error('Error -> ' + err);
+
+                    toastr.error('요청을 처리할 수 없습니다. 잠시 후 다시 시도해주세요. <br>Error -> ' + err, {timeOut: 3000});
+                });
+            }
+
+            function makePage(header) {
+
+                if (header.page) {
+
+                    var page = Number(header.page);
+                    var perPage = Number(header.perPage);
+                    var total = header.total;
+                    var pageCount = Math.ceil(total / perPage);
+
+                    console.log('page -> ' + page + ', ' + perPage + ', ' + total + ', ' + pageCount);
+
+                    var pagination = '';
+                    
+                    // 페이지 시작 태그
+                    pagination += '<nav aria-label="Page navigation">';
+                    pagination += '  <ul class="pagination pagination-circle pg-blue justify-content-end">';
+
+                    // 처음으로, 이전 버튼 태그
+                    if (page > 1) {
+                        pagination += '    <li class="page-item">';
+                        pagination += '      <a class="page-link" href="javascript:requestList(1, ' + perPage + ')">First</a>';
+                        pagination += '    </li>';
+                        pagination += '    <li class="page-item">';
+                        pagination += '      <a class="page-link" aria-label="Previous" href="javascript:requestList(' + (page - 1) + ', ' + perPage + ')">';
+                        pagination += '        <span aria-hidden="true">&laquo;</span>';
+                        pagination += '        <span class="sr-only">Previous</span>';
+                        pagination += '      </a>';
+                        pagination += '    </li>';
+                    } else {
+                        pagination += '    <li class="page-item disabled">';
+                        pagination += '      <a class="page-link">First</a>';
+                        pagination += '    </li>';
+                        pagination += '    <li class="page-item disabled">';
+                        pagination += '      <a class="page-link" aria-label="Previous">';
+                        pagination += '        <span aria-hidden="true">&laquo;</span>';
+                        pagination += '        <span class="sr-only">Previous</span>';
+                        pagination += '      </a>';
+                        pagination += '    </li>';
+                    }
+
+                    // 페이지 번호 버튼
+                    var initial = Math.floor(page / 10) * 10;
+                    var max = pageCount - initial;
+                    if (max > 10) {
+                        max = initial + 10;
+                    } else {
+                        max = initial + max;
+                    }
+                    console.log('initial : ' + initial + ', max : ' + max);
+
+                    for (var i = initial; i < max; i++) {
+                        if ((i+1) != page) {
+                            pagination += '    <li class="page-item"><a class="page-link" href="javascript:requestList(' + (i+1) + ', ' + perPage + ')">' + (i+1) + '</a></li>';
+                        } else {
+                            pagination += '    <li class="page-item active"><a class="page-link">' + (i+1) + '</a></li>';
+                        }
+                    }
+
+                    // 끝으로, 다음 버튼 태그
+                    if (page < pageCount) {
+                        pagination += '    <li class="page-item">';
+                        pagination += '      <a class="page-link" aria-label="Next" href="javascript:requestList(' + (page+1) + ', ' + perPage + ')">';
+                        pagination += '        <span aria-hidden="true">&raquo;</span>';
+                        pagination += '        <span class="sr-only">Next</span>';
+                        pagination += '      </a>';
+                        pagination += '    </li>';
+                        pagination += '    <li class="page-item"><a class="page-link" href="javascript:requestList(' + pageCount + ', ' + perPage + ')">Last</a></li>';
+                    } else {
+                        pagination += '    <li class="page-item disabled">';
+                        pagination += '      <a class="page-link" aria-label="Next">';
+                        pagination += '        <span aria-hidden="true">&raquo;</span>';
+                        pagination += '        <span class="sr-only">Next</span>';
+                        pagination += '      </a>';
+                        pagination += '    </li>';
+                        pagination += '    <li class="page-item disabled"><a class="page-link">Last</a></li>';
+                    }
+
+                    // 페이지 끝 태그
+                    pagination += '  </ul>';
+                    pagination += '</nav>';
+
+                    $('#pagination').html(pagination);
+
+                }
+
+            }
+
+
+            function requestAdd(name, mobile) {
+                console.log('requestAdd 호출됨');
+
+                var params = {
+                    name: name,
+                    age: 20,
+                    mobile: mobile
+                }
+
+                axios({
+                    method: 'post',
+                    url: '/sheep',
+                    data: params,
+                    responseType: 'json'
+                }).then(function(response) {
+                    console.log('응답 -> ' + JSON.stringify(response));
+
+                    if (response.data.output.body.affectedRows > 0) {
+                        console.log('추가 성공');
+
+                        requestList(1, 10);
+                    }
+
+                }).catch(function(err) {
+                    console.error('Error -> ' + err);
+                });
+            }
+
+            function requestModify(id, name, mobile) {
+                console.log('requestModify 호출됨 : ' + id + ', ' + name + ', ' + mobile);
+
+                var params = {
+                    name: name,
+                    age: 20,
+                    mobile: mobile
+                }
+
+                axios({
+                    method: 'put',
+                    url: '/sheep/' + id,
+                    data: params,
+                    responseType: 'json'
+                }).then(function(response) {
+                    console.log('응답 -> ' + JSON.stringify(response));
+
+                    if (response.data.output.body.affectedRows > 0) {
+                        console.log('수정 성공');
+
+                        requestList(1, 10);
+                    }
+
+                }).catch(function(err) {
+                    console.error('Error -> ' + err);
+                });
+            }
+
+            function requestRemove(id) {
+                console.log('requestRemove 호출됨 : ' + id);
+ 
+                axios({
+                    method: 'delete',
+                    url: '/sheep/' + selected,
+                    responseType: 'json'
+                }).then(function(response) {
+                    console.log('응답 -> ' + JSON.stringify(response));
+
+                    if (response.data.output.body.affectedRows > 0) {
+                        console.log('삭제 성공');
+
+                        $('#toast-container').attr('class','md-toast-bottom-right');
+                        toastr.info('정상적으로 삭제되었습니다.');
+
+                        requestList(1, 10);
+                    }
+
+                }).catch(function(err) {
+                    console.error('Error -> ' + err);
+                });
+            }
+
+            function showPage(index) {
+                if (index == 0) {
+                    $('#page1').show();
+                    $('#page2').hide();
+                } else if (index == 1) {
+                    $('#page1').hide();
+                    $('#page2').show();
+                }
+            }
+
+            function showAddPage() {
+                mode = 'add';
+
+                $('#page2Title').text('고객 추가');
+                $('#nameInput').val('');
+                $('#mobileInput').val('');
+
+                showPage(1);
+            }
+
+            function searchItem() {
+                search = $('#searchSelect').val();
+                searchValue = $('#searchInput').val();
+                console.log('search : ' + search + ', ' + searchValue);
+
+                requestSearch(1, 10);
+            }
+
+            function saveItem() {
+                if (mode == 'add') {
+                    addInputItem();
+                } else if (mode == 'modify') {
+                    modifyInputItem();
+                }
+
+                showPage(0);
+            }
+
+            function addInputItem() {
+                var name = $('#nameInput').val();
+                var mobile = $('#mobileInput').val();
+                
+                requestAdd(name, mobile);
+
+            }
+
+            function addItem(index, name, age, mobile) {
+                console.log('addItem 호출됨 : ' + index + ', ' + name + ', ' + age + ', ' + mobile);
+ 
+                var html = '<tr id="item' + index + '">'
+                         + '    <td class="text-left align-middle" style="width:10%;">'
+                         + '      <img src="/images/person.png" style="width:2em;">'
+                         + '    </td>'
+                         + '    <td class="text-left align-middle" style="width:20%;">'
+                         + '      <span id="item' + index + '_name">' + name + '</span>'
+                         + '    </td>'
+                         + '    <td class="text-left align-middle" style="width:10%;">'
+                         + '      <span id="item' + index + '_age">' + age + '</span>'
+                         + '    </td>'
+                         + '    <td class="text-left align-middle" style="width:40%;">'
+                         + '      <span id="item' + index + '_mobile">' + mobile + '</span>'
+                         + '    </td>'
+                         + '    <td class="text-center align-middle" style="width:20%;">'
+                         + '      <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" onclick="showModifyPage(' + index + ', \'' + name + '\', \'' + mobile + '\')"><i class="fas fa-edit fa-lg cyan-text"></i></button>'
+                         + '      <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" onclick="deleteItem(' + index + ')"><i class="fas fa-trash fa-lg red-text"></i></button>'
+                         + '    </td>'
+                         + '</tr>';
+
+                $('#table1').append(html); 
+                 
+            }
+
+            function showModifyPage(index, name, mobile) {
+                console.log('showModifyPage 호출됨 : ' + index + ', ' + name + ', ' + mobile);
+
+                mode = 'modify';
+                selected = index;
+
+                $('#page2Title').text('고객 수정');
+
+                $('#nameInput').val(name);
+                $('#mobileInput').val(mobile);
+
+                showPage(1);
+
+                $('#nameInput').focus();
+                $('#mobileInput').focus();
+            }
+
+            function modifyInputItem() {
+                console.log('modifyInputItem 호출됨');
+
+                var name = $('#nameInput').val();
+                var mobile = $('#mobileInput').val();
+
+                requestModify(selected, name, mobile);
+            }
+
+            function deleteItem(index) {
+                console.log('deleteItem 호출됨');
+
+                selected = index;
+
+                $('#modalConfirmDelete').modal('show');
+            }
+
+
+        </script>
+
+
+    </body>
+</html>

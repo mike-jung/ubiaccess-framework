@@ -1,0 +1,11 @@
+{
+  "name": "pool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "PoolTest.js",
+  "scripts": {
+    "start":"node PoolTest.js"
+  },
+  "author": "",
+  "license": "ISC"
+}

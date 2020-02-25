@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Chat Send Client</title>
+		
+		<script src="jquery-3.3.1.min.js"></script>    
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+        
+        <script>
+            var seqCode = 0;
+
+         	// document ready
+            $(function() {
+ 
+				// event handler for send button
+                $("#sendButton").bind('click', function(event) {
+                    var url = $('#urlInput').val();
+
+                    var id = $('#idInput').val();
+                    var sender = $('#senderInput').val();
+                    var receiver = $('#receiverInput').val();
+                    var data = $('#dataInput').val();
+
+                    var requestCode = generateRequestCode();
+                    
+                    var params = "?";
+                    params += "requestCode=" + requestCode;
+                    params += "&userId=" + id;
+                    params += "&sender=" + sender;
+                    params += "&receiver=" + receiver;
+                    params += "&command=chat";
+                    params += "&type=text";
+                    params += "&data=" + data;
+
+                    url += params;
+                    console.log('URL : ' + url);
+ 
+                    axios({
+                        method:'get',
+                        url: url,
+                        responseType:'json'
+                    }).then((response) => {
+                        console.log('Response -> ' + JSON.stringify(response));
+                        
+                        println('Response -> ' + JSON.stringify(response.data));
+ 
+                    }).catch((error) => {
+                        console.log('Error -> ' + JSON.stringify(error));
+                    });
+                    
+                });
+ 
+            });
+             
+
+            /*
+             * Generate request code (using time and sequence)
+             */
+            function generateRequestCode() {
+                var date = new Date();
+
+                var seqCodeStr = getSeqCode();
+ 
+                var components = [
+                    date.getFullYear(),
+                    ("0" + (date.getMonth() + 1)).slice(-2),
+                    date.getDate(),
+                    date.getHours(),
+                    date.getMinutes(),
+                    date.getSeconds(),
+                    date.getMilliseconds(),
+                    seqCodeStr
+                ];
+ 
+                var curCode = components.join("");
+                return curCode;
+            }
+
+            /*
+             * Get sequence code (01 ~ 99)
+             */
+            function getSeqCode() {
+                seqCode += 1;
+                if (seqCode > 99) {
+                    seqCode = 0;
+                }
+                var seqCodeStr = String(seqCode);
+                if (seqCodeStr.length == 1) {
+                    seqCodeStr = '0' + seqCodeStr;
+                }
+
+                return seqCodeStr;
+            }
+
+            
+			function println(data) {
+				console.log(data);
+				$('#result').append('<p>' + data + '</p>');
+			}
+        </script>
+	</head>
+<body>
+	<h3>Chat Send Client</h3>
+	<br>
+    <div>
+        <input type="text" id="urlInput" value="http://192.168.0.4:7001/chat/send" />
+    </div>
+    <br>
+    <div>
+		<input type="text" id="idInput" value="01010001000" />
+    	<div><span>Sender id :</span> <input type="text" id="senderInput" value="01010001000" /></div>
+	    <div><span>Receiver id :</span> <input type="text" id="receiverInput" value="01020002000" /></div>
+	    <div><span>Data :</span> <input type="text" id="dataInput" value="Hello from client!"/> </div>
+		<br>
+		<input type="button" id="sendButton" value="Send" />
+	</div>    
+        
+    <hr/>
+    <p>Result : </p>
+    <div id="result"></div>
+        
+</body>
+</html>

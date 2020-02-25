@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+    <title>PropertyGrid</title>
+    
+	<link rel="stylesheet" type="text/css" href="./easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="./easyui/themes/icon.css">
+
+	<script type="text/javascript" src="./easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="./easyui/plugins/jquery.color.js"></script>
+</head>
+<body>
+	<h2>PropertyGrid</h2>
+	
+	<table id="pg" class="easyui-propertygrid" style="width:300px" showGroup="true" scrollbarSize="0">
+	</table>
+
+	<script>
+        
+        $(document).ready(function() {
+
+            // Color Editor
+            $.extend($.fn.datagrid.defaults.editors, {
+                color: {
+                    init: function(container, options){
+                        var input = $('<input class="easyui-color">').appendTo(container);
+                        input.color(options);
+                        return input;
+                    },
+                    destroy: function(target){
+                        $(target).color('destroy');
+                    },
+                    getValue: function(target){
+                        return $(target).color('getValue');
+                    },
+                    setValue: function(target, value){
+                        $(target).color('setValue', value);
+                    },
+                    resize: function(target, width){
+                        $(target).color('resize', width);
+                    }
+                }
+            })
+
+            const data = [
+                {"name":"Name","value":"Bill Smith","group":"ID Settings","editor":"text"},
+                {"name":"Address","value":"","group":"ID Settings","editor":"text"},
+                {"name":"Age","value":"40","group":"ID Settings","editor":"numberbox"},
+                {"name":"Birthday","value":"01/02/2012","group":"ID Settings","editor":"datebox"},
+                {"name":"SSN","value":"123-456-7890","group":"ID Settings","editor":"text"},
+                {"name":"Color","value":"#ff0000","group":"ID Settings","editor":"color"},
+                {"name":"Email","value":"bill@gmail.com","group":"Marketing Settings","editor":{
+                    "type":"validatebox",
+                    "options":{
+                        "validType":"email"
+                    }
+                }},
+                {"name":"FrequentBuyer","value":"false","group":"Marketing Settings","editor":{
+                    "type":"checkbox",
+                    "options":{
+                        "on":true,
+                        "off":false
+                    }
+                }}
+            ]
+
+            $('#pg').propertygrid('loadData', data);
+
+        })
+
+	</script>
+</body>
+</html>

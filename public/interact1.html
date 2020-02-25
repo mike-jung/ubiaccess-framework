@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4/dist/css/bootstrap.min.css">
+        <script src='https://unpkg.com/jquery@3/dist/jquery.min.js'></script>
+        <script src='https://unpkg.com/popper.js@1/dist/umd/popper.min.js'></script>
+        <script src='https://unpkg.com/bootstrap@4/dist/js/bootstrap.min.js'></script>
+
+        <!-- Interact.js -->
+        <script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
+
+        <style>
+            /* 선택된 아이템 */
+            .selected-item {
+                border: solid 2px rgb(5, 65, 105) !important;
+            }
+
+            /* 갖다 놓을 공간 */
+            #dropzone1 {
+                height: 30rem;
+            }
+
+            /* 갖다 놓을 공간 공통 */
+            .dropzone {
+                background-color: #ccc;
+                border: dashed 4px transparent;
+                margin: 1em auto 3em;
+                padding: 1em;
+                transition: background-color 0.3s;
+            }
+
+            .drop-active {
+                border-color: #aaa;
+            }
+
+            .drop-target {
+                background-color: #29e;
+                border-color: #fff;
+                border-style: solid;
+            }
+
+            /* 갖다 놓을 아이템 */
+            .drag-drop {
+                display: inline-block;
+                min-width: 5em;
+                padding: 2em 0.5em;
+                color: #fff;
+                background-color: #29e;
+                border: solid 2px #fff;
+                touch-action: none;
+                -webkit-transform: translate(0px, 0px);
+                        transform: translate(0px, 0px);
+                transition: background-color 0.3s;
+            }
+
+            .drag-drop.can-drop {
+                color: #000;
+                background-color: #4e4;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-10">
+                    <div id="dropzone1" class="dropzone">
+                        #dropzone1
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div id="dropitem1" class="drag-drop text-center">
+                        #dropitem1
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            
+            let selectedItem;
+
+            interact('.dropzone').dropzone({
+                // 지정된 아이템만 드래그 가능하도록 함
+                accept: '#dropitem1',
+                
+                // 드롭하기 위해 75% 이상 겹쳐야 함
+                overlap: 0.75,
+
+                // 이벤트 등록
+                ondropactivate: function (event) {
+                    // add active dropzone feedback
+                    event.target.classList.add('drop-active')
+                },
+                ondragenter: function (event) {
+                    var draggableElement = event.relatedTarget
+                    var dropzoneElement = event.target
+
+                    // feedback the possibility of a drop
+                    dropzoneElement.classList.add('drop-target')
+                    draggableElement.classList.add('can-drop')
+                    draggableElement.textContent = 'Dragged in'
+                },
+                ondragleave: function (event) {
+                    // remove the drop feedback style
+                    event.target.classList.remove('drop-target')
+                    event.relatedTarget.classList.remove('can-drop')
+                    event.relatedTarget.textContent = 'Dragged out'
+                },
+                ondrop: function (event) {
+                    // 끌어다 놓았을 때 이벤트
+
+                    // 선택된 아이템이므로 selected 설정
+                    if (selectedItem) { // 기존에 선택된 아이템이 있으면 selected 해제
+                        selectedItem.classList.remove('selected-item');
+                    }
+                    
+                    event.relatedTarget.classList.add('selected-item');
+                    selectedItem = event.relatedTarget;
+
+                    // 가로/세로 크기 설정
+                    event.relatedTarget.style.width = '200px'
+                    event.relatedTarget.style.height = '100px'
+   
+                    event.relatedTarget.textContent = 'TextView';
+
+
+                    //event.relatedTarget.textContent = 'Dropped'
+
+                    // top/left 위치 확인
+                    const targetTop = event.target.getAttribute('data-x');
+                    const targetLeft = event.target.getAttribute('data-y');
+                    console.log('dropzone top/left : ' + targetTop + ', ' + targetLeft);
+
+                    console.log('dropitem bound : ' + event.relatedTarget.getBoundingClientRect());
+                    const offsetX = event.relatedTarget.offsetLeft - targetLeft;
+                    console.log('offsetX : ' + offsetX);
+                    
+                },
+                ondropdeactivate: function (event) {
+                    // remove active dropzone feedback
+                    event.target.classList.remove('drop-active')
+                    event.target.classList.remove('drop-target')
+                }
+            })
+
+            interact('.drag-drop').draggable({
+                inertia: true,
+                modifiers: [
+                    interact.modifiers.restrictRect({
+                        endOnly: true
+                    })
+                ],
+                autoScroll: true,
+                // dragMoveListener from the dragging demo above
+                onmove: dragMoveListener
+            }).resizable({
+                // resize from all edges and corners
+                edges: { left: true, right: true, bottom: true, top: true },
+
+                modifiers: [
+                // keep the edges inside the parent
+                interact.modifiers.restrictEdges({
+                    endOnly: true
+                }),
+
+                // minimum size
+                interact.modifiers.restrictSize({
+                    min: { width: 100, height: 50 }
+                })
+                ],
+
+                inertia: true
+            })
+            .on('resizemove', function (event) {
+                var target = event.target
+                var x = (parseFloat(target.getAttribute('data-x')) || 0)
+                var y = (parseFloat(target.getAttribute('data-y')) || 0)
+
+                // update the element's style
+                target.style.width = event.rect.width + 'px'
+                target.style.height = event.rect.height + 'px'
+
+                // translate when resizing from top or left edges
+                x += event.deltaRect.left
+                y += event.deltaRect.top
+
+                target.style.webkitTransform = target.style.transform =
+                    'translate(' + x + 'px,' + y + 'px)'
+
+                target.setAttribute('data-x', x)
+                target.setAttribute('data-y', y)
+                target.textContent = Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height)
+            })
+
+            function dragMoveListener (event) {
+                var target = event.target
+                // keep the dragged position in the data-x/data-y attributes
+                var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+                var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+
+                // translate the element
+                target.style.webkitTransform =
+                    target.style.transform =
+                    'translate(' + x + 'px, ' + y + 'px)'
+
+                // update the posiion attributes
+                target.setAttribute('data-x', x)
+                target.setAttribute('data-y', y)
+            }
+
+            // this is used later in the resizing and gesture demos
+            window.dragMoveListener = dragMoveListener
+
+        </script>
+
+    </body>
+</html>

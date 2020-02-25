@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4/dist/css/bootstrap.min.css">
+        <script src='https://unpkg.com/jquery@3/dist/jquery.min.js'></script>
+        <script src='https://unpkg.com/popper.js@1/dist/umd/popper.min.js'></script>
+        <script src='https://unpkg.com/bootstrap@4/dist/js/bootstrap.min.js'></script>
+
+        <!-- Interact.js -->
+        <script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
+        
+        <!-- EasyUI -->
+        <link rel="stylesheet" type="text/css" href="./easyui/themes/default/easyui.css">
+	    <link rel="stylesheet" type="text/css" href="./easyui/themes/icon.css">
+        <script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+        <script src="./easyui/plugins/jquery.color.js"></script>
+
+        <!-- DomToImage -->
+        <script src="./js/dom-to-image.min.js"></script>
+
+        <style>
+
+            * {
+                margin:0;
+                padding:0;
+                box-sizing: border-box;
+            }
+
+            html, body {
+                width:100%;
+                height:100%;
+            }
+
+            /* 선택된 아이템 */
+            .selected-item {
+                border: 4px solid rgba(235,115,0,0.5) !important;
+            }
+
+            /* 갖다 놓을 공간 */
+            /*
+                11.6' 640x960
+                7.5'  640x384
+                6.0'  600x448
+            */
+            #dropzone1 {
+                height: 640px;
+                width: 960px;
+            }
+
+            /* 갖다 놓을 공간 공통 */
+            .dropzone {
+                background-color: #ccc;
+                border: dashed 4px transparent;
+                transition: background-color 0.3s;
+            }
+
+            .drop-active {
+                border-color: #aaa;
+            }
+
+            .drop-target {
+                background-color: #29e;
+                border-color: #fff;
+                border-style: solid;
+            }
+
+            .palette {
+                display: table;
+            }
+
+            .palette-row {
+                display: table-row;
+            }
+
+            /* 갖다 놓을 아이템 */
+            .drag-drop {
+                display: table-cell;
+                width: 8em;
+                height: 3em;
+                color: #fff;
+                background-color: #29e;
+                border: solid 2px #fff;
+                touch-action: none;
+                -webkit-transform: translate(0px, 0px);
+                        transform: translate(0px, 0px);
+                transition: background-color 0.3s;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            .drag-drop.can-drop {
+                color: #000;
+                background-color: #fff;
+            }
+   
+        </style>
+    </head>
+    <body>
+
+        <div class="container-fluid" style="padding:0;">
+            <div class="row no-gutters">
+                <div style="display:inline-block; margin-left:20px;">
+                    <div id="dropzone1" class="dropzone"></div>
+                </div>
+                <div style="display:inline-block;">
+                    <div class="palette">
+                        <div class="palette-row">
+                            <div id="TextViewWidget" palette="true" widget-type="TextView" class="drag-drop">
+                                TextView
+                            </div>
+                        </div>
+                        <div class="palette-row">
+                            <div id="ImageViewWidget" palette="true" widget-type="ImageView" class="drag-drop">
+                                ImageView
+                            </div>
+                        </div>
+                    </div>
+
+                    <table id="pg" class="easyui-propertygrid" style="width:300px" showGroup="true" scrollbarSize="0"></table>
+                 
+                </div>
+            </div>
+            <div class="row no-gutters">
+                <div class="col-md-3">
+                    <select class="easyui-combobox" id="device-size" name="device-size" label="Device Size:" labelPosition="top" style="width:70%;">
+                        <option value="11.6">11.6' (960x640)</option>
+                        <option value="7.5">7.5' (640x384)</option>
+                        <option value="6.0">6.0' (600x448)</option>
+                    </select>
+                    <input type="button" value="Change" onclick="changeDeviceSize()">
+                </div>
+                <div class="col-md-3">
+                    <input type="button" value="Remove Selected" onclick="removeSelected()">
+                    <input type="button" value="Preview" onclick="convertToImage()">
+                </div>
+                <div class="col-md-4">
+                    <input type="button" value="Save" onclick="saveToFile()">
+
+                    <input type="file" id="myFile">
+                    <input type="button" value="Load" onclick="loadFromFile()">
+                </div>
+            </div>
+        </div>
+
+
+        <!-- The Modal -->
+        <div class="modal fade" id="previewModal">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content" style="width:1080px">
+                
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Preview</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <div id="img-container">
+
+                        </div>
+                    </div>
+                    
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+      
+
+        <script>
+            
+            let selectedItem = [];
+
+
+            $(document).ready(function() {
+ 
+                // Color Editor
+                $.extend($.fn.datagrid.defaults.editors, {
+                    color: {
+                        init: function(container, options){
+                            var input = $('<input class="easyui-color">').appendTo(container);
+                            input.color(options);
+                            return input;
+                        },
+                        destroy: function(target){
+                            $(target).color('destroy');
+                        },
+                        getValue: function(target){
+                            return $(target).color('getValue');
+                        },
+                        setValue: function(target, value){
+                            $(target).color('setValue', value);
+                        },
+                        resize: function(target, width){
+                            $(target).color('resize', width);
+                        }
+                    }
+                })
+ 
+                const data = []
+
+                $('#pg').propertygrid('loadData', data);
+                $('#pg').propertygrid({
+                    onSelect: function (index, row) {
+                        console.log('onSelect -> ' + index + ', ' + JSON.stringify(row));
+                    },
+                    onBeginEdit:function(index,row){
+                        var pg = $(this);
+                        var ed = pg.propertygrid('getEditors',index)[0];
+                        if (ed){
+                            var input;
+                            if ($(ed.target).hasClass('textbox-f')){
+                                input = $(ed.target).textbox('textbox');
+                            } else {
+                                input = $(ed.target);
+                            }
+                            input.bind('keydown', function(e) {
+                                console.log('keydown -> ' + e.keyCode);
+
+                                if (e.keyCode == 9) {	// tab key
+                                    let cell = pg.propertygrid('options').finder.getTr(pg[0], index+1).find('td[field="value"] div.datagrid-cell');
+                                    console.log(cell);
+                                    if (cell.length == 0) {
+                                        cell = pg.propertygrid('options').finder.getTr(pg[0], index-1).find('td[field="value"] div.datagrid-cell');
+                                    }
+
+                                    cell.trigger('click');
+                                    return false;
+                                } else if (e.keyCode == 13) {	// enter key
+                                    let cell = pg.propertygrid('options').finder.getTr(pg[0], index+1).find('td[field="value"] div.datagrid-cell');
+                                    console.log(cell);
+                                    if (cell.length == 0) {
+                                        cell = pg.propertygrid('options').finder.getTr(pg[0], index-1).find('td[field="value"] div.datagrid-cell');
+                                    }
+                                    
+                                    cell.trigger('click');
+                                    return false;
+                                }
+                            })
+                        }
+                    },
+                    onAfterEdit:function(index, row){
+                        console.log('onAfterEdit -> ' + index + ', ' + JSON.stringify(row));
+
+                        applyPropertyChange(selectedItem[0], row);
+                    }
+
+                });
+ 
+                // make dialog draggable
+                $('.modal-dialog').draggable({
+    	            "handle":".modal-header"
+                });
+
+            })
+
+            function changeDeviceSize() {
+                var deviceSizeSelect = document.getElementById("device-size");
+                var selectValue = deviceSizeSelect.options[deviceSizeSelect.selectedIndex].value;
+                console.log('selected value : ' + selectValue);
+
+                if (selectValue == '11.6') {
+                    $('#dropzone1').width('960px');
+                    $('#dropzone1').height('640px');
+                } else if (selectValue == '7.5') {
+                    $('#dropzone1').width('640px');
+                    $('#dropzone1').height('384px');
+                } else if (selectValue == '6.0') {
+                    $('#dropzone1').width('600px');
+                    $('#dropzone1').height('448px');
+                }
+
+            }
+
+            function removeSelected() {
+                console.log('removeSelected called.');
+
+                for (let i = 0; i < selectedItem.length; i++) {
+                    selectedItem[i].remove();
+                }
+            }
+
+            function convertToImage() {
+                console.log('convertToImage called.');
+
+                setSelected(null);
+
+                var dropzone1 = document.getElementById('dropzone1');
+
+                
+                // move to 0,0
+                const oldTop = $('#dropzone1').offset().top;
+                const oldLeft = $('#dropzone1').offset().left;
+                console.log('dropzone1 : ' + oldLeft + ', ' + oldTop);
+                for (let i = 0; i < dropzone1.childElementCount; i++) {
+                    const elemY = parseInt(dropzone1.childNodes[i].getAttribute('data-y')) - oldTop;
+                    const elemX = parseInt(dropzone1.childNodes[i].getAttribute('data-x')) - oldLeft;
+                    console.log('elem x, y : ' + elemX + ', ' + elemY);
+
+                    dropzone1.childNodes[i].style.webkitTransform = dropzone1.childNodes[i].style.transform =
+                            'translate(' + elemX + 'px,' + elemY + 'px)'
+
+                    dropzone1.childNodes[i].setAttribute('data-y', elemY);
+                    dropzone1.childNodes[i].setAttribute('data-x', elemX);
+                }
+
+                domtoimage.toPng(dropzone1)
+                    .then(function (dataUrl) {
+                        var img = new Image();
+                        img.src = dataUrl;
+                        const imgContainer = document.getElementById('img-container');
+                        while (imgContainer.hasChildNodes()) {
+                            imgContainer.removeChild(imgContainer.firstChild);
+                        }
+                        imgContainer.appendChild(img);
+
+                        // move to old coord
+                        for (let i = 0; i < dropzone1.childElementCount; i++) {
+                            const elemY = parseInt(dropzone1.childNodes[i].getAttribute('data-y')) + oldTop;
+                            const elemX = parseInt(dropzone1.childNodes[i].getAttribute('data-x')) + oldLeft;
+                            console.log('elem x, y : ' + elemX + ', ' + elemY);
+
+                            dropzone1.childNodes[i].style.webkitTransform = dropzone1.childNodes[i].style.transform =
+                                    'translate(' + elemX + 'px,' + elemY + 'px)'
+
+                            dropzone1.childNodes[i].setAttribute('data-y', elemY);
+                            dropzone1.childNodes[i].setAttribute('data-x', elemX);
+                        }
+
+                        $("#previewModal").modal();
+                    })
+                    .catch(function (error) {
+                        // move to old coord
+                        for (let i = 0; i < dropzone1.childElementCount; i++) {
+                            const elemY = parseInt(dropzone1.childNodes[i].getAttribute('data-y')) + oldTop;
+                            const elemX = parseInt(dropzone1.childNodes[i].getAttribute('data-x')) + oldLeft;
+                            console.log('elem x, y : ' + elemX + ', ' + elemY);
+                            
+                            dropzone1.childNodes[i].style.webkitTransform = dropzone1.childNodes[i].style.transform =
+                                    'translate(' + elemX + 'px,' + elemY + 'px)'
+
+                            dropzone1.childNodes[i].setAttribute('data-y', elemY);
+                            dropzone1.childNodes[i].setAttribute('data-x', elemX);
+                        }
+
+                        console.error('Error occurred in converting to image', error);
+                    });
+            }
+
+            function saveToFile() {
+                let views = makeContents();
+                let contents = JSON.stringify(views);
+                let filename = 'output1.json';
+
+                const a = document.createElement("a");
+                const file = new Blob([contents], {type:'text/plain'});
+                a.href = URL.createObjectURL(file);
+                a.download = filename;
+                a.click();
+
+            }
+
+            function makeContents() {
+                const viewInfo = [];
+                const dropzone1 = document.getElementById('dropzone1');
+                for (let i = 0; i < dropzone1.childNodes.length; i++) {
+                    const target = dropzone1.childNodes[i];
+
+                    const widgetType = target.getAttribute('widget-type');
+                    const targetPropertyData = makePropertyData(target, true);
+                    
+                    viewInfo.push({
+                        widgetType: widgetType,
+                        properties: targetPropertyData
+                    });
+                }
+
+                return viewInfo;
+            }
+
+            function loadFromFile() {
+                var input = document.getElementById('myFile');
+
+                if (input.files && input.files[0]) {
+                    var myFile = input.files[0];
+                    var reader = new FileReader();
+
+                    reader.addEventListener('load', function(e) {
+                        const contents = e.target.result;
+                        
+                        parseContents(contents);
+                    })
+                    reader.readAsText(myFile, 'utf8');
+                }
+            
+            }
+
+            function parseContents(contents) {
+                const dropzone1 = document.getElementById('dropzone1');
+
+                // remove all children
+                console.log('count of existing child nodes : ' + dropzone1.childElementCount);
+                while(dropzone1.childElementCount > 0) {
+                    console.log('removing child.');
+                    dropzone1.firstElementChild.remove();
+                }
+
+                const viewInfo = JSON.parse(contents);
+                console.log('view count : ' + viewInfo.length);
+
+                // make a clone object
+                for (let i = 0; i < viewInfo.length; i++) {
+                    const curViewInfo = viewInfo[i];
+                    let view = makeView(i, curViewInfo);
+
+                    // apply property
+                    for (let j = 0; j < curViewInfo.properties.length; j++) {
+                        if (curViewInfo.properties[j].value) {
+                            view = applyPropertyChange(view, curViewInfo.properties[j], true);
+                        }
+                    }
+                    
+                    // set translate attribute
+                    const curY = view.getAttribute('data-y');
+                    const curX = view.getAttribute('data-x');
+                    console.log('translate x, y -> ' + curX + ', ' + curY);
+                    view.style.webkitTransform = view.style.transform =
+                            'translate(' + curX + 'px,' + curY + 'px)'
+
+                    
+                    // append child to dropzone1
+                    dropzone1.appendChild(view);
+                    
+                }
+ 
+            }
+
+            function makeView(index, viewInfo) {
+                let clone;
+                if (viewInfo.widgetType == 'TextView') {
+                    const widget = document.getElementById('TextViewWidget');
+                    clone = widget.cloneNode(true);
+
+                } else if (viewInfo.widgetType == 'ImageView') {
+                    const widget = document.getElementById('ImageViewWidget');
+                    clone = widget.cloneNode(true);
+
+                }
+ 
+                clone.setAttribute('id', 'item' + index);
+                clone.removeAttribute('palette');
+                   
+                clone.classList.add("drag-drop");
+                clone.classList.add("text-center");
+                clone.classList.add("align-middle");
+                clone.classList.add("can-drop");
+                
+                // update the posiion attributes
+                clone.setAttribute("data-x", 0);
+                clone.setAttribute("data-y", 0);
+                   
+                clone.setAttribute("state", 'initial');
+
+                clone.style.position = 'absolute';
+                clone.style.top = '0'
+                clone.style.left = '0'
+                if (viewInfo.widgetType == 'TextView') {
+                    clone.style.width = '200px'
+                    clone.style.height = '100px'
+                    clone.style.lineHeight = '100px'
+
+                    clone.textContent = 'TextView';
+
+                } else if (viewInfo.widgetType == 'ImageView') {
+                    clone.style.width = '200px'
+                    clone.style.height = '200px'
+
+                    const elem = document.createElement('img');
+                    elem.setAttribute('src', 'images/person.png');
+                    elem.setAttribute('width', '100%');
+                    elem.setAttribute('height', '100%');
+                    elem.style.pointerEvents = 'none';
+
+                    clone.innerHTML = '';
+                    clone.appendChild(elem);
+
+                } else {
+                    console.log('Unknown widget type : ' + viewInfo.widgetType);
+                }
+            
+                // default background-color and color
+                //clone.style.backgroundColor = '#ffffff';
+                //clone.style.color = '#000000';
+
+                return clone;
+            }
+
+            function applyPropertyChange(view, row, isTransform) {
+                console.log('applying property : ' + row.name + ', ' + row.value);
+
+                if (row.name == 'top') {
+                    if (!isTransform) {
+                        const orgY = view.style.top;
+                        const curY = parseFloat(row.value) - parseFloat(orgY);
+                        console.log('top -> ' + curY);
+                        
+                        view.setAttribute('data-y', curY);
+                    } else {
+                        view.style.top = row.value;
+                    }
+                } else if (row.name == 'left') {
+                    if (!isTransform) {
+                        const orgX = view.style.left;
+                        const curX = parseFloat(row.value) - parseFloat(orgX);
+                        console.log('left -> ' + curX);
+
+                        view.setAttribute('data-x', curX);
+                    } else {
+                        view.style.left = row.value;
+                    }
+                } else if (row.name == 'data-y') {
+                    view.setAttribute('data-y', row.value);
+                } else if (row.name == 'data-x') {
+                    view.setAttribute('data-x', row.value);
+                } else if (row.name == 'width') {
+                    view.style.width = row.value;
+                } else if (row.name == 'height') {
+                    view.style.height = row.value;
+                } else if (row.name == 'text') {
+                    view.textContent = row.value;  
+                } else if (row.name == 'font-size') {
+                    view.style.fontSize = row.value;     
+                } else if (row.name == 'font-style') {
+                    view.style.fontStyle = row.value;       
+                } else if (row.name == 'font-weight') {
+                    view.style.fontWeight = row.value;         
+                } else if (row.name == 'color') {
+                    view.style.color = row.value;      
+                } else if (row.name == 'background-color') {
+                    view.style.backgroundColor = row.value;    
+                } else if (row.name == 'border-width') {
+                    view.style.borderWidth = row.value;          
+                } else if (row.name == 'border-style') {
+                    view.style.borderStyle = row.value;          
+                } else if (row.name == 'border-color') {
+                    view.style.borderColor = row.value;          
+                } else if (row.name == 'src') {
+                    if (view.firstElementChild && view.firstElementChild.hasAttribute('src')) {
+                        view.firstElementChild.setAttribute('src', row.value);
+                    } else if (view.hasAttribute('src')) {
+                        view.setAttribute('src', row.value);
+                    }
+                } else {
+                    console.log('unknown name.');
+                }
+
+                if (!isTransform) {
+                    // apply transform for x and y position
+                    if (row.name == 'top') {
+                        //const orgY = view.style.top;
+                        //const curY = parseFloat(row.value) - parseFloat(orgY);
+                        //console.log('top -> ' + curY);
+                        
+                        const curY = view.getAttribute('data-y');
+                        //console.log('top -> ' + curY);
+
+                        const curX = view.getAttribute('data-x');
+                        //console.log('left -> ' + curX);
+
+                        console.log('translate x, y -> ' + curX + ', ' + curY);
+                        if (curX && curY) {
+                            view.style.webkitTransform = view.style.transform =
+                                'translate(' + curX + 'px,' + curY + 'px)'
+                        }
+
+                    } else if (row.name == 'left') {
+                        const curY = view.getAttribute('data-y');
+                        //console.log('top -> ' + curY);
+
+                        const curX = view.getAttribute('data-x');
+                        //console.log('left -> ' + curX);
+                        
+                        //const orgX = view.style.left;
+                        //const curX = parseFloat(row.value) - parseFloat(orgX);
+                        //console.log('left -> ' + curX);
+                        
+                        console.log('translate x, y -> ' + curX + ', ' + curY);
+                        if (curX && curY) {
+                            view.style.webkitTransform = view.style.transform =
+                                'translate(' + curX + 'px,' + curY + 'px)'
+                        }
+                    }
+                }
+
+                return view;
+            }
+
+
+            interact('.dropzone').dropzone({
+                // 지정된 아이템만 드래그 가능하도록 함
+                accept: '.drag-drop',
+                
+                // 드롭하기 위해 75% 이상 겹쳐야 함
+                overlap: 0.75,
+
+                // 이벤트 등록
+                ondropactivate: function (event) {
+                    // add active dropzone feedback
+                    event.target.classList.add('drop-active')
+                },
+                ondragenter: function (event) {
+                    var draggableElement = event.relatedTarget
+                    var dropzoneElement = event.target
+
+                    // feedback the possibility of a drop
+                    dropzoneElement.classList.add('drop-target')
+                    draggableElement.classList.add('can-drop')
+                    //draggableElement.textContent = 'Dragged in'
+                },
+                ondragleave: function (event) {
+                    // remove the drop feedback style
+                    event.target.classList.remove('drop-target')
+                    event.relatedTarget.classList.remove('can-drop')
+                    //event.relatedTarget.textContent = 'Dragged out'
+                },
+                ondrop: function (event) {
+                    // 끌어다 놓았을 때 이벤트
+
+                    const widgetType = event.relatedTarget.getAttribute('widget-type');
+                    console.log('widget type : ' + widgetType);
+
+                    const state = event.relatedTarget.getAttribute('state');
+                    console.log('state : ' + state);
+
+                    // 가로/세로 크기 설정
+                    if (state == 'initial') {
+                        if (widgetType == 'TextView') {
+                            event.relatedTarget.style.width = '200px'
+                            event.relatedTarget.style.height = '100px'
+                            event.relatedTarget.style.lineHeight = '100px'
+        
+                            event.relatedTarget.textContent = 'TextView';
+ 
+                        } else if (widgetType == 'ImageView') {
+                            event.relatedTarget.style.width = '200px'
+                            event.relatedTarget.style.height = '200px'
+        
+                            const elem = document.createElement('img');
+                            elem.setAttribute('src', 'images/person.png');
+                            elem.setAttribute('width', '100%');
+                            elem.setAttribute('height', '100%');
+                            elem.style.pointerEvents = 'none';
+
+                            event.relatedTarget.innerHTML = '';
+                            event.relatedTarget.appendChild(elem);
+
+                        } 
+                    }
+
+
+                    //event.relatedTarget.textContent = 'Dropped'
+
+                    // top/left 위치 확인
+                    const targetTop = event.relatedTarget.getAttribute('data-x');
+                    const targetLeft = event.relatedTarget.getAttribute('data-y');
+                    console.log('dropitem top/left : ' + targetTop + ', ' + targetLeft);
+
+                    console.log('dropitem bound : ' + event.relatedTarget.getBoundingClientRect());
+                    const offsetX = event.relatedTarget.offsetLeft - targetLeft;
+                    console.log('offsetX : ' + offsetX);
+                    
+                    
+                    setSelected(event.relatedTarget);
+
+                },
+                ondropdeactivate: function (event) {
+                    // remove active dropzone feedback
+                    event.target.classList.remove('drop-active')
+                    event.target.classList.remove('drop-target')
+                }
+            })
+
+            interact('.drag-drop').draggable({
+                inertia: true,
+                modifiers: [
+                    interact.modifiers.restrictRect({
+                        endOnly: true
+                    })
+                ],
+                manualStart: true,
+                autoScroll: true,
+                // dragMoveListener from the dragging demo above
+                onmove: dragMoveListener
+            }).resizable({
+                // resize from all edges and corners
+                edges: { left: true, right: true, bottom: true, top: true },
+
+                modifiers: [
+                    // keep the edges inside the parent
+                    interact.modifiers.restrictEdges({
+                        endOnly: true
+                    }),
+
+                    // minimum size
+                    interact.modifiers.restrictSize({
+                        min: { width: 10, height: 10 }
+                    })
+                ],
+
+                inertia: true
+            })
+            .on('move', function (event) {
+                var interaction = event.interaction;
+
+                // if the pointer was moved while being held down
+                // and an interaction hasn't started yet
+                if (interaction.pointerIsDown && !interaction.interacting()) {
+                    var target = event.currentTarget;
+
+                    if (target.getAttribute('palette')) {
+                        // create a clone of the currentTarget element
+                        var clone = event.currentTarget.cloneNode(true);
+                        clone.removeAttribute('palette');
+                         
+                        console.log(event.currentTarget);
+                        
+                        var targetBounding = target.getBoundingClientRect();
+
+                        // add dragging class
+                        //clone.classList.add("drag-dragging");
+                        //clone.classList.remove("drag-dropped");
+                        clone.classList.add("drag-drop");
+                        clone.classList.add("text-center");
+                        clone.classList.add("align-middle");
+
+                        // translate the element
+                        clone.style.transform = "translate(0px, 0px)";
+                        clone.style.position = "absolute";        
+                        clone.style.top = (targetBounding.top + window.scrollY) + "px";
+                        clone.style.left = (targetBounding.left + window.scrollX) + "px";
+
+                        // default background-color and color
+                        clone.style.backgroundColor = '#ffffff';
+                        clone.style.color = '#000000';
+
+                        // update the posiion attributes
+                        clone.setAttribute("data-x", 0);
+                        clone.setAttribute("data-y", 0);
+                        
+
+                        // insert the clone to the page
+                        //document.body.appendChild(clone);
+                        const dropzone1 = document.getElementById('dropzone1');
+                        dropzone1.appendChild(clone);
+
+                        // start a drag interaction targeting the clone
+                        interaction.start({ name: 'drag' }, event.interactable, clone);
+                
+                        clone.setAttribute("state", 'initial');
+
+                    } else {
+                        
+                        // start a drag interaction targeting the clone
+                        interaction.start({ name: 'drag' }, event.interactable, target);
+                
+                        target.setAttribute("state", 'move');
+
+                    }
+
+                }     
+                
+            })
+            .on('resizemove', function (event) {
+                var target = event.target
+                var x = (parseFloat(target.getAttribute('data-x')) || 0)
+                var y = (parseFloat(target.getAttribute('data-y')) || 0)
+
+                // update the element's style
+                target.style.width = event.rect.width + 'px'
+                target.style.height = event.rect.height + 'px'
+
+                // translate when resizing from top or left edges
+                x += event.deltaRect.left
+                y += event.deltaRect.top
+
+                target.style.webkitTransform = target.style.transform =
+                    'translate(' + x + 'px,' + y + 'px)'
+
+                target.setAttribute('data-x', x)
+                target.setAttribute('data-y', y)
+                //target.textContent = Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height)
+                console.log('coord : '  + Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height));
+
+                target.setAttribute("state", 'resize');
+
+            })
+            .on('down', function (event) {
+                const target = event.target;
+
+                setSelected(target);
+            })
+            .on('up', function (event) {
+                const target = event.target
+
+            })
+
+
+
+            function setSelected(target) {
+
+                // 선택된 아이템이므로 selected 설정
+                if (selectedItem.length > 0) { // 기존에 선택된 아이템이 있으면 selected 해제
+                    for (let i = 0; i < selectedItem.length; i++) {
+                        selectedItem[i].classList.remove('selected-item');
+                    }
+                    selectedItem = [];
+                }
+                
+                if (target) {
+                    target.classList.add('selected-item');
+                    selectedItem.push(target);
+                    
+                    setPropertyData(target);
+                }
+
+            }
+
+            function setPropertyData(target) {
+                console.log('setPropertyData called.');
+
+                const data = makePropertyData(target);
+                $('#pg').propertygrid('loadData', data);
+
+            }
+
+            function makePropertyData(target, isRawCoord) {
+                console.log('makePropertyData called.');
+
+                let widgetType = target.getAttribute('widget-type');
+                if (!widgetType) {
+                    widgetType = target.parentElement.getAttribute('widget-type');
+                }
+                console.log('widget type : ' + widgetType);
+ 
+                const data = [];
+                
+                // top coord
+                const parentY = $('#dropzone1').offset().top;
+                const orgY = parseFloat(target.style.top);
+                const curY = parseFloat(target.getAttribute('data-y'));
+                let styleTop = Math.round(orgY + curY - parentY);
+                if (isNaN(styleTop)) {
+                    styleTop = '';
+                } else {
+                    styleTop += 'px';
+                }
+
+                if (isRawCoord) {
+                    data.push({name:'top',value:orgY + 'px',group:'Position',editor:'text'});
+                    data.push({name:'data-y',value:curY,group:'Position',editor:'text'});
+                } else {
+                    data.push({name:'top',value:styleTop,group:'Position',editor:'text'});
+                }
+
+                // left coord
+                const parentX = $('#dropzone1').offset().left;
+                const orgX = parseFloat(target.style.left);
+                const curX = parseFloat(target.getAttribute('data-x'));
+                let styleLeft = Math.round(orgX + curX - parentX);
+                if (isNaN(styleLeft)) {
+                    styleLeft = '';
+                } else {
+                    styleLeft += 'px';
+                }
+
+                if (isRawCoord) {
+                    data.push({name:'left',value:orgX + 'px',group:'Position',editor:'text'});
+                    data.push({name:'data-x',value:curX,group:'Position',editor:'text'});
+                } else {
+                    data.push({name:'left',value:styleLeft,group:'Position',editor:'text'});
+                }
+
+                const styleWidth = target.style.width;
+                data.push({name:'width',value:styleWidth,group:'Position',editor:'text'});
+
+                const styleHeight = target.style.height;
+                data.push({name:'height',value:styleHeight,group:'Position',editor:'text'});
+
+                const styleBackgroundColor = target.style.backgroundColor;
+                data.push({name:'background-color',value:styleBackgroundColor,group:'Style',editor:'color'});
+
+                const styleBorderWidth = target.style.borderWidth;
+                data.push({name:'border-width',value:styleBorderWidth,group:'Style',editor:'text'});
+
+                const styleBorderStyle = target.style.borderStyle;
+                data.push({name:'border-style',value:styleBorderStyle,group:'Style',editor:'text'});
+
+                const styleBorderColor = target.style.borderColor;
+                data.push({name:'border-color',value:styleBorderColor,group:'Style',editor:'color'});
+
+                if (widgetType == 'TextView') {
+                    const styleColor = target.style.color;
+                    data.push({name:'color',value:styleColor,group:'Style',editor:'color'});
+
+                    const styleText = target.textContent;
+                    data.push({name:'text',value:styleText,group:'Style',editor:'text'});
+
+                    const styleFontSize = target.style.fontSize;
+                    data.push({name:'font-size',value:styleFontSize,group:'Style',editor:'text'});
+
+                    const styleFontStyle = target.style.fontStyle;
+                    data.push({name:'font-style',value:styleFontStyle,group:'Style',editor:'text'});
+
+                    const styleFontWeight = target.style.fontWeight;
+                    data.push({name:'font-weight',value:styleFontWeight,group:'Style',editor:'text'});
+
+                } else if (widgetType == 'ImageView') {
+                    console.dir(target);
+
+                    let imageSrc = '';
+                    if (target.firstElementChild && target.firstElementChild.hasAttribute('src')) {
+                        imageSrc = target.firstElementChild.getAttribute('src');
+                    } else if (target.hasAttribute('src')) {
+                        imageSrc = target.getAttribute('src');
+                    }
+
+                    data.push({name:'src',value:imageSrc,group:'Style',editor:'text'});
+
+                } 
+                  
+                return data;
+            }
+
+
+            function dragMoveListener (event) {
+                var target = event.target
+                // keep the dragged position in the data-x/data-y attributes
+                var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+                var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+
+                // translate the element
+                target.style.webkitTransform =
+                    target.style.transform =
+                    'translate(' + x + 'px, ' + y + 'px)'
+
+                // update the posiion attributes
+                target.setAttribute('data-x', x)
+                target.setAttribute('data-y', y)
+            }
+
+            // this is used later in the resizing and gesture demos
+            window.dragMoveListener = dragMoveListener
+
+        </script>
+
+    </body>
+</html>

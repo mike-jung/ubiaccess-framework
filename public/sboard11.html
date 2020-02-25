@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <!-- 모바일 단말을 위한 메타정보 -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="theme-color" content="#2196f3">
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap:">
+
+		<title>SBoard Test 11</title>
+
+        <style>
+                 
+            * {
+                margin:0;
+                padding:0;
+                box-sizing: border-box;
+            }
+
+            html, body {
+                width: 100%;
+                height: 100%;
+            }
+
+            .container {
+                width: 100%;
+            }
+
+            #targetImg {
+                overflow-x: auto;
+            }
+
+        </style>
+
+		<script src="jquery-3.4.1.min.js"></script>    
+		<script src="/socket.io/socket.io.js"></script>
+        
+        <script>
+             
+            // 로그인 정보
+            var id = '01010001000';
+            var roomId = 'SB1002-01';
+
+            // 조회하고자 하는 전광판 ID
+            var boardId = 'SB1002-01';
+
+            // 테스트 이미지 인덱스
+            var testImageIndex = 0;
+
+            var socket;
+            
+            var seqCode = 0;
+
+         	// document ready
+            $(function() {
+
+                // 1. 서버 연결
+                connectToServer();
+
+            });
+            
+			// function for connection
+            function connectToServer() {
+
+                socket = io();
+
+                // 서버 연결 시 발생하는 connect 이벤트 처리
+                socket.on('connect', function() {
+                	println('Server is connected to home server.');
+
+                    // 서버 연결에 성공했으므로 로그인 요청
+                    requestLogin();
+
+                    
+                });
+
+                // message 이벤트 처리 함수 등록
+                socket.on('message_group', function(message) {
+                    console.log(JSON.stringify(message));
+
+                    println('<p>message received : ' + JSON.stringify(message) + '</p>');
+                
+                    // 푸시 메시지를 받았을 때 업데이트
+                    if (message.command == 'sboard') {
+                        onSBoardResponse(message);
+                        
+                    }
+                });
+
+                // response 이벤트 처리 함수 등록
+                socket.on('response', function(response) {
+                    console.log(JSON.stringify(response));
+                    println('response received : ' + response.command + ', ' + response.code + ', ' + response.message);
+                
+                    if (response.command == 'login_group') {
+                        onLoginResponse(response);
+                    }
+                });
+                
+                // 서버 연결 시 발생하는 disconnect 이벤트 처리
+                socket.on('disconnect', function() {
+                    println('Server disconnected.');
+                });
+
+            }
+            
+            /**
+             * 로그인 요청
+             */
+            function requestLogin() {
+                
+                var requestCode = generateRequestCode();
+
+                var output = {requestCode:requestCode, userId:id, roomId:roomId};
+                console.log('OUTPUT : ' + JSON.stringify(output));
+
+                if (socket == undefined) {
+                    alert('Server is not connected. Connect to the server first.');
+                    return;
+                }
+
+                socket.emit('login_group', output);
+            }
+
+            function onLoginResponse(response) {
+                if (response.code == '200') {
+                    console.log('로그인 성공');
+
+                    // img 태그에 이미지 설정
+                    var boardImagePath = '/sboard/' + boardId + '.jpg';
+                    $('#targetImg').attr('src', boardImagePath + '?timestamp=' + new Date().getTime());
+                }
+            }
+
+            function onSBoardResponse(message) {
+                if (message.data == boardId) {  // 전광판번호 비교
+                    console.log('board update for ' + boardId);
+
+                    
+                    // 이미지 업데이트
+                    let boardImagePath = '/sboard/' + boardId + '.jpg';
+                    $('#targetImg').attr('src', boardImagePath + '?timestamp=' + new Date().getTime());
+ 
+                }
+            }
+
+            /**
+             * 로그아웃 요청
+             */
+            function requestLogout() {
+                var id = 'test01';
+                var requestCode = generateRequestCode();
+
+                var output = {requestCode:requestCode, userId:id, roomId:roomId};
+                console.log('OUTPUT : ' + JSON.stringify(output));
+
+                if (socket == undefined) {
+                    alert('Server is not connected. Connect to the server first.');
+                    return;
+                }
+
+                socket.emit('logout_group', output);
+            }
+
+            /*
+             * 요청 코드 생성
+             */
+            function generateRequestCode() {
+                var date = new Date();
+
+                var seqCodeStr = getSeqCode();
+ 
+                var components = [
+                    date.getFullYear(),
+                    ("0" + (date.getMonth() + 1)).slice(-2),
+                    date.getDate(),
+                    date.getHours(),
+                    date.getMinutes(),
+                    date.getSeconds(),
+                    date.getMilliseconds(),
+                    seqCodeStr
+                ];
+ 
+                var curCode = components.join("");
+                return curCode;
+            }
+
+            /*
+             * Get sequence code (01 ~ 99)
+             */
+            function getSeqCode() {
+                seqCode += 1;
+                if (seqCode > 99) {
+                    seqCode = 0;
+                }
+                var seqCodeStr = String(seqCode);
+                if (seqCodeStr.length == 1) {
+                    seqCodeStr = '0' + seqCodeStr;
+                }
+
+                return seqCodeStr;
+            }
+
+            
+			function println(data) {
+				console.log(data);
+				$('#result').append('<p>' + data + '</p>');
+			}
+        </script>
+	</head>
+<body>
+    
+    <div class="container">
+        <img id="targetImg" width="100%" height="100%">
+    </div>
+        
+</body>
+</html>
