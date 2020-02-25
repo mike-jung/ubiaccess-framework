@@ -578,13 +578,29 @@ class TableController {
             }
           }
         }
-        console.log('columnMapping -> ' + columnMapping);
+        
+        if (columnMapping && columnMapping.length < 1000) {
+          console.log('columnMapping -> ' + columnMapping);
+        } else {
+          console.log('columnMapping -> over 1000 characters.');
+        }
+
 
         sql = util.replace(sql, "#", columnMapping, 0);
 
         // (3) where 문 대체
         if (params.id) {
-          sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", "id = " + params.id, 0);
+          const idType = columnInfo['id'].Type;
+          console.log('id type -> ' + idType);
+
+          let idStr;
+          if (idType.includes('varchar') || idType.includes('text')) {
+            idStr = "id = " + "'" + params.id + "'";
+          } else {
+            idStr = "id = " + params.id;
+          }
+
+          sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", idStr, 0);
         }
          
         const queryParams = {
@@ -649,13 +665,28 @@ class TableController {
             }
           }
         }
-        console.log('columnMapping -> ' + columnMapping);
+
+        if (columnMapping && columnMapping.length < 1000) {
+          console.log('columnMapping -> ' + columnMapping);
+        } else {
+          console.log('columnMapping -> over 1000 characters.');
+        }
 
         sql = util.replace(sql, "#", columnMapping, 0);
 
         // (3) where 문 대체
         if (params.id) {
-          sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", "id = " + params.id, 0);
+          const idType = columnInfo['id'].Type;
+          console.log('id type -> ' + idType);
+
+          let idStr;
+          if (idType.includes('varchar') || idType.includes('text')) {
+            idStr = "id = " + "'" + params.id + "'";
+          } else {
+            idStr = "id = " + params.id;
+          }
+
+          sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", idStr, 0);
         }
          
         const queryParams = {
@@ -714,13 +745,29 @@ class TableController {
             }
           }
         }
-        console.log('columnMapping -> ' + columnMapping);
+        
+        if (columnMapping && columnMapping.length < 1000) {
+          console.log('columnMapping -> ' + columnMapping);
+        } else {
+          console.log('columnMapping -> over 1000 characters.');
+        }
+
 
         sql = util.replace(sql, "#", columnMapping, 0);
 
         // (3) where 문 대체
         if (params.id) {
-          sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", "id = " + params.id, 0);
+          const idType = columnInfo['id'].Type;
+          console.log('id type -> ' + idType);
+
+          let idStr;
+          if (idType.includes('varchar') || idType.includes('text')) {
+            idStr = "id = " + "'" + params.id + "'";
+          } else {
+            idStr = "id = " + params.id;
+          }
+
+          sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", idStr, 0);
         }
          
         const queryParams = {
@@ -785,13 +832,29 @@ class TableController {
             }
           }
         }
-        console.log('columnMapping -> ' + columnMapping);
+        
+        if (columnMapping && columnMapping.length < 1000) {
+          console.log('columnMapping -> ' + columnMapping);
+        } else {
+          console.log('columnMapping -> over 1000 characters.');
+        }
+
 
         sql = util.replace(sql, "#", columnMapping, 0);
 
         // (3) where 문 대체
         if (params.id) {
-          sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", "id = " + params.id, 0);
+          const idType = columnInfo['id'].Type;
+          console.log('id type -> ' + idType);
+
+          let idStr;
+          if (idType.includes('varchar') || idType.includes('text')) {
+            idStr = "id = " + "'" + params.id + "'";
+          } else {
+            idStr = "id = " + params.id;
+          }
+
+          sql = sql + ' ' + util.replace(sqlConfig.table_read.where, "#", idStr, 0);
         }
          
         const queryParams = {

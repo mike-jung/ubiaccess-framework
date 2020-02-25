@@ -3,7 +3,7 @@
 const util = {};
 
 // logger
-import logger from './logger';
+const logger = require('./logger');
 
 
 /**
@@ -50,6 +50,24 @@ util.sendResponse = function (res, output) {
  */
 util.sendError = function (res, code, message) {
     const output = {
+        code: code,
+        message: message
+    }
+
+    res.writeHead(200, {'Content-Type':'application/json;charset=utf8'});
+    res.end(JSON.stringify(output));
+}
+
+/**
+ * Send error
+ * 
+ * @param {object} res res object in express
+ * @param {number} code result code
+ * @param {string} message result message
+ */
+util.sendErr = function (res, requestCode, code, message) {
+    const output = {
+        requestCode: requestCode,
         code: code,
         message: message
     }

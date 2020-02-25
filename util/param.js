@@ -20,7 +20,13 @@ param.parse = function (req) {
         params = Object.assign(req.params, params);
     }
     
-    console.log(`PARAMS -> ${JSON.stringify(params)}`);
+    const paramsText = JSON.stringify(params);
+    if (paramsText && paramsText.length < 1000) {
+        console.log(`PARAMS -> ${paramsText}`);
+    } else {
+        console.log(`PARAMS -> over 1000 characters.`);
+    }
+    
 
     return params;
 }

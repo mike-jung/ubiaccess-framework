@@ -39,6 +39,11 @@ const sessionMiddleware = expressSession({
 });
 
 
+// load external_loader
+import external_loader from './loader/external_loader';
+
+
+
 // Declaration of createApp function
 const createApp = () => {
     const app = express();
@@ -50,8 +55,17 @@ const createApp = () => {
     app.use(cors());
     app.use('/', express.static(path.join(__dirname, 'public')));
     
-    app.use(bodyParser.urlencoded({extended:false}));
-    app.use(bodyParser.json());
+    //app.use(bodyParser.urlencoded({extended:false}));
+    app.use(bodyParser.urlencoded({
+        parameterLimit: 50000000,
+        limit: '50mb',
+        extended:true
+    }));
+    app.use(bodyParser.json({
+        parameterLimit: 50000000,
+        limit: '50mb',
+        extended:true
+    }));
     
     
     const upload = initUpload();
@@ -80,6 +94,9 @@ const createApp = () => {
     controllerLoader.load(router, upload);
     logger.info('controller loader called.');
 
+    // load external interface
+    external_loader.init(app, config);
+    
 
     initSwagger(app);
     
@@ -92,7 +109,7 @@ const initUpload = () => {
  
     const storage = multer.diskStorage({
         destination: function(req, file, callback) {
-            callback(null, 'uploads');
+            callback(null, 'dist/uploads');
         },
         filename: function(req, file, callback) {
             const extension = path.extname(file.originalname);

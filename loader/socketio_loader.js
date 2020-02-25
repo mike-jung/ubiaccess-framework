@@ -21,9 +21,11 @@ import Database from '../database/database_mysql';
 const database = new Database('database_mysql');
 
 
-var fs = require('fs');
-var path = require("path");
+const fs = require('fs');
+const path = require("path");
 
+
+//===== Redis =====//
 
 const redisAdapter = require('socket.io-redis');
 const ioRedis = require('ioredis');
@@ -85,11 +87,16 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
 
     try {
         if (contents && contents.length > 0) {
-            const sqlName = 'chat_reset_presence';
             const params = {
                 namespace: contents
             };
-            const rows = await database.execute(sqlName, params);
+
+            const queryParams = {
+				sqlName: 'chat_reset_presence',
+				params: params
+			}
+
+            const rows = await database.execute(queryParams);
             logger.debug('chat_reset_presence sql executed.');
         }
     } catch(err) {
@@ -120,6 +127,7 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
         logger.debug('Error in saving file -> ' + err);
     }
     
+
     app.io = io;
     io.app = app;
     logger.info('socket.io service started.');
@@ -144,6 +152,9 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
         sub: sub
     }
 
+    io.namespace = namespace;
+    io.redis = redis;
+
 
     // event processing for connection
     io.sockets.on('connection', async (socket) => {
@@ -152,12 +163,17 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
  
         // save this connection event in chat.connection table
         try {
-            const sqlName = 'chat_save_connection';
             const params = {
                 socket_id: socket.id,
                 namespace: namespace
             };
-			const rows = await database.execute(sqlName, params);
+            
+            const queryParams = {
+				sqlName: 'chat_save_connection',
+				params: params
+            }
+            
+			const rows = await database.execute(queryParams);
             logger.debug('chat_save_connection sql executed.');
 		} catch(err) {
 			logger.debug('Error in executing sql -> ' + err);
@@ -172,11 +188,16 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
 
             // save this disconnect event in chat.connection table
             try {
-                const sqlName = 'chat_save_disconnect';
                 const params = {
                     socket_id: socket.id
                 };
-                const rows = await database.execute(sqlName, params);
+                    
+                const queryParams = {
+                    sqlName: 'chat_save_disconnect',
+                    params: params
+                }
+                
+                const rows = await database.execute(queryParams);
                 logger.debug('chat_save_disconnect sql executed.');
             } catch(err) {
                 logger.debug('Error in executing sql -> ' + err);

@@ -1,16 +1,18 @@
 'use strict';
 
-import mysql from 'mysql';
-import mysqlUtilities from 'mysql-utilities';
+const mysql = require('mysql');
+const mysqlUtilities = require('mysql-utilities');
 
-import path from 'path';
-import fs from 'fs';
+const path = require('path');
+const fs = require('fs');
 
-import config from'../config/config';
-import sqlConfig from'../config/sql_config';
-import logger from '../util/logger';
-import util from '../util/util';
+const config = require('../config/config');
+const sqlConfig = require('../config/sql_config');
+const logger = require('../util/logger');
+const util = require('../util/util');
  
+
+
 const dbName = 'database_mysql';
 let isMaster = true;
 let failoverCount = 0;
@@ -64,6 +66,59 @@ const loadSql = () => {
 loadSql();
 
 
+//replaceAll prototype 선언
+String.prototype.replaceAll = function(org, dest) {
+    return this.split(org).join(dest);
+}
+
+
+const changeColonToUpperCase = (sql) => {
+    let beginIndex = -1;
+    let endIndex = -1;
+    let curWord = '';
+    
+    let newSql = sql;
+
+    for (let i = 0; i < sql.length; i++) {
+        const curChar = sql[i];
+        if (curChar == ':') {
+            // :% 인 경우 제외
+            if (sql[i+1] && sql[i+1] == '%') {
+
+            } else {
+                beginIndex = i;
+            }
+        }
+
+        if (beginIndex > -1) {
+            if (curChar == ' ' || curChar == ',' || curChar == ')') {
+                endIndex = i;
+
+                const curToken = curWord.toUpperCase();
+                newSql = newSql.replace(curWord, curToken);
+
+                beginIndex = -1;
+                endIndex = -1;
+                curWord = '';
+            } else {
+                curWord += curChar;
+            }
+        } 
+    }
+
+    // in case of last word
+    if (beginIndex > -1) {
+        const curToken = curWord.toUpperCase();
+        newSql = newSql.replace(curWord, curToken);
+    }
+
+    console.log('colon param to upper case -> ' + newSql);
+    
+    return newSql;
+}                
+
+
+
 
 class DatabaseMySQL {
 
@@ -91,9 +146,11 @@ class DatabaseMySQL {
             let sql = curSqlObj.sql;
 
             let sqlParams = [];
-            curSqlObj.params.forEach((item, index) => {
-                sqlParams.push(params[item]);
-            })
+            if (curSqlObj.params) {
+                curSqlObj.params.forEach((item, index) => {
+                    sqlParams.push(params[item]);
+                })
+            }
 
             queryParams.sql = sql;
             queryParams.sqlParams = sqlParams;
@@ -128,9 +185,11 @@ class DatabaseMySQL {
         let sql = curSqlObj.sql;
 
         let sqlParams = [];
-        curSqlObj.params.forEach((item, index) => {
-            sqlParams.push(params[item]);
-        })
+        if (curSqlObj.params) {
+            curSqlObj.params.forEach((item, index) => {
+                sqlParams.push(params[item]);
+            })
+        }
 
         queryParams.sql = sql;
         queryParams.sqlParams = sqlParams;
@@ -155,11 +214,18 @@ class DatabaseMySQL {
 
     executeRaw(executeParams, retryCount, callback) {
         console.log('executeRaw called.');
-        console.log('Execute Params -> ' + JSON.stringify(executeParams));
+        
+        const executeParamsText = JSON.stringify(executeParams);
+        if (executeParamsText && executeParamsText.length < 1000) {
+            console.log('Execute Params -> ' + executeParamsText);
+        } else {
+            console.log('Execute Params -> over 1000 characters.');
+        }
 
         const sqlName = executeParams.sqlName;
         let sql = executeParams.sql;
-        const sqlParams = executeParams.sqlParams;
+        let sqlParams = executeParams.sqlParams;
+        let paramType = executeParams.paramType;
         const mapper = executeParams.mapper;
         
         pool.getConnection((err, conn) => {
@@ -230,7 +296,11 @@ class DatabaseMySQL {
                 return;
             }
 
-            console.log('current SQL -> ' + sql);
+            if (sql && sql.length < 1000) {
+                console.log('current SQL -> ' + sql);
+            } else {
+                console.log('current SQL -> over 1000 characters');
+            }
 
             // apply sqlReplaces
             if (executeParams.sqlReplaces) {
@@ -269,12 +339,54 @@ class DatabaseMySQL {
                 }
             }
 
+            // : style parameter
+            if (paramType) {
+                logger.debug('Parameter is of colon style.');
+
+                // change sql to upper case
+                sql = changeColonToUpperCase(sql);
+
+                // replace parameters with :name
+                const paramKeys = Object.keys(executeParams.params);
+                for (let i = 0; i < paramKeys.length; i++) {
+                    try {
+                        let curKey = paramKeys[i];
+                        let curValue = executeParams.params[curKey];
+                        if (executeParams.paramType[curKey] == 'string') {
+                            curValue = "'" + curValue + "'";
+                        }
+                        logger.debug('mapping #' + i + ' [' + curKey + '] -> [' + curValue + ']');
+
+                        //let replaced = sql.replaceAll(':' + curKey.toUpperCase(), curValue);
+                        let replaced = sql.replace(':' + curKey.toUpperCase(), curValue);
+                        if (replaced) {
+                            sql = replaced;
+                        }
+
+                        //replaced = sql.replaceAll(':' + curKey.toLowerCase(), curValue);
+                        //if (replaced) {
+                        //    sql = replaced;
+                        //}
+                    } catch(err2) {
+                        logger.debug('mapping error : ' + JSON.stringify(err2));
+                    }
+                };
+
+                sqlParams = [];
+            } else {
+                logger.debug('Parameter is of normal style.');
+            }
+
             const query = conn.query(sql, sqlParams, (err, rows) => {
                 if (conn) {
                     conn.release();
                 }
 
-                console.log('SQL -> ' + query.sql);
+                if (sql && sql.length < 1000) {
+                    console.log('SQL -> ' + query.sql);
+                } else {
+                    console.log('SQL -> over 1000 characters');
+                }
 
                 if (err) {
                     console.log('Error in executing SQL -> ' + err);

@@ -35,6 +35,24 @@ thisModule.sendAll = (io, socket, event, input, namespace, redis, resend) => {
 
 }
  
+
+
+// Send message to group
+thisModule.sendGroup = async (io, input) => {
+    logger.debug('sendGroup called.');
+    
+    io.in(input.roomId).emit('message_group', input);
+}
+
+
+// Send message to recipient
+thisModule.send = async (io, input) => {
+    logger.debug('send called.');
+    
+    thisModule.sendData(io, 'message', input, io.namespace, io.redis);
+}
+
+
 // Send response to the recipient
 thisModule.sendData = async (io, event, input, namespace, redis, resend) => {
     logger.debug('sendData called. this server namespace -> ' + namespace);
@@ -43,7 +61,7 @@ thisModule.sendData = async (io, event, input, namespace, redis, resend) => {
         
         // save this message event in chat.message table
         try {
-            const sqlName = 'chat_save_message';
+
             const params = {
                 id: input.requestCode,
                 sender: input.sender,
@@ -54,7 +72,13 @@ thisModule.sendData = async (io, event, input, namespace, redis, resend) => {
                 namespace: namespace,
                 status: '100'
             };
-            const rows = await database.execute(sqlName, params);
+            
+            const queryParams = {
+				sqlName: 'chat_save_message',
+				params: params
+            }
+
+            const rows = await database.execute(queryParams);
             logger.debug('chat_save_message sql executed.');
         } catch(err) {
             logger.debug('Error in executing sql -> ' + err);
@@ -87,12 +111,17 @@ thisModule.sendData = async (io, event, input, namespace, redis, resend) => {
             
                     // save this message sent event in chat.message table
                     try {
-                        const sqlName = 'chat_save_message_status';
                         const params = {
                             id: input.requestCode,
                             status: '200'
                         };
-                        const rows = await database.execute(sqlName, params);
+                                    
+                        const queryParams = {
+                            sqlName: 'chat_save_message_status',
+                            params: params
+                        }
+
+                        const rows = await database.execute(queryParams);
                         logger.debug('chat_save_message_status sql executed.');
                     } catch(err) {
                         logger.debug('Error in executing sql -> ' + err);
