@@ -8,16 +8,16 @@
 
 const socketio_loader = {};
 
-import socketioConfig from '../config/socketio_config';
+const socketioConfig = require('../config/socketio_config');
 
 // logger
-import logger from '../util/logger';
+const logger = require('../util/logger');
 
-import util from '../util/socketio_util';
+const util = require('../util/socketio_util');
 const socketioFolder = '../socketio';
 
 
-import Database from '../database/database_mysql';
+const Database = require('../database/database_mysql');
 const database = new Database('database_mysql');
 
 
@@ -111,8 +111,7 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
             pingInterval: 10000,
             pingTimeout: 5000,
             transports: [
-		      'websocket', 
-		      'polling'
+		      'websocket'
 		    ]
         }
     );
@@ -123,6 +122,7 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
         fs.writeFileSync(namespaceFilename, namespace, {encoding:'utf8'});
         
         logger.debug('namespace file saved to -> ' + namespaceFilename);
+        logger.debug('write namespace file -> ' + namespace);
     } catch(err) {
         logger.debug('Error in saving file -> ' + err);
     }
@@ -225,6 +225,9 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
 
         // load handlers
         loadHandlers(io, server, app, socket, namespace, redis);
+
+        // send response
+        util.sendResponse(io, socket, 'initialized', '200', 'initialized success.', socket.id);
     });
 
 

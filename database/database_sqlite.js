@@ -1,9 +1,9 @@
 'use strict';
 
-var sqlite = require('sqlite3').verbose();
-import config from'../config/config';
-import sqlConfig from'../config/sql_config';
-import logger from '../util/logger';
+const sqlite = require('sqlite3').verbose();
+const config = require('../config/config');
+const sqlConfig = require('../config/sql_config');
+const logger = require('../util/logger');
 
 
 class DatabaseSqlite {

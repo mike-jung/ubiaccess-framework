@@ -5,10 +5,10 @@
  */
 'use strict';
 
-import path from 'path';
-import logger from './logger';
+const path = require('path');
+const logger = require('./logger');
 
-import Database from '../database/database_mysql';
+const Database = require('../database/database_mysql');
 const database = new Database('database_mysql');
 
 
@@ -42,6 +42,9 @@ thisModule.sendGroup = async (io, input) => {
     logger.debug('sendGroup called.');
     
     io.in(input.roomId).emit('message_group', input);
+
+    // MIKE START 191215
+    io.in(input.agentId).emit('message_group', input);
 }
 
 

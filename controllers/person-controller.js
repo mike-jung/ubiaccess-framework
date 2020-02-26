@@ -12,12 +12,12 @@
 
 'use strict';
 
-import Person from '../models/person';
-import PersonService from '../services/person-service';
+const Person = require('../models/person');
+const PersonService = require('../services/person-service');
 
-import param from '../util/param';
-import util from '../util/util';
-import logger from '../util/logger';
+const param = require('../util/param');
+const util = require('../util/util');
+const logger = require('../util/logger');
 
 const personService = new PersonService();
 

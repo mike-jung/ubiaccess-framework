@@ -352,10 +352,17 @@ class DatabaseMySQL {
                     try {
                         let curKey = paramKeys[i];
                         let curValue = executeParams.params[curKey];
-                        if (executeParams.paramType[curKey] == 'string') {
+                        if (typeof(executeParams.paramType[curKey]) == 'undefined') {
+                            curValue = "'" + curValue + "'";
+                        } else if (executeParams.paramType[curKey] == 'string') {
                             curValue = "'" + curValue + "'";
                         }
-                        logger.debug('mapping #' + i + ' [' + curKey + '] -> [' + curValue + ']');
+
+                        if (curValue.length > 500) {
+                            logger.debug('mapping #' + i + ' [' + curKey + '] -> ' + 'Length is too big to print : ' + curValue.length);
+                        } else {
+                            logger.debug('mapping #' + i + ' [' + curKey + '] -> [' + curValue + ']');
+                        }
 
                         //let replaced = sql.replaceAll(':' + curKey.toUpperCase(), curValue);
                         let replaced = sql.replace(':' + curKey.toUpperCase(), curValue);

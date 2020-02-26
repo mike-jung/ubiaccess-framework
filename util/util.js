@@ -65,11 +65,13 @@ util.sendError = function (res, code, message) {
  * @param {number} code result code
  * @param {string} message result message
  */
-util.sendErr = function (res, requestCode, code, message) {
+util.sendErr = function (res, requestCode, code, message, type, details) {
     const output = {
         requestCode: requestCode,
         code: code,
-        message: message
+        message: message,
+        type: type,
+        details: details
     }
 
     res.writeHead(200, {'Content-Type':'application/json;charset=utf8'});

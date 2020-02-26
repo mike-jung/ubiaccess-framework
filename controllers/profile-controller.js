@@ -9,11 +9,11 @@
 
 'use strict';
  
-import Database from '../database/database_mysql';
-import util from '../util/util';
-import param from '../util/param';
-import logger from '../util/logger';
-import fs from 'fs';
+const Database = require('../database/database_mysql');
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
+const fs = require('fs');
 
 class ProfileController {
 

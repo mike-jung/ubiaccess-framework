@@ -15,10 +15,10 @@
 
 'use strict'
 
-import util from '../util/util';
-import param from '../util/param';
-import logger from '../util/logger';
-import ioUtil from '../util/socketio_util';
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
+const ioUtil = require('../util/socketio_util');
 
 /**
  * @Controller(path="/chat")

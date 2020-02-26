@@ -14,11 +14,11 @@
 
 'use strict'
 
-import util from '../util/util';
-import param from '../util/param';
-import logger from '../util/logger';
-import Database from '../database/database_mysql';
-import sqlConfig from '../database/sql/lion_sql';
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
+const Database = require('../database/database_mysql');
+const sqlConfig = require('../database/sql/lion_sql');
 
 /**
  * @Controller(path="/lion")

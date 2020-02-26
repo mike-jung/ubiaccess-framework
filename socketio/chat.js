@@ -5,11 +5,11 @@
  */
 'use strict';
 
-import path from 'path';
-import logger from '../util/logger';
-import util from '../util/socketio_util';
+const path = require('path');
+const logger = require('../util/logger');
+const util = require('../util/socketio_util');
 
-import Database from '../database/database_mysql';
+const Database = require('../database/database_mysql');
 const database = new Database('database_mysql');
 
 class ChatHandler {

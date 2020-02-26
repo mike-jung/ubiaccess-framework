@@ -5,9 +5,9 @@
 
 'use strict';
 
-import util from '../util/util';
-import param from '../util/param';
-import logger from '../util/logger';
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
 
 class TestController {
 

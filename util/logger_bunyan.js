@@ -8,9 +8,9 @@
  * @author Mike
  */ 
 
-import fs from 'fs';
-import bunyan from 'bunyan';
-import RotatingFileStream from 'bunyan-rotating-file-stream';
+const fs = require('fs');
+const bunyan = require('bunyan');
+const RotatingFileStream = require('bunyan-rotating-file-stream');
 
 const logDir = 'log';
 
