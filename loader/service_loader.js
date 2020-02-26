@@ -6,10 +6,10 @@
 
 'use strict';
 
-import serviceConfig from '../config/service_config';
+const serviceConfig = require('../config/service_config');
 
 // logger
-import logger from '../util/logger';
+const logger = require('../util/logger');
  
 const loader = {};
 
