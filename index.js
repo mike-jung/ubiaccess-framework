@@ -1,33 +1,33 @@
 'use strict';
 
-import http from 'http';
-import https from 'https';
-import express from 'express';
-import path from 'path';
-import bodyParser from 'body-parser';
-import fs from 'fs';
+const http = require('http');
+const https = require('https');
+const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
+const fs = require('fs');
 
-import cors from 'cors';
-import multer from 'multer';
+const cors = require('cors');
+const multer = require('multer');
 
-import cookieParser from 'cookie-parser';
-import expressSession from 'express-session';
+const cookieParser = require('cookie-parser');
+const expressSession = require('express-session');
 
-import passport from 'passport';
-import flash from 'connect-flash';
+const passport = require('passport');
+const flash = require('connect-flash');
 
-import config from './config/config';
+const config = require('./config/config');
 
-import serviceLoader from './loader/service_loader';
-import controllerLoader from './loader/controller_loader';
+const serviceLoader = require('./loader/service_loader');
+const controllerLoader = require('./loader/controller_loader');
 
-import local_login from './passport/local_login';
+const local_login = require('./passport/local_login');
 
 // logger
-import logger from './util/logger';
+const logger = require('./util/logger');
 
 //===== Socket.IO =====//
-import socketio from'socket.io';
+const socketio = require('socket.io');
 
 
 //=====================//
@@ -40,7 +40,7 @@ const sessionMiddleware = expressSession({
 
 
 // load external_loader
-import external_loader from './loader/external_loader';
+const external_loader = require('./loader/external_loader');
 
 
 
@@ -109,7 +109,7 @@ const initUpload = () => {
  
     const storage = multer.diskStorage({
         destination: function(req, file, callback) {
-            callback(null, 'dist/uploads');
+            callback(null, 'uploads');
         },
         filename: function(req, file, callback) {
             const extension = path.extname(file.originalname);
@@ -206,7 +206,8 @@ const main = () => {
             }
             
         }
-    
+
+        
         logger.info('Base URL -> ' + baseUrl);
 
         const serverHost = server.address().address;
