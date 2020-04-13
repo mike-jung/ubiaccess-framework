@@ -124,8 +124,19 @@ Example URL for simple fetch from database is as follows:
 
 ## Errors in installing modules on Windows OS
 
-In case your OS is windows, Python and Visual Studio development environment are needed. 
-If you don't have both Python and Visual Studio, type the following command before installing modules.
+In case your OS is windows, Python and Visual Studio development environment are needed for several modules. 
+The easiest way to setup development environment is to check options in installing Node.js runtime. There are options for installing development environment in Node.js windows installer.
+
+In case you already installed Python and Visual Studio 2012 or later, apply msvs_version option using the following command.
+
+```sh
+
+# Install with options
+$ npm install --msvs_version=2019
+```
+
+
+If you installed Node.js already and you don't have both Python and Visual Studio, type the following command before installing modules.
 Windows-build-tools module will install both Python and Visual Studio modules automatically.
 
 ```sh
@@ -137,22 +148,6 @@ $ npm install -g windows-build-tools
 $ npm install
 
 ```
-
-In case you already installed Python and Visual Studio 2012 or later, apply msvs_version option using the following command.
-
-```sh
-
-# Set msvs_version option according to the installed Visual Studio version
-$ npm config set msvs_version 2013 --g
-
-# Install dependencies
-$ npm install
-
-# or install with options
-$ npm install --msvs_version=2013
-```
-
-In case you already installed Python and Visual Studio 2010, there will be no problem in executing npm install command.
 
 
 ## Auto-loading
