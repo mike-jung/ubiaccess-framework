@@ -111,15 +111,15 @@ $ npm start
 Now you can test if the server started correctly or not.
 Example URL for simple response is as follows:
 
-  * http://localhost:7001/tiger/hello
-  * http://localhost:7001/dog/list
-  * http://localhost:7001/cat/list
+  * http://localhost:8001/tiger/hello
+  * http://localhost:8001/dog/list
+  * http://localhost:8001/cat/list
 
 Example URL for simple fetch from database is as follows:
 
-  * http://localhost:7001/person
-  * http://localhost:7001/profile/get
-  * http://localhost:7001/set_cookie
+  * http://localhost:8001/person
+  * http://localhost:8001/profile/get
+  * http://localhost:8001/set_cookie
 
 
 ## Errors in installing modules on Windows OS
@@ -239,7 +239,7 @@ module.exports = Tiger;
 If you restart your server, this controller's hello method is scanned and loaded automatically.
 Request path is /tiger/hello and you can send a request using the following URL:
 
-  * http://localhost:7001/tiger/hello
+  * http://localhost:8001/tiger/hello
 
 @RequestMapping annotation can have the following attributes.
 
@@ -309,20 +309,20 @@ class Bear {
  
 You can test REST API requests using POSTMAN or other test tools.
 
-- (1) List : GET http://localhost:7001/bear
-- (2) Create : POST http://localhost:7001/bear
+- (1) List : GET http://localhost:8001/bear
+- (2) Create : POST http://localhost:8001/bear
              Parameters -> name=john, age=20, mobile=010-1000-1000
-- (3) Read : GET http://localhost:7001/bear/1
-- (4) Update : PUT http://localhost:7001/bear/1
+- (3) Read : GET http://localhost:8001/bear/1
+- (4) Update : PUT http://localhost:8001/bear/1
              Parameters -> name=john, age=20, mobile=010-1000-1000
-- (5) Delete : DELETE http://localhost:7001/bear/1
+- (5) Delete : DELETE http://localhost:8001/bear/1
 
 Pagination, order by and search functions are supported.
 Column names can be sent as request parameters for retrieving only designated columns.
 
-- (1) GET http://localhost:7001/bear?page=1&perPage=10
-- (2) GET http://localhost:7001/bear?page=1&perPage=10&search=name&searchValue=john&order=name&orderDirection=asc
-- (3) GET http://localhost:7001/bear?columns=id,name
+- (1) GET http://localhost:8001/bear?page=1&perPage=10
+- (2) GET http://localhost:8001/bear?page=1&perPage=10&search=name&searchValue=john&order=name&orderDirection=asc
+- (3) GET http://localhost:8001/bear?columns=id,name
 
 
 ## Service
@@ -440,7 +440,7 @@ redis: {
 
 API documentation using swagger is applied. You can access documentation for controllers as the following:
 
-- See http://localhost:7001/api-docs
+- See http://localhost:8001/api-docs
 
 
 ## License
