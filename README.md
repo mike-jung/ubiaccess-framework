@@ -183,7 +183,7 @@ The simplest way to define a controller is to create a new file in controllers f
 ...
 
 /**
- * @Controller(path="/bear", type="rest" table="test.person")
+ * @Controller(path="/bear", type="rest", table="test.person")
  */
 class Bear {
  
@@ -194,6 +194,16 @@ module.exports = Bear;
 
 ```
  
+You need to create person table in test database in MySQL or MariaDB. This controller will access test.person table to handle client's requests. Schema for test.person table is as follows.
+
+```table
+id      INT    AUTO_INCREMENT
+name    TEXT
+age     INT
+mobile  TEXT
+
+```
+
 You can test REST API requests using POSTMAN or other test tools. Send the following requests to test if the bear-controller works.
 
 - (1) List : GET http://localhost:8001/bear
