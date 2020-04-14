@@ -193,9 +193,9 @@ If the type attribute is set to 'path', the method is loaded using path, method,
 
 ## Controller
 
-Controller handles client's request.
+Controller handles client's requests.
 
-Controller can be configured without any configuration if you use annotation.
+Controller can be created without any configuration if you use annotation.
 Annotation is supported like Spring web framework but it is inside comment for class and methods.
 
 The simplest way to define a controller is to create a new file in controllers folder. Any files in controllers folder will be detected as a controller file and checked if it has @Controller annotation. See the following bear-controller.js file and you can see how it is easy to define a new controller.
