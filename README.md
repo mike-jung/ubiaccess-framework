@@ -214,7 +214,7 @@ You can test REST API requests using POSTMAN or other test tools. Send the follo
              Parameters -> name=john, age=20, mobile=010-1000-1000
 - (5) Delete : DELETE http://localhost:8001/bear/1
 
-Pagination, order by and search functions are supported.
+Pagination, order by and search options are supported.
 Column names can be sent as request parameters for retrieving only designated columns.
 
 - (1) GET http://localhost:8001/bear?page=1&perPage=10
@@ -222,7 +222,159 @@ Column names can be sent as request parameters for retrieving only designated co
 - (3) GET http://localhost:8001/bear?columns=id,name
 
 
-- Warning : If you use `npm rm`, `npm build-norm`, `npm start-norm` command, this project uses babel for ES6 support. It means all source files are transpiled and moved into dist folder. However, annotation can only be used for ES6 classes and methods. Therefore, you should maintain ES6 source files in deploying to clould server.
+Can you see results same as what you expected?
+You can define each methods with REST api support. The following cat-controller has annotation for REST api but no table attribute. Cat class has methods for each REST api instead.
+
+- See `controllers/cat-controller.js` for method definitions with REST api support.
+
+  * controllers/cat-controller.js    annotation for class can be set for REST api support
+                                     list, create, read, update, delete methods are automatically configured
+
+```js
+// cat-controller.js
+...
+
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
+
+/**
+ * @Controller(path="/cat", type="rest")
+ */
+class Cat {
+ 
+    list(req, res) {
+        logger.debug('Cat:list called for path /cat');
+
+        const params = param.parse(req);
+
+        const output = [
+            {
+                name:'sandy'
+            },
+            {
+                name:'puma'
+            }
+        ]
+        
+        util.sendRes(res, 200, 'OK', output);
+    }
+  
+...
+
+```
+  
+Method names need to be matched with REST API functions : list, create, read, update, delete.
+The param module parses request parameters meeting GET, POST or other request methods.
+The logger module saves log files in log folder.
+The util module has several methods to simplify response handling.
+
+Send the following requests to test if the cat-controller works.
+
+- (1) List : GET http://localhost:8001/cat
+- (2) Create : POST http://localhost:8001/cat
+             Parameters -> name=sean
+- (3) Read : GET http://localhost:8001/cat/1
+- (4) Update : PUT http://localhost:8001/cat/1
+             Parameters -> name=james
+- (5) Delete : DELETE http://localhost:8001/cat/1
+
+
+
+You can access database inside the controller. The following lion-controller has database access functions in each method.
+
+- See `controllers/lion-controller.js` for database access in each REST api method.
+
+  * controllers/lion-controller.js    annotation for class can be set for REST api support
+                                      database access functions are supported
+
+```js
+// lion-controller.js
+...
+
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
+const Database = require('../database/database_mysql');
+const sqlConfig = require('../database/sql/lion_sql');
+
+/**
+ * @Controller(path="/lion")
+ */
+class Lion {
+
+    constructor() {
+      this.database = new Database('database_mysql');
+    }
+
+    /**
+     * @RequestMapping(path="/read/:id", method="get")
+     */
+    async read(req, res) {
+      logger.debug('Lion:read called for path /read/:id');
+
+      const params = param.parse(req);
+        
+      try {
+              
+        const queryParams = {
+          sqlName: 'lion_read',
+          params: params,
+          paramType: {}
+        }
+ 
+	const rows = await this.database.execute(queryParams);
+
+	util.sendRes(res, 200, 'OK', rows);
+      } catch(err) {
+	util.sendError(res, 400, 'Error in execute -> ' + err);
+      }
+    }
+
+
+...
+
+```
+  
+
+You need to create lion table in test database in MySQL or MariaDB. This controller will access test.lion table to handle client's requests. Schema for test.lion table is as follows.
+
+```table
+id      INT    AUTO_INCREMENT
+name    TEXT
+age     INT
+mobile  TEXT
+
+```
+
+This read method uses lion_read sql statement defined in database/sql/lion_sql.sql file. The SQL statement is as follows.
+
+```sql
+    lion_read: {
+        sql: "select \
+                id, \
+                name, \
+                mobile \
+            from test.lion \
+            where id = :id"
+    }
+
+```
+
+The :id parameter means id request parameter sent by clients.
+Send the following requests to test if the lion-controller works.
+
+- (1) List : GET http://localhost:8001/lion
+- (2) Create : POST http://localhost:8001/lion
+             Parameters -> name=sean, mobile=010-1000-1000
+- (3) Read : GET http://localhost:8001/lion/1
+- (4) Update : PUT http://localhost:8001/lion/1
+             Parameters -> name=james, mobile=010-2000-2000
+- (5) Delete : DELETE http://localhost:8001/lion/1
+
+
+
+
 
 - See `controllers/tiger-controller.js` for @RequestMapping annotation
 
@@ -288,22 +440,9 @@ class Dog {
 ```
   
   
-  * controllers/cat-controller.js    annotation for class can be set for REST api support
-                                     list, create, read, update, delete methods are automatically configured
+- Warning : If you use `npm rm`, `npm build-norm`, `npm start-norm` command, this project uses babel for ES6 support. It means all source files are transpiled and moved into dist folder. However, annotation can only be used for ES6 classes and methods. Therefore, you should maintain ES6 source files in deploying to clould server.
 
-```js
-// cat-controller.js
-...
 
-/**
- * @Controller(path="/cat", type="rest")
- */
-class Cat {
- 
-...
-
-```
-  
 
 ## Classic Controller
 
