@@ -565,7 +565,8 @@ util/param.js utility parses request parameters regardless of GET or POST reques
 
 ## SocketIO and Redis
 
-SocketIO messaging is enabled if you change config/config.js file.
+SocketIO messaging will be enabled if you add socketio attribute in config/config.js file.
+
 
 ```js
 // config.js
@@ -581,9 +582,56 @@ SocketIO messaging is enabled if you change config/config.js file.
 
 ```
 
-You can create handler files for SocketIO and put them into socketio folder.
+or,
 
-Redis is used for SocketIO and failover for Redis is basically supported.
+```js
+// config.js
+...
+
+    socketio: {
+        active: true,
+        pingInterval: 10000,
+        pingTimeout: 5000,
+        transports: [
+	    'websocket'
+	]
+    }
+    
+}
+
+...
+
+```
+
+You can create controller files for SocketIO and put them into socketio folder.
+See socketio/chat.js file to get how to add methods to handle SocketIO chatting.
+Sample codes are in public folder. See the following files.
+
+  * public/chat.html
+  * public/chat2.html
+  * public/chat3.html
+
+Redis is used for SocketIO and you can make SocketIO connect to redis server.
+Redis is needed to be installed before enabled.
+You can add redis attribute to config/config.js after installing redis.
+
+```js
+// config.js
+...
+
+    redis: {
+        failover: false,
+        host:'127.0.0.1', 
+        port: 10425,
+        name: 'mymaster'
+    }
+
+...
+```
+
+
+Failover functions for Redis is basically supported.
+You need to configure redis sentinels before you make redis failover enabled.
 Redis sentinels can be configured as follows.
     (Redis is used only for SocketIO messaging if you do not use it for other purposes)
     If you have no idea on Redis sentinels, see [guides here](https://redis.io/topics/sentinel) 
@@ -592,7 +640,8 @@ Redis sentinels can be configured as follows.
 // config.js
 ...
 
-redis: {
+    redis: {
+        failover: true,
         sentinels: [
             { host:'127.0.0.1', port: 11425 },
             { host:'127.0.0.1', port: 11426 },
@@ -603,6 +652,16 @@ redis: {
 
 ...
 ```
+
+
+## FCM Push
+
+This server supports FCM(Firebase Cloud Messaging) push to send push messages to Android, iOS devices.
+You need to add gcm_api_key attribute to config/config.js file if you want to make push functions enabled.
+
+- Warning : FCM Push is supported only in Enterprise version of Ubiaccess server.
+  Please send me an request e-mail to evaluate enterprise version of Ubiaccess server.
+
 
 
 ## API documentation
