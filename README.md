@@ -11,6 +11,7 @@ This is a boilerplate project for MVC architecture using node, express and MySQL
 - Database Failover - Relational databases such as MySQL(MariaDB), SQLite and Oracle are supported and failover features are embedded for easy configuration
 - SocketIO - chat implementation using SocketIO messaging is easy because handlers are separated
 - WebRTC - audio and video streaming for your multimedia needs are supported
+- FCM Push - FCM(Firebase Cloud Messaging) Push functions are supported to send push messages to Android and iOS devices.
 
 
 ## Application Structure
