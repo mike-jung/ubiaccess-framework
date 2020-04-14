@@ -1,5 +1,5 @@
 {
-     "name": "@mike-jung/ubiaccess-server",
+     "name": "ubiaccess-server",
      "version": "1.0.0",
      "description": "Ubiaccess Server",
      "publishConfig": { "registry": "https://npm.pkg.github.com/" },
