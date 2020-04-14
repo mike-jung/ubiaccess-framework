@@ -195,19 +195,50 @@ If the type attribute is set to 'path', the method is loaded using path, method,
 
 Controller handles client's request.
 
-If you create a controller, it needs to be registered in the config/controller-config.js file. In case you define a controller according to the REST standards, only unit name is needed to register in the configuration file. Unit name is used to find the controller file you created.
-
-- See `controllers/person-controller.js` for REST type controller
-- See `controllers/profile-controller.js` for API type controller
-- See `controllers/test-controller.js` for cookie and session test
-
-
-## Controller with annotation
-
 Controller can be configured without any configuration if you use annotation.
 Annotation is supported like Spring web framework but it is inside comment for class and methods.
 
-- Warning : this project uses babel for ES6 support and it means all source files are transpiled and moved into dist folder. However, annotation can only be used for ES6 classes and methods. Therefore, you should maintain ES6 source files in deploying to clould server.
+The simplest way to define a controller is to create a new file in controllers folder. Any files in controllers folder will be detected as a controller file and checked if it has @Controller annotation. See the following bear-controller.js file and you can see how it is easy to define a new controller.
+
+  * controllers/bear-controller.js    annotation for class can be set for REST api support
+                                      with automatic database access
+
+```js
+// bear-controller.js
+...
+
+/**
+ * @Controller(path="/bear", type="rest" table="test.person")
+ */
+class Bear {
+ 
+}
+
+module.exports = Bear;
+...
+
+```
+ 
+You can test REST API requests using POSTMAN or other test tools. Send the following requests to test if the bear-controller works.
+
+- (1) List : GET http://localhost:8001/bear
+- (2) Create : POST http://localhost:8001/bear
+             Parameters -> name=john, age=20, mobile=010-1000-1000
+- (3) Read : GET http://localhost:8001/bear/1
+- (4) Update : PUT http://localhost:8001/bear/1
+             Parameters -> name=john, age=20, mobile=010-1000-1000
+- (5) Delete : DELETE http://localhost:8001/bear/1
+
+Pagination, order by and search functions are supported.
+Column names can be sent as request parameters for retrieving only designated columns.
+
+- (1) GET http://localhost:8001/bear?page=1&perPage=10
+- (2) GET http://localhost:8001/bear?page=1&perPage=10&search=name&searchValue=john&order=name&orderDirection=asc
+- (3) GET http://localhost:8001/bear?columns=id,name
+
+
+- Warning : If you use `npm rm`, `npm build-norm`, `npm start-norm` command, this project uses babel for ES6 support. It means all source files are transpiled and moved into dist folder. However, annotation can only be used for ES6 classes and methods. Therefore, you should maintain ES6 source files in deploying to clould server.
+
 - See `controllers/tiger-controller.js` for @RequestMapping annotation
 
 ```js
@@ -288,41 +319,15 @@ class Cat {
 
 ```
   
-    
-  * controllers/bear-controller.js    annotation for class can be set for REST api support
-                                      with automatic database access
 
-```js
-// bear-controller.js
-...
+## Classic Controller
 
-/**
- * @Controller(path="/bear", type="rest" table="test.person")
- */
-class Bear {
- 
-}
+If you create a controller of classic style, it needs to be registered in the config/controller-config.js file. In case you define a controller according to the REST standards, only unit name is needed to register in the configuration file. Unit name is used to find the controller file you created.
 
-...
+- See `controllers/person-controller.js` for REST type controller
+- See `controllers/profile-controller.js` for API type controller
+- See `controllers/test-controller.js` for cookie and session test
 
-```
- 
-You can test REST API requests using POSTMAN or other test tools.
-
-- (1) List : GET http://localhost:8001/bear
-- (2) Create : POST http://localhost:8001/bear
-             Parameters -> name=john, age=20, mobile=010-1000-1000
-- (3) Read : GET http://localhost:8001/bear/1
-- (4) Update : PUT http://localhost:8001/bear/1
-             Parameters -> name=john, age=20, mobile=010-1000-1000
-- (5) Delete : DELETE http://localhost:8001/bear/1
-
-Pagination, order by and search functions are supported.
-Column names can be sent as request parameters for retrieving only designated columns.
-
-- (1) GET http://localhost:8001/bear?page=1&perPage=10
-- (2) GET http://localhost:8001/bear?page=1&perPage=10&search=name&searchValue=john&order=name&orderDirection=asc
-- (3) GET http://localhost:8001/bear?columns=id,name
 
 
 ## Service
