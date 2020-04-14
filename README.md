@@ -59,13 +59,13 @@ After installing database and Redis, you can modify config/config.js file for co
 
 module.exports = {
     server: {
-        port: 7001,
+        port: 8001,
 	https: false
     },
     database: {  
         database_mysql: { 
             type: 'mysql',
-            failover: 'true',
+            failover: true,
             retryStrategy: {
                 interval: 2000,
                 limit: 3,
@@ -111,21 +111,32 @@ $ npm start
 Now you can test if the server started correctly or not.
 Example URL for simple response is as follows:
 
-  * http://localhost:7001/tiger/hello
-  * http://localhost:7001/dog/list
-  * http://localhost:7001/cat/list
+  * http://localhost:8001/tiger/hello
+  * http://localhost:8001/dog/list
+  * http://localhost:8001/cat/list
 
 Example URL for simple fetch from database is as follows:
 
-  * http://localhost:7001/person
-  * http://localhost:7001/profile/get
-  * http://localhost:7001/set_cookie
+  * http://localhost:8001/person
+  * http://localhost:8001/profile/get
+  * http://localhost:8001/set_cookie
 
 
 ## Errors in installing modules on Windows OS
 
-In case your OS is windows, Python and Visual Studio development environment are needed. 
-If you don't have both Python and Visual Studio, type the following command before installing modules.
+In case your OS is windows, Python and Visual Studio development environment are needed for several modules. 
+The easiest way to setup development environment is to check options in installing Node.js runtime. There are options for installing development environment in Node.js windows installer.
+
+In case you already installed Python and Visual Studio 2012 or later, apply msvs_version option using the following command.
+
+```sh
+
+# Install with options
+$ npm install --msvs_version=2019
+```
+
+
+If you installed Node.js already and you don't have both Python and Visual Studio, type the following command before installing modules.
 Windows-build-tools module will install both Python and Visual Studio modules automatically.
 
 ```sh
@@ -137,22 +148,6 @@ $ npm install -g windows-build-tools
 $ npm install
 
 ```
-
-In case you already installed Python and Visual Studio 2012 or later, apply msvs_version option using the following command.
-
-```sh
-
-# Set msvs_version option according to the installed Visual Studio version
-$ npm config set msvs_version 2013 --g
-
-# Install dependencies
-$ npm install
-
-# or install with options
-$ npm install --msvs_version=2013
-```
-
-In case you already installed Python and Visual Studio 2010, there will be no problem in executing npm install command.
 
 
 ## Auto-loading
@@ -171,53 +166,225 @@ There is a fair amount of auto-loading built into this application structure.
 This boilerplate uses ES6 syntax with Node.js >= 10.0, you can check out the [feature available here](https://nodejs.org/en/docs/es6/)
 
 
-## Configuration
-
-A configuration is designed to register controllers, services, SQL and so on. so it will show components registered. You should add a line after created a new controller. This configuration allows you to quickly find components.
-
-The structure of a controller-configuration is simple. Here is an example :
-
-```js
-// controller-config.js
-
-module.exports = [
-    {id:1, type:'rest', base:'', unit:'person'},
-    {id:2, type:'path', path:'/profile/get', method:['get','post'], file:'profile-controller', func:'get'},
-    ...
-```
-
-If the type attribute is set to 'rest', methods for REST are registered automatically. (list, read, create, update, delete) The unit attribute is used to find the controller file. For example, if you created person-controller.js file in controllers folder it is designated by 'person'. You should set the file name using the unit attribute registered. The request path for the methods are determined by the standards for REST.
-
-If the type attribute is set to 'path', the method is loaded using path, method, file and func attributes.
-
-  * path - request path
-  * method - request method ('GET', 'POST', 'PUT', etc. Multiple methods can be used)
-  * file - controller file created
-  * func - function in the controller file used for callback method
-
-
 ## Controller
 
-Controller handles client's request.
+Controller handles client's requests.
 
-If you create a controller, it needs to be registered in the config/controller-config.js file. In case you define a controller according to the REST standards, only unit name is needed to register in the configuration file. Unit name is used to find the controller file you created.
-
-- See `controllers/person-controller.js` for REST type controller
-- See `controllers/profile-controller.js` for API type controller
-- See `controllers/test-controller.js` for cookie and session test
-
-
-## Controller with annotation
-
-Controller can be configured without any configuration if you use annotation.
+Controller can be created without any configuration if you use annotation.
 Annotation is supported like Spring web framework but it is inside comment for class and methods.
 
-- Warning : this project uses babel for ES6 support and it means all source files are transpiled and moved into dist folder. However, annotation can only be used for ES6 classes and methods. Therefore, you should maintain ES6 source files in deploying to clould server.
+The simplest way to define a controller is to create a new file in controllers folder. Any files in controllers folder will be detected as a controller file and checked if it has @Controller annotation. See the following bear-controller.js file and you can see how it is easy to define a new controller.
+
+  * controllers/bear-controller.js    annotation for class can be set for REST api support
+                                      with automatic database access
+
+```js
+// bear-controller.js
+...
+
+/**
+ * @Controller(path="/bear", type="rest", table="test.person")
+ */
+class Bear {
+ 
+}
+
+module.exports = Bear;
+...
+
+```
+ 
+You need to create person table in test database in MySQL or MariaDB. This controller will access test.person table to handle client's requests. Schema for test.person table is as follows.
+
+```table
+id      INT    AUTO_INCREMENT
+name    TEXT
+age     INT
+mobile  TEXT
+
+```
+
+You can test REST API requests using POSTMAN or other test tools. Send the following requests to test if the bear-controller works.
+
+- (1) List : GET http://localhost:8001/bear
+- (2) Create : POST http://localhost:8001/bear
+             Parameters -> name=john, age=20, mobile=010-1000-1000
+- (3) Read : GET http://localhost:8001/bear/1
+- (4) Update : PUT http://localhost:8001/bear/1
+             Parameters -> name=john, age=20, mobile=010-1000-1000
+- (5) Delete : DELETE http://localhost:8001/bear/1
+
+Pagination, order by and search options are supported.
+Column names can be sent as request parameters for retrieving only designated columns.
+
+- (1) GET http://localhost:8001/bear?page=1&perPage=10
+- (2) GET http://localhost:8001/bear?page=1&perPage=10&search=name&searchValue=john&order=name&orderDirection=asc
+- (3) GET http://localhost:8001/bear?columns=id,name
+
+
+Can you see results same as what you expected?
+You can define each methods with REST api support. The following cat-controller has annotation for REST api but no table attribute. Cat class has methods for each REST api instead.
+
+- See `controllers/cat-controller.js` for method definitions with REST api support.
+
+  * controllers/cat-controller.js    annotation for class can be set for REST api support
+                                     list, create, read, update, delete methods are automatically configured
+
+```js
+// cat-controller.js
+...
+
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
+
+/**
+ * @Controller(path="/cat", type="rest")
+ */
+class Cat {
+ 
+    list(req, res) {
+        logger.debug('Cat:list called for path /cat');
+
+        const params = param.parse(req);
+
+        const output = [
+            {
+                name:'sandy'
+            },
+            {
+                name:'puma'
+            }
+        ]
+        
+        util.sendRes(res, 200, 'OK', output);
+    }
+  
+...
+
+```
+  
+Method names need to be matched with REST API functions : list, create, read, update, delete.
+The param module parses request parameters meeting GET, POST or other request methods.
+The logger module saves log files in log folder.
+The util module has several methods to simplify response handling.
+
+Send the following requests to test if the cat-controller works.
+
+- (1) List : GET http://localhost:8001/cat
+- (2) Create : POST http://localhost:8001/cat
+             Parameters -> name=sean
+- (3) Read : GET http://localhost:8001/cat/1
+- (4) Update : PUT http://localhost:8001/cat/1
+             Parameters -> name=james
+- (5) Delete : DELETE http://localhost:8001/cat/1
+
+
+
+You can access database inside the controller. The following lion-controller has database access functions in each method.
+
+- See `controllers/lion-controller.js` for database access in each REST api method.
+
+  * controllers/lion-controller.js    annotation for class can be set for REST api support
+                                      database access functions are supported
+
+```js
+// lion-controller.js
+...
+
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
+const Database = require('../database/database_mysql');
+const sqlConfig = require('../database/sql/lion_sql');
+
+/**
+ * @Controller(path="/lion")
+ */
+class Lion {
+
+    constructor() {
+      this.database = new Database('database_mysql');
+    }
+
+    /**
+     * @RequestMapping(path="/:id", method="get")
+     */
+    async read(req, res) {
+      logger.debug('Lion:read called for path /read/:id');
+
+      const params = param.parse(req);
+        
+      try {
+              
+        const queryParams = {
+          sqlName: 'lion_read',
+          params: params,
+          paramType: {}
+        }
+ 
+	const rows = await this.database.execute(queryParams);
+
+	util.sendRes(res, 200, 'OK', rows);
+      } catch(err) {
+	util.sendError(res, 400, 'Error in execute -> ' + err);
+      }
+    }
+
+
+...
+
+```
+  
+
+Request path in @Controller annotation and the one in @RequestMapping annotation will be joined. @Controller annotation is added on classes and @RequestMapping annotation is added on methods.
+You need to create lion table in test database in MySQL or MariaDB. This controller will access test.lion table to handle client's requests. Schema for test.lion table is as follows.
+
+```table
+id      INT    AUTO_INCREMENT
+name    TEXT
+age     INT
+mobile  TEXT
+
+```
+
+This read method uses lion_read sql statement defined in database/sql/lion_sql.sql file. The SQL statement is as follows.
+
+```sql
+    lion_read: {
+        sql: "select \
+                id, \
+                name, \
+                mobile \
+            from test.lion \
+            where id = :id"
+    }
+
+```
+
+The :id parameter means id request parameter sent by clients.
+Send the following requests to test if the lion-controller works.
+
+- (1) List : GET http://localhost:8001/lion
+- (2) Create : POST http://localhost:8001/lion
+             Parameters -> name=sean, mobile=010-1000-1000
+- (3) Read : GET http://localhost:8001/lion/1
+- (4) Update : PUT http://localhost:8001/lion/1
+             Parameters -> name=james, mobile=010-2000-2000
+- (5) Delete : DELETE http://localhost:8001/lion/1
+
+
+You can add annotation only on methods in the controller class. Tiger class shows how to add annotation @RequestMapping only on methods.
+
 - See `controllers/tiger-controller.js` for @RequestMapping annotation
 
 ```js
 // tiger-controller.js
 ...
+
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
 
 class Tiger {
 
@@ -244,7 +411,7 @@ module.exports = Tiger;
 If you restart your server, this controller's hello method is scanned and loaded automatically.
 Request path is /tiger/hello and you can send a request using the following URL:
 
-  * http://localhost:7001/tiger/hello
+  * http://localhost:8001/tiger/hello
 
 @RequestMapping annotation can have the following attributes.
 
@@ -276,58 +443,45 @@ class Dog {
 
 ```
   
+Controller definition is flexible and you can define your own controllers to meet your client's requests.  
   
-  * controllers/cat-controller.js    annotation for class can be set for REST api support
-                                     list, create, read, update, delete methods are automatically configured
+- Warning : If you use `npm rm`, `npm build-norm`, `npm start-norm` command, this project uses babel for ES6 support. It means all source files are transpiled and moved into dist folder. However, annotation can only be used for ES6 classes and methods. Therefore, you should maintain ES6 source files in deploying to clould server.
+
+
+
+## Classic Controller
+
+If you create a controller of classic style, it needs to be registered in the config/controller-config.js file. In case you define a controller according to the REST standards, only unit name is needed to register in the configuration file. Unit name is used to find the controller file you created.
+
+- See `controllers/person-controller.js` for REST type controller
+- See `controllers/profile-controller.js` for API type controller
+- See `controllers/test-controller.js` for cookie and session test
+
+
+## Configuration for Classic Controller
+
+A configuration is designed to register controllers, services, SQL and so on. so it will show components registered. You should add a line after created a new controller. This configuration allows you to quickly find components.
+
+The structure of a controller-configuration is simple. Here is an example :
 
 ```js
-// cat-controller.js
-...
+// controller-config.js
 
-/**
- * @Controller(path="/cat", type="rest")
- */
-class Cat {
- 
-...
-
+module.exports = [
+    {id:1, type:'rest', base:'', unit:'person'},
+    {id:2, type:'path', path:'/profile/get', method:['get','post'], file:'profile-controller', func:'get'},
+    ...
 ```
-  
-    
-  * controllers/bear-controller.js    annotation for class can be set for REST api support
-                                      with automatic database access
 
-```js
-// bear-controller.js
-...
+If the type attribute is set to 'rest', methods for REST are registered automatically. (list, read, create, update, delete) The unit attribute is used to find the controller file. For example, if you created person-controller.js file in controllers folder it is designated by 'person'. You should set the file name using the unit attribute registered. The request path for the methods are determined by the standards for REST.
 
-/**
- * @Controller(path="/bear", type="rest" table="test.person")
- */
-class Bear {
- 
-}
+If the type attribute is set to 'path', the method is loaded using path, method, file and func attributes.
 
-...
+  * path - request path
+  * method - request method ('GET', 'POST', 'PUT', etc. Multiple methods can be used)
+  * file - controller file created
+  * func - function in the controller file used for callback method
 
-```
- 
-You can test REST API requests using POSTMAN or other test tools.
-
-- (1) List : GET http://localhost:7001/bear
-- (2) Create : POST http://localhost:7001/bear
-             Parameters -> name=john, age=20, mobile=010-1000-1000
-- (3) Read : GET http://localhost:7001/bear/1
-- (4) Update : PUT http://localhost:7001/bear/1
-             Parameters -> name=john, age=20, mobile=010-1000-1000
-- (5) Delete : DELETE http://localhost:7001/bear/1
-
-Pagination, order by and search functions are supported.
-Column names can be sent as request parameters for retrieving only designated columns.
-
-- (1) GET http://localhost:7001/bear?page=1&perPage=10
-- (2) GET http://localhost:7001/bear?page=1&perPage=10&search=name&searchValue=john&order=name&orderDirection=asc
-- (3) GET http://localhost:7001/bear?columns=id,name
 
 
 ## Service
@@ -445,7 +599,7 @@ redis: {
 
 API documentation using swagger is applied. You can access documentation for controllers as the following:
 
-- See http://localhost:7001/api-docs
+- See http://localhost:8001/api-docs
 
 
 ## License
