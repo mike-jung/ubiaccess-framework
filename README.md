@@ -11,6 +11,7 @@ This is a boilerplate project for MVC architecture using node, express and MySQL
 - Database Failover - Relational databases such as MySQL(MariaDB), SQLite and Oracle are supported and failover features are embedded for easy configuration
 - SocketIO - chat implementation using SocketIO messaging is easy because handlers are separated
 - WebRTC - audio and video streaming for your multimedia needs are supported
+- FCM Push - FCM(Firebase Cloud Messaging) Push functions are supported to send push messages to Android and iOS devices.
 
 
 ## Application Structure
@@ -165,6 +166,16 @@ There is a fair amount of auto-loading built into this application structure.
 
 This boilerplate uses ES6 syntax with Node.js >= 10.0, you can check out the [feature available here](https://nodejs.org/en/docs/es6/)
 
+
+## Server Configuration
+
+Basic server configuration is in config/config.js file. You can change server port, backlog and so on.
+See the following files to check how to configure server for simple web access, socket.io, redis and external interfaces.
+
+  * config/config-sample1.js
+  * config/config-sample2.js
+  * config/config-sample3.js files
+  
 
 ## Controller
 
@@ -555,7 +566,8 @@ util/param.js utility parses request parameters regardless of GET or POST reques
 
 ## SocketIO and Redis
 
-SocketIO messaging is enabled if you change config/config.js file.
+SocketIO messaging will be enabled if you add socketio attribute in config/config.js file.
+
 
 ```js
 // config.js
@@ -571,9 +583,56 @@ SocketIO messaging is enabled if you change config/config.js file.
 
 ```
 
-You can create handler files for SocketIO and put them into socketio folder.
+or,
 
-Redis is used for SocketIO and failover for Redis is basically supported.
+```js
+// config.js
+...
+
+    socketio: {
+        active: true,
+        pingInterval: 10000,
+        pingTimeout: 5000,
+        transports: [
+	    'websocket'
+	]
+    }
+    
+}
+
+...
+
+```
+
+You can create controller files for SocketIO and put them into socketio folder.
+See socketio/chat.js file to get how to add methods to handle SocketIO chatting.
+Sample codes are in public folder. See the following files.
+
+  * public/chat.html
+  * public/chat2.html
+  * public/chat3.html
+
+Redis is used for SocketIO and you can make SocketIO connect to redis server.
+Redis is needed to be installed before enabled.
+You can add redis attribute to config/config.js after installing redis.
+
+```js
+// config.js
+...
+
+    redis: {
+        failover: false,
+        host:'127.0.0.1', 
+        port: 10425,
+        name: 'mymaster'
+    }
+
+...
+```
+
+
+Failover functions for Redis is basically supported.
+You need to configure redis sentinels before you make redis failover enabled.
 Redis sentinels can be configured as follows.
     (Redis is used only for SocketIO messaging if you do not use it for other purposes)
     If you have no idea on Redis sentinels, see [guides here](https://redis.io/topics/sentinel) 
@@ -582,7 +641,8 @@ Redis sentinels can be configured as follows.
 // config.js
 ...
 
-redis: {
+    redis: {
+        failover: true,
         sentinels: [
             { host:'127.0.0.1', port: 11425 },
             { host:'127.0.0.1', port: 11426 },
@@ -593,6 +653,16 @@ redis: {
 
 ...
 ```
+
+
+## FCM Push
+
+This server supports FCM(Firebase Cloud Messaging) push to send push messages to Android, iOS devices.
+You need to add gcm_api_key attribute to config/config.js file if you want to make push functions enabled.
+
+- Warning : FCM Push is supported only in Enterprise version of Ubiaccess server.
+  Please send me an request e-mail to evaluate enterprise version of Ubiaccess server.
+
 
 
 ## API documentation
