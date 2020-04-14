@@ -166,6 +166,16 @@ There is a fair amount of auto-loading built into this application structure.
 This boilerplate uses ES6 syntax with Node.js >= 10.0, you can check out the [feature available here](https://nodejs.org/en/docs/es6/)
 
 
+## Server Configuration
+
+Basic server configuration is in config/config.js file. You can change server port, backlog and so on.
+See the following files to check how to configure server for simple web access, socket.io, redis and external interfaces.
+
+  * config/config-sample1.js
+  * config/config-sample2.js
+  * config/config-sample3.js files
+  
+
 ## Controller
 
 Controller handles client's requests.
