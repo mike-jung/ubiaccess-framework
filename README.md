@@ -308,7 +308,7 @@ class Lion {
     }
 
     /**
-     * @RequestMapping(path="/read/:id", method="get")
+     * @RequestMapping(path="/:id", method="get")
      */
     async read(req, res) {
       logger.debug('Lion:read called for path /read/:id');
@@ -337,6 +337,7 @@ class Lion {
 ```
   
 
+Request path in @Controller annotation and the one in @RequestMapping annotation will be joined. @Controller annotation is added on classes and @RequestMapping annotation is added on methods.
 You need to create lion table in test database in MySQL or MariaDB. This controller will access test.lion table to handle client's requests. Schema for test.lion table is as follows.
 
 ```table
@@ -373,14 +374,17 @@ Send the following requests to test if the lion-controller works.
 - (5) Delete : DELETE http://localhost:8001/lion/1
 
 
-
-
+You can add annotation only on methods in the controller class. Tiger class shows how to add annotation @RequestMapping only on methods.
 
 - See `controllers/tiger-controller.js` for @RequestMapping annotation
 
 ```js
 // tiger-controller.js
 ...
+
+const util = require('../util/util');
+const param = require('../util/param');
+const logger = require('../util/logger');
 
 class Tiger {
 
@@ -439,6 +443,7 @@ class Dog {
 
 ```
   
+Controller definition is flexible and you can define your own controllers to meet your client's requests.  
   
 - Warning : If you use `npm rm`, `npm build-norm`, `npm start-norm` command, this project uses babel for ES6 support. It means all source files are transpiled and moved into dist folder. However, annotation can only be used for ES6 classes and methods. Therefore, you should maintain ES6 source files in deploying to clould server.
 
