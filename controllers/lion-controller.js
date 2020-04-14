@@ -4,11 +4,11 @@
  *
  * Example request urls are as follows:
  * 
- * (1) http://localhost:7001/lion/list
- * (3) http://localhost:7001/lion/create
- * (4) http://localhost:7001/lion/read/1
- * (5) http://localhost:7001/lion/update/1
- * (6) http://localhost:7001/lion/delete/1
+ * (1) http://localhost:8001/lion/list
+ * (3) http://localhost:8001/lion/create
+ * (4) http://localhost:8001/lion/read/1
+ * (5) http://localhost:8001/lion/update/1
+ * (6) http://localhost:8001/lion/delete/1
  * 
  */
 
@@ -33,7 +33,7 @@ class Lion {
      * @RequestMapping(path="/", method="get")
      */
     async list(req, res) {
-      logger.debug('Lion:list called for path /');
+      logger.debug('Lion:list called for GET /lion');
 
       const params = param.parse(req);
       
@@ -101,10 +101,10 @@ class Lion {
     }
 
     /**
-     * @RequestMapping(path="/create", method="post")
+     * @RequestMapping(path="/", method="post")
      */
     async create(req, res) {
-      logger.debug('Lion:create called for path /create');
+      logger.debug('Lion:create called for POST /lion');
 
       const params = param.parse(req);
         
@@ -112,7 +112,8 @@ class Lion {
                
         const queryParams = {
           sqlName: 'lion_create',
-          params: params
+          params: params,
+          paramType: {}
         }
 
 			  const rows = await this.database.execute(queryParams);
@@ -124,10 +125,10 @@ class Lion {
     }
 
     /**
-     * @RequestMapping(path="/read/:id", method="get")
+     * @RequestMapping(path="/:id", method="get")
      */
     async read(req, res) {
-      logger.debug('Lion:read called for path /read/:id');
+      logger.debug('Lion:read called for GET /lion/:id');
 
       const params = param.parse(req);
         
@@ -135,7 +136,10 @@ class Lion {
               
         const queryParams = {
           sqlName: 'lion_read',
-          params: params
+          params: params,
+          paramType: {
+            id: 'integer'
+          }
         }
  
 			  const rows = await this.database.execute(queryParams);
@@ -147,10 +151,10 @@ class Lion {
     }
 
     /**
-     * @RequestMapping(path="/update/:id", method="post")
+     * @RequestMapping(path="/:id", method="put")
      */
     async update(req, res) {
-      logger.debug('Lion:update called for path /update/:id');
+      logger.debug('Lion:update called for PUT /lion/:id');
 
       const params = param.parse(req);
         
@@ -158,7 +162,10 @@ class Lion {
             
         const queryParams = {
           sqlName: 'lion_update',
-          params: params
+          params: params,
+          paramType: {
+            id: 'integer'
+          }
         }
   
 			  const rows = await this.database.execute(queryParams);
@@ -170,10 +177,10 @@ class Lion {
     }
 
     /**
-     * @RequestMapping(path="/delete/:id", method="delete")
+     * @RequestMapping(path="/:id", method="delete")
      */
     async delete(req, res) {
-      logger.debug('Lion:delete called for path /delete/:id');
+      logger.debug('Lion:delete called for DELETE /lion/:id');
 
       const params = param.parse(req);
         
@@ -181,7 +188,10 @@ class Lion {
            
         const queryParams = {
           sqlName: 'lion_delete',
-          params: params
+          params: params,
+          paramType: {
+            id: 'integer'
+          }
         }
 
 			  const rows = await this.database.execute(queryParams);

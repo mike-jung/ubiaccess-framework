@@ -188,20 +188,7 @@ class TableController {
         }
 
         const rows2 = await this.database.query(queryParams2);
-
-        const output = {
-          header: {
-            page: params.page,
-            perPage: params.perPage,
-            total: total,
-            search: params.search,
-            searchValue: params.searchValue,
-            order: params.order,
-            orderDirection: params.orderDirection
-          },
-          body: rows2
-        }
-        
+ 
         
         let responseType = 'json';
         if (params.responseType) {

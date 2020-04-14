@@ -29,6 +29,11 @@ const path = require("path");
 external_loader.init = function(app, config, callback) {
 	console.log('external_loader.init called.');
     
+    if (typeof(config.external) == 'undefined') {
+        console.log('No external configuration.');
+        return;
+    }
+
 	console.log('Count of External in config : %d', config.external.length);
 	
 	for (let i = 0; i < config.external.length; i++) {

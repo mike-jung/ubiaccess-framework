@@ -14,13 +14,8 @@ module.exports = {
     },
     lion_create: {
         sql: "insert into test.lion \
-                    (id, name, mobile) \
-              values (?, ?, ?)",
-        params: [
-            'id',
-            'name',
-            'mobile'
-        ]
+                    (name, mobile) \
+              values (:name, :mobile)"
     },
     lion_read: {
         sql: "select \
@@ -28,27 +23,16 @@ module.exports = {
                 name, \
                 mobile \
             from test.lion \
-            where id = ?",
-        params: [
-            'id'
-        ]
+            where id = :id"
     },
     lion_update: {
         sql: "update test.lion \
-              set name = ?, \
-                  mobile = ? \
-              where id = ?",
-        params: [
-            'name',
-            'mobile',
-            'id'
-        ]
+              set name = :name, \
+                  mobile = :mobile \
+              where id = :id"
     },
     lion_delete: {
         sql: "delete from test.lion \
-            where id = ?",
-        params: [
-            'id'
-        ]
+            where id = :id"
     }
 }

@@ -7,13 +7,13 @@
 
 module.exports = {
     server: {
-        port: 7001,
+        port: 8001,
         https: false 
     },
     database: {  
         database_mysql: { 
             type: 'mysql',
-            failover: 'true',
+            failover: true,
             retryStrategy: {
                 interval: 2000,
                 limit: 3,

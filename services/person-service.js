@@ -1,7 +1,7 @@
 'use strict';
 
-import Database from '../database/database_mysql';
-import util from '../util/util';
+const Database = require('../database/database_mysql');
+const util = require('../util/util');
 
 class PersonService {
 

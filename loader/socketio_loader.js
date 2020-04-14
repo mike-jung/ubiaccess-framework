@@ -8,6 +8,7 @@
 
 const socketio_loader = {};
 
+const config = require('../config/config');
 const socketioConfig = require('../config/socketio_config');
 
 // logger
@@ -28,19 +29,37 @@ const path = require("path");
 //===== Redis =====//
 
 const redisAdapter = require('socket.io-redis');
-const ioRedis = require('ioredis');
 
-const ioRedisOptions = {
-    sentinels: [
-        { host:'127.0.0.1', port: 11425 },
-        { host:'127.0.0.1', port: 11426 },
-        { host:'127.0.0.1', port: 11427 }
-    ],
-    name: 'mymaster'
+// sentinels를 사용하는 경우와 사용하지 않는 경우 구분
+let pubClient;
+let subClient; 
+
+let store;
+let pub;
+let sub;
+
+// 일반 redis (sentinels 사용하지 않는 경우)
+if (typeof(config.redis.failover) == 'undefined' || config.redis.failover == false) {
+    const redis = require('redis');
+
+    pubClient = redis.createClient(config.redis);
+    subClient = redis.createClient(config.redis);
+
+    store = redis.createClient(config.redis);
+    pub = redis.createClient(config.redis);
+    sub = redis.createClient(config.redis);
+
+} else {  // Failover redis (sentinels 사용하는 경우)
+    const ioRedis = require('ioredis');
+ 
+    pubClient = new ioRedis(config.redis);
+    subClient = new ioRedis(config.redis);
+
+    store = new ioRedis(config.redis);
+    pub = new ioRedis(config.redis);
+    sub = new ioRedis(config.redis);
+    
 }
-
-const pubClient = new ioRedis(ioRedisOptions);
-const subClient = new ioRedis(ioRedisOptions);
 
 pubClient.on('error', (err) => {
     logger.debug('pubClient error -> ' + err);
@@ -49,12 +68,7 @@ pubClient.on('error', (err) => {
 subClient.on('error', (err) => {
     logger.debug('subClient error -> ' + err);
 });
-
-
-const store = new ioRedis(ioRedisOptions);
-const pub = new ioRedis(ioRedisOptions);
-const sub = new ioRedis(ioRedisOptions);
-
+ 
 store.on('error', (err) => {
     logger.debug('store error -> ' + err);
 });
@@ -107,13 +121,7 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
     // starting socket.io server
     const io = socketio.listen(
         server, 
-        {
-            pingInterval: 10000,
-            pingTimeout: 5000,
-            transports: [
-		      'websocket'
-		    ]
-        }
+        config.socketio
     );
      
 

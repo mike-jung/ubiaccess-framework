@@ -7,7 +7,7 @@
 
 module.exports = {
     server: {
-        port: 7001,
+        port: 8001,
         https: false 
     },
     database: {  

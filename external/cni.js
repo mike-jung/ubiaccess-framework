@@ -38,6 +38,8 @@ class CNI {
         let requestInfo = {
             method: reqMethod,
             url: url,
+            //params: params,  // CNI uses body instead of query even in case of GET method
+            data: params,
             responseType: 'json'
         };
         
@@ -47,12 +49,15 @@ class CNI {
         // send request using axios
         try {
             const response = await axios(requestInfo);
+
             logger.debug('Response data type -> ' + typeof(response.data));
             logger.debug(response.data);
 
             let responseData = response.data;
             if (typeof(responseData) == 'string') {
                 responseData = JSON.parse(response.data);
+            } else if (typeof(responseData) == 'object') {
+                responseData = response.data;
             }
 
             callback(null, responseData);

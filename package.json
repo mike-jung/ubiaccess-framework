@@ -1,19 +1,19 @@
 {
      "name": "ubiaccess-server",
      "version": "1.0.0",
-     "description": "1. npm init 실행\r   npm init -y",
+     "description": "Ubiaccess Server",
      "main": "index.js",
      "scripts": {
           "test": "echo \"Error: no test specified\" && exit 1",
           "copy": "copyfiles --soft --up 1 public/**/*.* ./dist/public",
           "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./package-lock.json,./npm-debug.log,./public --copy-files",
-          "start": "npm run build && npm run copy && node dist/index.js",
+          "start": "node index.js",
           "rm": "rimraf dist/ ",
           "build-norm": "babel ./ --out-dir dist/ --ignore ./dist,./node_modules,./.babelrc,./package.json,./package-lock.json,./npm-debug.log,./public --copy-files",
           "start-norm": "npm run build-norm && npm run copy && node dist/index.js"
      },
      "keywords": [],
-     "author": "",
+     "author": "Mike",
      "license": "ISC",
      "dependencies": {
           "@conga/annotations": "^1.0.3",
