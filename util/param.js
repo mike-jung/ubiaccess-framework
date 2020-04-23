@@ -1,11 +1,14 @@
 'use strict';
 
+// logger
+const logger = require('./logger');
+
 const param = {};
 
 param.parse = function (req) {
     const requestMethod = req.method;
     const requestPath = req.baseUrl + req.path;
-    console.log(`${requestMethod} ${requestPath} requested`);
+    logger.debug(`${requestMethod} ${requestPath} requested`);
 
     let params;
     if (requestMethod == 'GET') {
@@ -13,7 +16,7 @@ param.parse = function (req) {
     } else if (requestMethod == 'POST' || requestMethod == 'PUT' || requestMethod == 'DELETE') {
         params = req.body;
     } else {
-        console.log(`Unknown request method -> ${requestMethod}`);
+        logger.debug(`Unknown request method -> ${requestMethod}`);
     }
 
     if (req.params) {
@@ -22,9 +25,9 @@ param.parse = function (req) {
     
     const paramsText = JSON.stringify(params);
     if (paramsText && paramsText.length < 1000) {
-        console.log(`PARAMS -> ${paramsText}`);
+        logger.debug(`PARAMS -> ${paramsText}`);
     } else {
-        console.log(`PARAMS -> over 1000 characters.`);
+        logger.debug(`PARAMS -> over 1000 characters.`);
     }
     
 

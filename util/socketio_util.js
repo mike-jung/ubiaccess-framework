@@ -78,7 +78,8 @@ thisModule.sendData = async (io, event, input, namespace, redis, resend) => {
             
             const queryParams = {
 				sqlName: 'chat_save_message',
-				params: params
+                params: params,
+                paramType:{}
             }
 
             const rows = await database.execute(queryParams);
@@ -121,7 +122,8 @@ thisModule.sendData = async (io, event, input, namespace, redis, resend) => {
                                     
                         const queryParams = {
                             sqlName: 'chat_save_message_status',
-                            params: params
+                            params: params,
+                            paramType:{}
                         }
 
                         const rows = await database.execute(queryParams);
