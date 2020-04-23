@@ -120,7 +120,7 @@ loader.autoLoad = (router, upload) => {
     // check all controllers
     fs.readdir(controllerDir, (err, filenames) => {
         if (err) {
-            console.log('Unable to scan controller directory: ' + err);
+            logger.debug('Unable to scan controller directory: ' + err);
             return;
         } 
 
@@ -135,15 +135,15 @@ loader.autoLoad = (router, upload) => {
 loader.parseFile = (router, upload, reader, filename) => {
 
     const filePath = path.join(controllerDir, filename);
-    console.log('Controller file path -> ' + filePath);
+    logger.debug('Controller file path -> ' + filePath);
 
     reader.parse(filePath)
     
     const definitionAnnotations = reader.definitionAnnotations
-    //console.log('definitionAnnotations -> ' + JSON.stringify(definitionAnnotations));
+    //logger.debug('definitionAnnotations -> ' + JSON.stringify(definitionAnnotations));
 
     const methodAnnotations = reader.methodAnnotations
-    //console.log('methodAnnotations -> ' + JSON.stringify(methodAnnotations));
+    //logger.debug('methodAnnotations -> ' + JSON.stringify(methodAnnotations));
     
     if ((definitionAnnotations == undefined || (definitionAnnotations.length == 0)) 
         && (methodAnnotations == undefined || (methodAnnotations.length == 0))) {
@@ -151,7 +151,7 @@ loader.parseFile = (router, upload, reader, filename) => {
     }
 
     if (definitionAnnotations.length > 0) {
-        console.log('\n@Controller : ' + definitionAnnotations.length)
+        logger.debug('\n@Controller : ' + definitionAnnotations.length)
     }
 
     const classMapping = {};
@@ -161,10 +161,10 @@ loader.parseFile = (router, upload, reader, filename) => {
     let table;
     for (let i = 0; i < definitionAnnotations.length; i++) {
         const annotation = definitionAnnotations[i];
-        console.log('#' + i + ' : class name -> ' + annotation.target);
-        console.log('#' + i + ' : path -> ' + annotation.path);
-        console.log('#' + i + ' : type -> ' + annotation.type);
-        console.log('#' + i + ' : table -> ' + annotation.table);
+        logger.debug('#' + i + ' : class name -> ' + annotation.target);
+        logger.debug('#' + i + ' : path -> ' + annotation.path);
+        logger.debug('#' + i + ' : type -> ' + annotation.type);
+        logger.debug('#' + i + ' : table -> ' + annotation.table);
 
         if (annotation.type == 'rest') {
             isRest = true;
@@ -179,7 +179,7 @@ loader.parseFile = (router, upload, reader, filename) => {
 
         classMapping[annotation.target] = annotation.path;
     };
-    //console.log('class mapping -> ' + JSON.stringify(classMapping)); 
+    //logger.debug('class mapping -> ' + JSON.stringify(classMapping)); 
 
     // register REST type controller
     if (isRest) {
@@ -189,15 +189,15 @@ loader.parseFile = (router, upload, reader, filename) => {
 
     // register methods
     if (methodAnnotations.length > 0) {
-        console.log('\n@RequestMapping : ' + methodAnnotations.length)
+        logger.debug('\n@RequestMapping : ' + methodAnnotations.length)
     }
 
     for (let i = 0; i < methodAnnotations.length; i++) {
         const annotation = methodAnnotations[i];
-        console.log('#' + i + ' : function name -> ' + annotation.target);
-        console.log('#' + i + ' : path -> ' + annotation.path);
-        console.log('#' + i + ' : method -> ' + annotation.method);
-        console.log('#' + i + ' : upload -> ' + annotation.upload);
+        logger.debug('#' + i + ' : function name -> ' + annotation.target);
+        logger.debug('#' + i + ' : path -> ' + annotation.path);
+        logger.debug('#' + i + ' : method -> ' + annotation.method);
+        logger.debug('#' + i + ' : upload -> ' + annotation.upload);
 
         if (annotation.method == undefined) {
             annotation.method = ['get', 'post'];
