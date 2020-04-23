@@ -654,6 +654,12 @@ Redis sentinels can be configured as follows.
 ...
 ```
 
+Test urls for chatting are as follows.
+
+  * 1 to 1 chatting based on Socket.IO : http://localhost:8001/chat.html
+  * Video chatting based on Socket.IO and WebRTC : http://localhost:8001/chat2.html
+  * Advanced video chatting : http://localhost:8001/chat3.html
+
 
 ## FCM Push
 
