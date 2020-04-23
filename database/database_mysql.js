@@ -20,7 +20,7 @@ let isFailovering = false;
 let pool = null;
 
 const getPool = () => {
-    console.log('getPool called.');
+    logger.debug('getPool called.');
 
     if (isMaster) {
         pool = mysql.createPool(config.database[dbName].master);
@@ -30,35 +30,35 @@ const getPool = () => {
 }
 
 getPool();
-console.log('database_mysql file loaded.');
+logger.debug('database_mysql file loaded.');
 
 const sqlDir = __dirname + '/sql';
 let sqlObj = {};
 
 const loadSql = () => {
-    console.log('loadSql called.');
+    logger.debug('loadSql called.');
 
     // check all sql files
     fs.readdir(sqlDir, (err, filenames) => {
         if (err) {
-            console.log('Unable to scan sql directory: ' + err);
+            logger.debug('Unable to scan sql directory: ' + err);
             return;
         } 
 
         // listing all filenames
         filenames.forEach((filename) => {
             const filePath = sqlDir + '/' + filename;
-            console.log('sql file path -> ' + filePath);
+            logger.debug('sql file path -> ' + filePath);
 
             const curObj = require(filePath);
             Object.assign(sqlObj, curObj);
         });
 
         const sqlNames = Object.keys(sqlObj);
-        console.log('SQL count -> ' + sqlNames.length);
-        console.log('SQL names -> ' + sqlNames.join());
+        logger.debug('SQL count -> ' + sqlNames.length);
+        logger.debug('SQL names -> ' + sqlNames.join());
 
-        console.log('database SQL file loaded.');
+        logger.debug('database SQL file loaded.');
     });
 
 }
@@ -112,7 +112,7 @@ const changeColonToUpperCase = (sql) => {
         newSql = newSql.replace(curWord, curToken);
     }
 
-    console.log('colon param to upper case -> ' + newSql);
+    logger.debug('colon param to upper case -> ' + newSql);
     
     return newSql;
 }                
@@ -213,13 +213,13 @@ class DatabaseMySQL {
  
 
     executeRaw(executeParams, retryCount, callback) {
-        console.log('executeRaw called.');
+        logger.debug('executeRaw called.');
         
         const executeParamsText = JSON.stringify(executeParams);
         if (executeParamsText && executeParamsText.length < 1000) {
-            console.log('Execute Params -> ' + executeParamsText);
+            logger.debug('Execute Params -> ' + executeParamsText);
         } else {
-            console.log('Execute Params -> over 1000 characters.');
+            logger.debug('Execute Params -> over 1000 characters.');
         }
 
         const sqlName = executeParams.sqlName;
@@ -231,14 +231,14 @@ class DatabaseMySQL {
         pool.getConnection((err, conn) => {
 
             if (err) {
-                console.log('Error in fetching database connection -> ' + err);
+                logger.debug('Error in fetching database connection -> ' + err);
                 
                 if (err.code === 'ECONNREFUSED') {
                     retryCount += 1;
-                    console.log('retryCount : ' + retryCount + '/' + config.database[dbName].retryStrategy.limit);
+                    logger.debug('retryCount : ' + retryCount + '/' + config.database[dbName].retryStrategy.limit);
 
                     if (retryCount < config.database[dbName].retryStrategy.limit) {
-                        console.log('Retrying #' + retryCount);
+                        logger.debug('Retrying #' + retryCount);
                         
                         if (failoverCount > config.database[dbName].retryStrategy.failoverLimit) {
                             callback(err, null);
@@ -261,18 +261,18 @@ class DatabaseMySQL {
                                 }
             
                                 pool.end(() => {
-                                    console.log('existing pool ended.');
+                                    logger.debug('existing pool ended.');
  
                                     getPool();
-                                    console.log('database connection pool is failovered to ');
+                                    logger.debug('database connection pool is failovered to ');
                                     if (isMaster) {
-                                        console.log('master config -> ' + config.database[dbName].master.host + ':' + config.database[dbName].master.port);
+                                        logger.debug('master config -> ' + config.database[dbName].master.host + ':' + config.database[dbName].master.port);
                                     } else {
-                                        console.log('slave config -> ' + config.database[dbName].slave.host + ':' + config.database[dbName].slave.port);
+                                        logger.debug('slave config -> ' + config.database[dbName].slave.host + ':' + config.database[dbName].slave.port);
                                     }
 
                                     failoverCount += 1;
-                                    console.log('failoverCount : ' + failoverCount + '/' + config.database[dbName].retryStrategy.failoverLimit);
+                                    logger.debug('failoverCount : ' + failoverCount + '/' + config.database[dbName].retryStrategy.failoverLimit);
 
                                     if (failoverCount > config.database[dbName].retryStrategy.failoverLimit) {
                                         callback(err, null);
@@ -297,9 +297,9 @@ class DatabaseMySQL {
             }
 
             if (sql && sql.length < 1000) {
-                console.log('current SQL -> ' + sql);
+                logger.debug('current SQL -> ' + sql);
             } else {
-                console.log('current SQL -> over 1000 characters');
+                logger.debug('current SQL -> over 1000 characters');
             }
 
             // apply sqlReplaces
@@ -390,13 +390,13 @@ class DatabaseMySQL {
                 }
 
                 if (sql && sql.length < 1000) {
-                    console.log('SQL -> ' + query.sql);
+                    logger.debug('SQL -> ' + query.sql);
                 } else {
-                    console.log('SQL -> over 1000 characters');
+                    logger.debug('SQL -> over 1000 characters');
                 }
 
                 if (err) {
-                    console.log('Error in executing SQL -> ' + err);
+                    logger.debug('Error in executing SQL -> ' + err);
                     callback(err, null);
                     return;
                 }
@@ -417,7 +417,7 @@ class DatabaseMySQL {
         if (mapper) {
             logger.debug('mapper found with attributes ' + Object.keys(mapper).length);
             rows.forEach((item, index) => {
-                console.log('INPUT ITEM -> ' + JSON.stringify(item));
+                logger.debug('INPUT ITEM -> ' + JSON.stringify(item));
 
                 let outputItem = {};
                 Object.keys(mapper).forEach((key, position) => {
@@ -434,7 +434,7 @@ class DatabaseMySQL {
                         logger.debug('mapping error : ' + JSON.stringify(err2));
                     }
                 });
-                console.log('OUTPUT ITEM -> ' + JSON.stringify(outputItem));
+                logger.debug('OUTPUT ITEM -> ' + JSON.stringify(outputItem));
 
                 results.push(outputItem);
             });
@@ -465,7 +465,7 @@ class DatabaseMySQL {
         pool.getConnection((err, conn) => {
 
             if (err) {
-                console.log('Error in fetching database connection -> ' + err);
+                logger.debug('Error in fetching database connection -> ' + err);
                 callback(err, null);
 
                 return;
@@ -480,7 +480,7 @@ class DatabaseMySQL {
                 }
 
                 if (err) {
-                    console.log('Error in fetching fields -> ' + err);
+                    logger.debug('Error in fetching fields -> ' + err);
                     callback(err, null);
                     return;
                 }

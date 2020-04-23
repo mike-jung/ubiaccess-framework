@@ -18,7 +18,7 @@ class DatabaseSqlite {
     }
  
     getPool() {
-        console.log('getPool called.');
+        logger.debug('getPool called.');
     
         if (isMaster) {
             return new sqlite.Database(config.database[dbName].master.file);
@@ -79,14 +79,14 @@ class DatabaseSqlite {
                 stmt.finalize();
 
                 if (err) {
-                    console.log('Error in executing sql -> ' + JSON.stringify(err));
+                    logger.debug('Error in executing sql -> ' + JSON.stringify(err));
                     
                     if (err.code === 'ECONNREFUSED') {
                         retryCount += 1;
-                        console.log('retryCount : ' + retryCount + '/' + config.database[dbName].retryStrategy.limit);
+                        logger.debug('retryCount : ' + retryCount + '/' + config.database[dbName].retryStrategy.limit);
 
                         if (retryCount < config.database[dbName].retryStrategy.limit) {
-                            console.log('Retrying #' + retryCount);
+                            logger.debug('Retrying #' + retryCount);
                             
                             if (this.failoverCount > config.database[dbName].retryStrategy.failoverLimit) {
                                 callback(err, null);
@@ -106,18 +106,18 @@ class DatabaseSqlite {
                                 }
             
                                 this.pool.close(() => {
-                                    console.log('existing pool ended.');
+                                    logger.debug('existing pool ended.');
                                 });
 
                                 this.pool = getPool();
-                                console.log('database connection pool is failovered to ');
+                                logger.debug('database connection pool is failovered to ');
                                 if (this.isMaster) {
-                                    console.log('master config -> ' + config.database[dbName].master.host + ':' + config.database[dbName].master.port);
+                                    logger.debug('master config -> ' + config.database[dbName].master.host + ':' + config.database[dbName].master.port);
                                 } else {
-                                    console.log('slave config -> ' + config.database[dbName].slave.host + ':' + config.database[dbName].slave.port);
+                                    logger.debug('slave config -> ' + config.database[dbName].slave.host + ':' + config.database[dbName].slave.port);
                                 }
                                 this.failoverCount += 1;
-                                console.log('failoverCount : ' + this.failoverCount + '/' + config.database[dbName].retryStrategy.failoverLimit);
+                                logger.debug('failoverCount : ' + this.failoverCount + '/' + config.database[dbName].retryStrategy.failoverLimit);
 
                                 if (this.failoverCount > config.database[dbName].retryStrategy.failoverLimit) {
                                     callback(err, null);
