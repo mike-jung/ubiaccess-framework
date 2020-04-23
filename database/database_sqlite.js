@@ -1,5 +1,5 @@
 'use strict';
-
+ 
 const sqlite = require('sqlite3').verbose();
 const config = require('../config/config');
 const sqlConfig = require('../config/sql_config');

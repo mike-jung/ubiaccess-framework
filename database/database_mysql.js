@@ -470,7 +470,7 @@ class DatabaseMySQL {
 
                 return;
             }
-
+ 
             mysqlUtilities.upgrade(conn);
             mysqlUtilities.introspection(conn);
 
