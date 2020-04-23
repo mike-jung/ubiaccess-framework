@@ -12,6 +12,9 @@ var external_loader = {};
 const config = require('../config/config');
 const external_config = require('../config/external_config');
 
+// logger
+const logger = require('../util/logger');
+
 // module for socket connection pool
 const SocketPool = require('./pool/SocketPool');
 
