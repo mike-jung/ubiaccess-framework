@@ -53,8 +53,6 @@
           "eslint": ">=4.18.2",
           "express-swagger-generator": "^1.1.15",
           "mocha": "^5.2.0",
-          "node-gyp": "^6.0.1",
-          "node-pre-gyp": "^0.14.0",
           "rimraf": "^2.7.1"
      }
 }
