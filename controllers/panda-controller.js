@@ -18,7 +18,7 @@ const TableController = require('../loader/table-controller');
 /**
  * @Controller(path="/panda")
  */
-class Panda {
+class Panda extends TableController {
  
     /**
      * @RequestMapping(path="/list", method="get")

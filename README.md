@@ -661,6 +661,11 @@ Test urls for chatting are as follows.
   * Advanced video chatting : http://localhost:8001/chat3.html
 
 
+## MD Bootstrap
+
+If you use md-bootstrap library for pages in public folder, please put mdb folder in the public folder. 'mdb' folder means the one you can download from mdbootstrap.com site. You can extract zip file after downloading the library and change the name of the folder into 'mdb'.
+
+
 ## FCM Push
 
 This server supports FCM(Firebase Cloud Messaging) push to send push messages to Android, iOS devices.
