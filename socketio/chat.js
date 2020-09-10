@@ -177,12 +177,16 @@ class ChatHandler {
                 // send back trying
                 if (input.method == 'invite') {
                     const output = {
+                        sessionId: input.sessionId,
+                        requestCode: input.requestCode,
+                        userId: input.userId,
+                        sender: input.sender,
+                        receiver: input.receiver,
                         command: 'session',
                         method: 'trying',
                         code: '110',
                         category: input.category,
-                        sender: input.sender,
-                        receiver: input.receiver
+                        data:''
                     }
 
                     socket.emit('message', output);
