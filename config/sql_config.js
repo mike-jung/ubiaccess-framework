@@ -94,30 +94,16 @@ module.exports = {
             insert into chat.message \
                 (id, sender, receiver, command, type, data, namespace, status) \
             values \
-                (?, ?, ?, ?, ?, ?, ?, ?)",
-        params: [
-            'id',
-            'sender',
-            'receiver',
-            'command',
-            'type',
-            'data',
-            'namespace',
-            'status'
-        ]
+                (:id, :sender, :receiver, :command, :type, :data, :namespace, :status)"
     },
     chat_save_message_status: {
         sql: "\
             update chat.message \
-            set status = ?, \
+            set status = :status, \
                 sent_date = now(), \
                 modify_date = now() \
             where \
-                id = ?",
-        params: [
-            'status',
-            'id'
-        ]
+                id = :id"
     },
     chat_reset_presence: {
         sql: "\
