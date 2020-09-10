@@ -50,6 +50,8 @@ class GroupChatHandler {
      * Method to handle 'message_group' event
      */
     message_group(io, socket, event, input, namespace, redis) {
+        logger.debug('message_group called. this server namespace -> ' + namespace);
+ 
         io.to(input.roomId).emit(event, input);
     }
     
