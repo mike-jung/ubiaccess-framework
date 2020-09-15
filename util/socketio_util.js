@@ -64,13 +64,17 @@ thisModule.sendData = async (io, event, input, namespace, redis, resend) => {
         
         // save this message event in chat.message table
         try {
+            let inputType = input.type;
+            if (typeof(input.type) == 'undefined') {
+                inputType = input.method;
+            }
 
             const params = {
                 id: input.requestCode,
                 sender: input.sender,
                 receiver: input.receiver,
                 command: input.command,
-                type: input.type,
+                type: inputType,
                 data: input.data,
                 namespace: namespace,
                 status: '100'
