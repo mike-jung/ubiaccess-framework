@@ -21,7 +21,6 @@ const loader = {};
 // controller directory
 //const controllerDir = __dirname + '\\..\\..\\controllers'
 const controllerDir = __dirname + '\\..\\controllers'
-const controllerUserDir = __dirname + '\\..\\..\\..\\controllers'
 
 loader.load = (router, upload) => {
     logger.debug('load called.');
@@ -122,19 +121,6 @@ loader.autoLoad = (router, upload) => {
     fs.readdir(controllerDir, (err, filenames) => {
         if (err) {
             logger.debug('Unable to scan controller directory: ' + err);
-            return;
-        } 
-
-        // listing all filenames
-        filenames.forEach((filename) => {
-            loader.parseFile(router, upload, reader, filename);
-        });
-    });
-
-    // check all controllers in user directory
-    fs.readdir(controllerUserDir, (err, filenames) => {
-        if (err) {
-            logger.debug('Unable to scan controller user directory: ' + err);
             return;
         } 
 

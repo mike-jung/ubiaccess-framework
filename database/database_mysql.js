@@ -33,7 +33,6 @@ getPool();
 logger.debug('database_mysql file loaded.');
 
 const sqlDir = __dirname + '/sql';
-const sqlUserDir = __dirname + '\\..\\..\\..\\database\\sql';
 let sqlObj = {};
 
 const loadSql = () => {
@@ -61,31 +60,6 @@ const loadSql = () => {
 
         logger.debug('database SQL file loaded.');
     });
-
-
-    // check all user sql files
-    fs.readdir(sqlUserDir, (err, filenames) => {
-        if (err) {
-            logger.debug('Unable to scan sql user directory: ' + err);
-            return;
-        } 
-
-        // listing all filenames
-        filenames.forEach((filename) => {
-            const filePath = sqlDir + '/' + filename;
-            logger.debug('sql file path -> ' + filePath);
-
-            const curObj = require(filePath);
-            Object.assign(sqlObj, curObj);
-        });
-
-        const sqlNames = Object.keys(sqlObj);
-        logger.debug('SQL count -> ' + sqlNames.length);
-        logger.debug('SQL names -> ' + sqlNames.join());
-
-        logger.debug('database SQL file loaded.');
-    });
-
 
 }
 
