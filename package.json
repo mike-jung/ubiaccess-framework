@@ -1,7 +1,7 @@
 {
-     "name": "ubiaccess-server",
-     "version": "1.0.0",
-     "description": "Ubiaccess Server",
+     "name": "ubiaccess-framework",
+     "version": "1.1.1",
+     "description": "Ubiaccess Web Service Framework, https://github.com/mike-jung/ubiaccess-framework",
      "main": "index.js",
      "scripts": {
           "start": "node index.js"
