@@ -1,4 +1,4 @@
-# node-web-starter
+# ubiaccess-framework
 
 This is a boilerplate project for MVC architecture using node, express and MySQL (or MariaDB)
 
@@ -40,11 +40,17 @@ The easiest way to get started is to clone the repository:
 
 ```sh
 # Get the latest snapshot
-$ git clone https://github.com/mike-jung/node-web-starter.git myproject
-$ cd myproject
+$ git clone https://github.com/mike-jung/ubiaccess-framework.git ubiaccess-framework
+$ cd ubiaccess-framework
 
 # Install dependencies
 $ npm install
+ 
+```
+Or you can use npm install command:
+```sh
+# Get the latest version
+$ npm install ubiaccess-framework --save
  
 ```
 
