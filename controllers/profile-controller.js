@@ -1,5 +1,5 @@
 /**
- * This controller access database and map result columns
+ * This controller access database and map result columns 
  * 
  * GET http://localhost:7001/profile/get
  * GET http://localhost:7001/profile/add
@@ -94,9 +94,6 @@ class ProfileController {
 	/**
 	 * Example for mapper usage
 	 * The following result columns will be mapped
-	 * 
-	 * name -> alias
-	 * mobile -> phone
 	 */
 	async list(req, res) {
         const params = param.parse(req);
@@ -104,11 +101,7 @@ class ProfileController {
 		try {
 			const queryParams = {
 				sqlName: 'person_list',
-				params: params,
-				mapper: {
-					alias: 'name',
-					phone: 'mobile'
-				}
+				params: params
 			}
   
 			const rows = await this.database.execute(queryParams);
