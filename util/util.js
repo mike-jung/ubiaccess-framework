@@ -18,7 +18,7 @@ util.sendRes = function (res, code, message, output) {
     const result = {
         code: code,
         message: message,
-        output: output
+        data: output
     }
 
     util.sendResponse(res, result);
