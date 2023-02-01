@@ -1,5 +1,4 @@
 module.exports = [
-    {id:1, type:'rest', base:'', unit:'person'},
     {id:2, type:'path', path:'/profile/list', method:['get','post'], file:'profile-controller', func:'list'},
     {id:3, type:'path', path:'/profile/get', method:['get','post'], file:'profile-controller', func:'get'},
     {id:4, type:'path', path:'/profile/add', method:['get'], file:'profile-controller', func:'add'},
