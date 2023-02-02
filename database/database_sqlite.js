@@ -18,7 +18,7 @@ class DatabaseSqlite {
     }
  
     getPool() {
-        logger.debug('getPool called.');
+        //logger.debug('getPool called.');
     
         if (isMaster) {
             return new sqlite.Database(config.database[dbName].master.file);

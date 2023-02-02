@@ -14,7 +14,7 @@ const logger = require('../util/logger');
 const loader = {};
 
 loader.load = () => {
-    logger.debug('load in service_loader called.');
+    //logger.debug('load in service_loader called.');
 
     serviceConfig.forEach((item, index) => {
         // print out item's attributes

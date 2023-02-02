@@ -20,7 +20,7 @@ let isFailovering = false;
 let pool = null;
 
 const getPool = () => {
-    logger.debug('getPool called.');
+    //logger.debug('getPool called.');
 
     if (isMaster) {
         pool = mysql.createPool(config.database[dbName].master);
@@ -30,13 +30,13 @@ const getPool = () => {
 }
 
 getPool();
-logger.debug('database_mysql file loaded.');
+//logger.debug('database_mysql file loaded.');
 
 const sqlDir = __dirname + '/sql';
 let sqlObj = {};
 
 const loadSql = () => {
-    logger.debug('loadSql called.');
+    //logger.debug('loadSql called.');
 
     // check all sql files
     fs.readdir(sqlDir, (err, filenames) => {
@@ -48,15 +48,15 @@ const loadSql = () => {
         // listing all filenames
         filenames.forEach((filename) => {
             const filePath = sqlDir + '/' + filename;
-            logger.debug('sql file path -> ' + filePath);
+            //logger.debug('sql file path -> ' + filePath);
 
             const curObj = require(filePath);
             Object.assign(sqlObj, curObj);
         });
 
         const sqlNames = Object.keys(sqlObj);
-        logger.debug('SQL count -> ' + sqlNames.length);
-        logger.debug('SQL names -> ' + sqlNames.join());
+        //logger.debug('SQL count -> ' + sqlNames.length);
+        //logger.debug('SQL names -> ' + sqlNames.join());
 
         logger.debug('database SQL file loaded.');
     });
@@ -112,7 +112,7 @@ const changeColonToUpperCase = (sql) => {
         newSql = newSql.replace(curWord, curToken);
     }
 
-    logger.debug('colon param to upper case -> ' + newSql);
+    //logger.debug('colon param to upper case -> ' + newSql);
     
     return newSql;
 }                

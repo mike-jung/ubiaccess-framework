@@ -30,14 +30,14 @@ const path = require("path");
 
 
 external_loader.init = function(app, config, callback) {
-	logger.debug('external_loader.init called.');
+	logger.debug('external_loader called.');
     
     if (typeof(config.external) == 'undefined') {
         logger.debug('No external configuration.');
         return;
     }
 
-	logger.debug('Count of External in config : %d', config.external.length);
+	//logger.debug('Count of External in config : %d', config.external.length);
 	
 	for (let i = 0; i < config.external.length; i++) {
 		let curItem = config.external[i];
@@ -47,29 +47,29 @@ external_loader.init = function(app, config, callback) {
         
 		if (curItem.protocol == 'socket') {  
             if (curItem.direction == 'inbound') {  // socket server
-                logger.debug('#' + i + ' inbound socket initialization started.');
+                //logger.debug('#' + i + ' inbound socket initialization started.');
                 
                 
                 external_loader.setSocketServer(curItem, i);
                 
                 
             } else if (curItem.direction == 'outbound') {  // socket client
-                logger.debug('#' + i + ' outbound socket initialization started.');
+                //logger.debug('#' + i + ' outbound socket initialization started.');
                 
                 let pool = SocketPool.createPool(curItem);
                 
                 pool.host = curItem.host;
                 pool.port = curItem.port;
-                logger.debug('host:port -> ' + pool.host + ':' + pool.port);
+                //logger.debug('host:port -> ' + pool.host + ':' + pool.port);
                 
                 external_loader.external.pools[curItem.name] = pool;
                 
-                logger.debug('#' + i + ' outbound socket initialization completed.');
+                //logger.debug('#' + i + ' outbound socket initialization completed.');
             }
             
         } else if (curItem.protocol == 'http') {  
             if (curItem.direction == 'outbound') {  // http client
-                logger.debug('#' + i + ' outbound http initialization started.');
+                //logger.debug('#' + i + ' outbound http initialization started.');
                 
             }
             
@@ -88,18 +88,18 @@ external_loader.init = function(app, config, callback) {
  * Load database table in config 
  */
 const load = (app, config, callback) => {
-	logger.debug('Count of external module : %d', external_config.length);
+	//logger.debug('Count of external module : %d', external_config.length);
     
     let count = 0;
 	for (let i = 0; i < external_config.length; i++) {
 		let curItem = external_config[i];
 
         let filename = path.join(__dirname, external_folder, curItem.file);
-        logger.debug('filename #' + i + ' : ' + filename);
+        //logger.debug('filename #' + i + ' : ' + filename);
      
         if (fs.existsSync(filename + '.js')) {
             const CurModule = require(filename);
-            logger.debug('external module : ', curItem.name, curItem.file);
+            //logger.debug('external module : ', curItem.name, curItem.file);
             
             // init called in case of active attribute is true 
             if (curItem.active) {
@@ -113,17 +113,17 @@ const load = (app, config, callback) => {
                 }
                 
                 const curModule = new CurModule(app, config, config.external[curItem.external_config], external_loader.external, curItem.external_config, config.external[curItem.external_config].count);
-                logger.debug('external_config -> ' + String(curItem.external_config));
+                //logger.debug('external_config -> ' + String(curItem.external_config));
                  
                 external_loader.external[curItem.name] = curModule;
 
                
                if (!external_loader.external.listeners[String(curItem.external_config)].socketListener) {
                    external_loader.external.listeners[String(curItem.external_config)].socketListener = [];
-                   logger.debug('socketListener is set to array.');
+                   //logger.debug('socketListener is set to array.');
                } 
                 external_loader.external.listeners[String(curItem.external_config)].socketListener.push(curModule);
-                logger.debug('Listener object is added to socketListener.');
+                //logger.debug('Listener object is added to socketListener.');
  
                 
                 config.external[curItem.external_config].count += 1;
@@ -174,7 +174,7 @@ sockets.remove = (socket) => {
 	var index = sockets.indexOf(socket);
     if (index != -1) {
     	sockets.splice(index, 1);
-    	logger.debug(getCurTime() + 'Count of sockets : %d', sockets.length);
+    	//logger.debug(getCurTime() + 'Count of sockets : %d', sockets.length);
     }
 }
 

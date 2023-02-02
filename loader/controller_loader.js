@@ -18,12 +18,20 @@ const rest_types = ['list', 'create', 'read', 'update', 'delete'];
 
 const loader = {};
 
+// get os
+let isMac = false
+if (process.platform == "darwin") {
+    isMac = true
+}
+
 // controller directory
-//const controllerDir = __dirname + '\\..\\..\\controllers'
-const controllerDir = __dirname + '\\..\\controllers'
+let controllerDir = __dirname + '\\..\\controllers'
+if (isMac) {
+    controllerDir = __dirname + '/../controllers'
+}
 
 loader.load = (router, upload) => {
-    logger.debug('load called.');
+    //logger.debug('load called.');
 
     // auto loading with annotations
     loader.autoLoad(router, upload);
@@ -103,18 +111,36 @@ loader.load = (router, upload) => {
 
 
 loader.autoLoad = (router, upload) => {
-    logger.debug('autoLoad called.');
+    //logger.debug('autoLoad called.');
 
  
     // load annotation definition
-    const Registry = require(__dirname + '\\..\\lib\\annotation\\registry')
-    const Reader = require(__dirname + '\\..\\lib\\annotation\\reader')
+    let RegistryPath = __dirname + '\\..\\lib\\annotation\\registry'
+    let ReaderPath = __dirname + '\\..\\lib\\annotation\\reader'
     
+    if (isMac) {
+        RegistryPath = __dirname + '/../lib/annotation/registry'
+        ReaderPath = __dirname + '/../lib/annotation/reader'
+    }
+
+    const Registry = require(RegistryPath)
+    const Reader = require(ReaderPath)
+    
+
     const registry = new Registry()
     const reader = new Reader(registry)
     
-    registry.registerAnnotation(__dirname + '\\..\\lib\\annotation\\definition\\my-class.js')
-    registry.registerAnnotation(__dirname + '\\..\\lib\\annotation\\definition\\my-method.js')
+
+    let myClassPath = __dirname + '\\..\\lib\\annotation\\definition\\my-class.js'
+    let myMethodPath = __dirname + '\\..\\lib\\annotation\\definition\\my-method.js'
+    
+    if (isMac) {
+        myClassPath = __dirname + '/../lib/annotation/definition/my-class.js'
+        myMethodPath = __dirname + '/../lib/annotation/definition/my-method.js'
+    }
+
+    registry.registerAnnotation(myClassPath)
+    registry.registerAnnotation(myMethodPath)
     
     
     // check all controllers
@@ -135,7 +161,7 @@ loader.autoLoad = (router, upload) => {
 loader.parseFile = (router, upload, reader, filename) => {
 
     const filePath = path.join(controllerDir, filename);
-    logger.debug('Controller file path -> ' + filePath);
+    //logger.debug('Controller file path -> ' + filePath);
 
     reader.parse(filePath)
     
@@ -223,7 +249,7 @@ loader.parseFile = (router, upload, reader, filename) => {
 }
 
 loader.registerRest = (router, filePath, path, table) => {
-    logger.debug('registerRest called : ' + path + ' -> in file ' + filePath + ', table : ' + table);
+    //logger.debug('registerRest called : ' + path + ' -> in file ' + filePath + ', table : ' + table);
 
     let Controller;
     let controller
@@ -264,7 +290,7 @@ loader.registerRest = (router, filePath, path, table) => {
 
 
 loader.registerPath = (router, upload, filePath, func, method, path, uploadFlag) => {
-    logger.debug('registerPath called : ' + path + ' -> ' + func + ' in file ' + filePath);
+    //logger.debug('registerPath called : ' + path + ' -> ' + func + ' in file ' + filePath);
 
     const Controller = require(filePath);
     const controller = new Controller();
