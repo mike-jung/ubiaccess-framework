@@ -99,7 +99,7 @@ util.render = (req, res, targetView, targetContext) => {
  * replace # character in the sql statement
  */
 util.replace = (strData, strTextToReplace, strReplaceWith, replaceAt) => {
-    logger.debug('replace called -> ' + typeof(strData) + ', ' + JSON.stringify(strData));
+    //logger.debug('replace called -> ' + typeof(strData) + ', ' + JSON.stringify(strData));
 
     var index = strData.indexOf(strTextToReplace);
     for (var i = 1; i < replaceAt; i++) {
