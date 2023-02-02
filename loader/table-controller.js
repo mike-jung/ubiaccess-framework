@@ -29,7 +29,7 @@ class TableController {
     }
 
     async listRaw(req, res, callback) {
-      logger.debug('Table:listRaw called.');
+      //logger.debug('Table:listRaw called.');
 
       const params = param.parse(req);
         
@@ -64,7 +64,7 @@ class TableController {
         } else {  // 클라이언트에서 보낸 columns 파라미터가 없는 경우, 테이블의 전체 칼럼 조회
           const columnInfo = await this.database.fields(this.tableName);
           const columns = Object.keys(columnInfo);
-          logger.debug('columns -> ' + columns);
+          //logger.debug('columns -> ' + columns);
 
           sql2 = util.replace(sql2, "#", columns.join(), 0);
         }
@@ -118,7 +118,7 @@ class TableController {
 
     // List controller function
     async list(req, res) {
-      logger.debug('Table:list called for GET ' + this.requestPath);
+      //logger.debug('Table:list called for GET ' + this.requestPath);
 
       const params = param.parse(req);
       
@@ -152,7 +152,7 @@ class TableController {
         } else {  // 클라이언트에서 보낸 columns 파라미터가 없는 경우, 테이블의 전체 칼럼 조회
           const columnInfo = await this.database.fields(this.tableName);
           const columns = Object.keys(columnInfo);
-          logger.debug('columns -> ' + columns);
+          //logger.debug('columns -> ' + columns);
 
           sql2 = util.replace(sql2, "#", columns.join(), 0);
         }
@@ -240,7 +240,7 @@ class TableController {
  
     // Create controller function
     async create(req, res) {
-      logger.debug('Table:create called for PUT ' + this.requestPath);
+      //logger.debug('Table:create called for PUT ' + this.requestPath);
 
       const params = param.parse(req);
         
@@ -253,7 +253,7 @@ class TableController {
         // (2) insert 에서 칼럼 이름과 칼럼 값 대체
         const columnInfo = await this.database.fields(this.tableName);
         const columns = Object.keys(columnInfo);
-        logger.debug('columns -> ' + columns);
+        //logger.debug('columns -> ' + columns);
 
         let columnNames = '';
         let columnValues = '';
@@ -312,7 +312,7 @@ class TableController {
     }
 
     async createRaw(req, res, callback) {
-      logger.debug('Table:createRaw called.');
+      //logger.debug('Table:createRaw called.');
 
       const params = param.parse(req);
         
@@ -326,7 +326,7 @@ class TableController {
         // (2) insert 에서 칼럼 이름과 칼럼 값 대체
         const columnInfo = await this.database.fields(this.tableName);
         const columns = Object.keys(columnInfo);
-        logger.debug('columns -> ' + columns);
+        //logger.debug('columns -> ' + columns);
 
         let columnNames = '';
         let columnValues = '';
@@ -378,7 +378,7 @@ class TableController {
 
 
     async read(req, res) {
-      logger.debug('Table:read called for GET ' + this.requestPath + '/:id');
+      //logger.debug('Table:read called for GET ' + this.requestPath + '/:id');
 
       const params = param.parse(req);
         
@@ -393,7 +393,7 @@ class TableController {
         } else {  // 클라이언트에서 보낸 columns 파라미터가 없는 경우, 테이블의 전체 칼럼 조회
           const columnInfo = await this.database.fields(this.tableName);
           const columns = Object.keys(columnInfo);
-          logger.debug('columns -> ' + columns);
+          //logger.debug('columns -> ' + columns);
 
           sql = util.replace(sql, "#", columns.join(), 0);
         }
@@ -479,7 +479,7 @@ class TableController {
     }
 
     async readRaw(req, res, callback) {
-      logger.debug('Table:readAsync called.');
+      //logger.debug('Table:readAsync called.');
 
       const params = param.parse(req);
         
@@ -493,7 +493,7 @@ class TableController {
         } else {  // 클라이언트에서 보낸 columns 파라미터가 없는 경우, 테이블의 전체 칼럼 조회
           const columnInfo = await this.database.fields(this.tableName);
           const columns = Object.keys(columnInfo);
-          logger.debug('columns -> ' + columns);
+          //logger.debug('columns -> ' + columns);
 
           sql = util.replace(sql, "#", columns.join(), 0);
         }
@@ -530,7 +530,7 @@ class TableController {
 
     // Update controller function
     async update(req, res) {
-      logger.debug('Table:update called for PUT ' + this.requestPath + '/:id');
+      //logger.debug('Table:update called for PUT ' + this.requestPath + '/:id');
 
       const params = param.parse(req);
         
@@ -545,7 +545,7 @@ class TableController {
         // (2) update 에서 칼럼 이름과 칼럼 값 대체
         const columnInfo = await this.database.fields(this.tableName);
         const columns = Object.keys(columnInfo);
-        logger.debug('columns -> ' + columns);
+        //logger.debug('columns -> ' + columns);
 
         let columnMapping = '';
         for (let i = 0; i < columns.length; i++) {
@@ -567,9 +567,9 @@ class TableController {
         }
         
         if (columnMapping && columnMapping.length < 1000) {
-          logger.debug('columnMapping -> ' + columnMapping);
+          //logger.debug('columnMapping -> ' + columnMapping);
         } else {
-          logger.debug('columnMapping -> over 1000 characters.');
+          //logger.debug('columnMapping -> over 1000 characters.');
         }
 
 
@@ -617,7 +617,7 @@ class TableController {
     }
 
     async updateRaw(req, res, callback) {
-      logger.debug('Table:updateRaw called.');
+      //logger.debug('Table:updateRaw called.');
 
       const params = param.parse(req);
         
@@ -632,7 +632,7 @@ class TableController {
         // (2) update 에서 칼럼 이름과 칼럼 값 대체
         const columnInfo = await this.database.fields(this.tableName);
         const columns = Object.keys(columnInfo);
-        logger.debug('columns -> ' + columns);
+        //logger.debug('columns -> ' + columns);
 
         let columnMapping = '';
         for (let i = 0; i < columns.length; i++) {
@@ -654,9 +654,9 @@ class TableController {
         }
 
         if (columnMapping && columnMapping.length < 1000) {
-          logger.debug('columnMapping -> ' + columnMapping);
+          //logger.debug('columnMapping -> ' + columnMapping);
         } else {
-          logger.debug('columnMapping -> over 1000 characters.');
+          //logger.debug('columnMapping -> over 1000 characters.');
         }
 
         sql = util.replace(sql, "#", columnMapping, 0);
@@ -697,7 +697,7 @@ class TableController {
 
     // Delete controller function
     async delete(req, res) {
-      logger.debug('Table:delete called for DELETE ' + this.requestPath + '/:id');
+      //logger.debug('Table:delete called for DELETE ' + this.requestPath + '/:id');
 
       const params = param.parse(req);
         
@@ -712,7 +712,7 @@ class TableController {
         // (2) delete 에서 칼럼 이름과 칼럼 값 대체
         const columnInfo = await this.database.fields(this.tableName);
         const columns = Object.keys(columnInfo);
-        logger.debug('columns -> ' + columns);
+        //logger.debug('columns -> ' + columns);
 
         let columnMapping = '';
         for (let i = 0; i < columns.length; i++) {
@@ -734,9 +734,9 @@ class TableController {
         }
         
         if (columnMapping && columnMapping.length < 1000) {
-          logger.debug('columnMapping -> ' + columnMapping);
+          //logger.debug('columnMapping -> ' + columnMapping);
         } else {
-          logger.debug('columnMapping -> over 1000 characters.');
+          //logger.debug('columnMapping -> over 1000 characters.');
         }
 
 
@@ -784,7 +784,7 @@ class TableController {
     }
 
     async deleteRaw(req, res, callback) {
-      logger.debug('Table:deleteRaw called.');
+      //logger.debug('Table:deleteRaw called.');
 
       const params = param.parse(req);
         
@@ -799,7 +799,7 @@ class TableController {
         // (2) delete 에서 칼럼 이름과 칼럼 값 대체
         const columnInfo = await this.database.fields(this.tableName);
         const columns = Object.keys(columnInfo);
-        logger.debug('columns -> ' + columns);
+        //logger.debug('columns -> ' + columns);
 
         let columnMapping = '';
         for (let i = 0; i < columns.length; i++) {
@@ -821,9 +821,9 @@ class TableController {
         }
         
         if (columnMapping && columnMapping.length < 1000) {
-          logger.debug('columnMapping -> ' + columnMapping);
+          //logger.debug('columnMapping -> ' + columnMapping);
         } else {
-          logger.debug('columnMapping -> over 1000 characters.');
+          //logger.debug('columnMapping -> over 1000 characters.');
         }
 
 

@@ -18,7 +18,7 @@ loader.load = () => {
 
     serviceConfig.forEach((item, index) => {
         // print out item's attributes
-        logger.debug(`#${index} -> id:${item.id}, unit:${item.unit}`);
+        //logger.debug(`#${index} -> id:${item.id}, unit:${item.unit}`);
          
         const filename = '../services/' + item.unit + '-service';
         let Service = require(filename);
@@ -36,11 +36,11 @@ loader.load = () => {
 loader.addDoMethods = (klass) => {
     const methodNames = loader.getMethods(klass);
     methodNames.forEach((item, index) => {
-        logger.debug('method #' + index + ' -> ' + item);
+        //logger.debug('method #' + index + ' -> ' + item);
     
         const firstChar = item.substring(0, 1).toUpperCase();
         const method = 'do' + firstChar + item.substring(1);
-        logger.debug('    do method name -> ' + method);
+        //logger.debug('    do method name -> ' + method);
  
         klass.prototype[method] = (req, res, params) => {
             return new Promise((resolve, reject) => {

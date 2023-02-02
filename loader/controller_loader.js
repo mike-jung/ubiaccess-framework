@@ -31,11 +31,11 @@ loader.load = (router, upload) => {
     controllerConfig.forEach((item, index) => {
         // print out item's attributes
         if (item.type === 'rest') {
-            logger.debug(`#${index} -> id:${item.id}, type:${item.type}, base:${item.base}, unit:${item.unit}`);
+            //logger.debug(`#${index} -> id:${item.id}, type:${item.type}, base:${item.base}, unit:${item.unit}`);
         } else if (item.type === 'path') {
-            logger.debug(`#${index} -> id:${item.id}, type:${item.type}, path:${item.path}, method:${item.method}, file:${item.file}, func:${item.func}`);
+            //logger.debug(`#${index} -> id:${item.id}, type:${item.type}, path:${item.path}, method:${item.method}, file:${item.file}, func:${item.func}`);
         } else {
-            logger.debug(`#${index} -> Unknown item type, id:${item.id}, type:${item.type}`);
+            //logger.debug(`#${index} -> Unknown item type, id:${item.id}, type:${item.type}`);
         }
         
         if (item.type == 'rest') {
@@ -50,7 +50,7 @@ loader.load = (router, upload) => {
             const controller = new Controller();
 
             rest_types.forEach((restType, restIndex) => {
-                logger.debug('rest type #' + restIndex + ' -> ' + restType);
+                //logger.debug('rest type #' + restIndex + ' -> ' + restType);
             
                 let restPath = item.base + '/';
                 let restRequestMethod = '';
@@ -70,7 +70,7 @@ loader.load = (router, upload) => {
                     restPath += item.unit + '/:id';
                     restRequestMethod = 'delete';
                 }
-                logger.debug(`rest request method -> ${restRequestMethod}, path -> ${restPath}, func -> ${restType}`);
+                //logger.debug(`rest request method -> ${restRequestMethod}, path -> ${restPath}, func -> ${restType}`);
 
                 router.route(restPath)[restRequestMethod](controller[restType].bind(controller));
             });
@@ -81,7 +81,7 @@ loader.load = (router, upload) => {
             
             if (controller[item.func]) {
                 item.method.forEach((methodItem, methodIndex) => {
-                    logger.debug('method #' + methodIndex + ' -> ' + methodItem);
+                    //logger.debug('method #' + methodIndex + ' -> ' + methodItem);
                 
                     // in case of file upload controller
                     if (item.upload) {
@@ -151,7 +151,7 @@ loader.parseFile = (router, upload, reader, filename) => {
     }
 
     if (definitionAnnotations.length > 0) {
-        logger.debug('\n@Controller : ' + definitionAnnotations.length)
+       // logger.debug('\n@Controller : ' + definitionAnnotations.length)
     }
 
     const classMapping = {};
@@ -161,10 +161,10 @@ loader.parseFile = (router, upload, reader, filename) => {
     let table;
     for (let i = 0; i < definitionAnnotations.length; i++) {
         const annotation = definitionAnnotations[i];
-        logger.debug('#' + i + ' : class name -> ' + annotation.target);
-        logger.debug('#' + i + ' : path -> ' + annotation.path);
-        logger.debug('#' + i + ' : type -> ' + annotation.type);
-        logger.debug('#' + i + ' : table -> ' + annotation.table);
+        //logger.debug('#' + i + ' : class name -> ' + annotation.target);
+        //logger.debug('#' + i + ' : path -> ' + annotation.path);
+        //logger.debug('#' + i + ' : type -> ' + annotation.type);
+        //logger.debug('#' + i + ' : table -> ' + annotation.table);
 
         if (annotation.type == 'rest') {
             isRest = true;
@@ -189,15 +189,15 @@ loader.parseFile = (router, upload, reader, filename) => {
 
     // register methods
     if (methodAnnotations.length > 0) {
-        logger.debug('\n@RequestMapping : ' + methodAnnotations.length)
+        //logger.debug('\n@RequestMapping : ' + methodAnnotations.length)
     }
 
     for (let i = 0; i < methodAnnotations.length; i++) {
         const annotation = methodAnnotations[i];
-        logger.debug('#' + i + ' : function name -> ' + annotation.target);
-        logger.debug('#' + i + ' : path -> ' + annotation.path);
-        logger.debug('#' + i + ' : method -> ' + annotation.method);
-        logger.debug('#' + i + ' : upload -> ' + annotation.upload);
+        //logger.debug('#' + i + ' : function name -> ' + annotation.target);
+        //logger.debug('#' + i + ' : path -> ' + annotation.path);
+        //logger.debug('#' + i + ' : method -> ' + annotation.method);
+        //logger.debug('#' + i + ' : upload -> ' + annotation.upload);
 
         if (annotation.method == undefined) {
             annotation.method = ['get', 'post'];
@@ -238,7 +238,7 @@ loader.registerRest = (router, filePath, path, table) => {
     }
 
     rest_types.forEach((restType, restIndex) => {
-        logger.debug('rest type #' + restIndex + ' -> ' + restType);
+        //logger.debug('rest type #' + restIndex + ' -> ' + restType);
     
         let restPath = path;
         let restRequestMethod = '';
@@ -256,7 +256,7 @@ loader.registerRest = (router, filePath, path, table) => {
             restPath += '/:id';
             restRequestMethod = 'delete';
         }
-        logger.debug(`rest request method -> ${restRequestMethod}, path -> ${restPath}, func -> ${restType}`);
+        //logger.debug(`rest request method -> ${restRequestMethod}, path -> ${restPath}, func -> ${restType}`);
 
         router.route(restPath)[restRequestMethod](controller[restType].bind(controller));
     });
@@ -271,7 +271,7 @@ loader.registerPath = (router, upload, filePath, func, method, path, uploadFlag)
     
     if (controller[func]) {
         method.forEach((methodItem, methodIndex) => {
-            logger.debug('method #' + methodIndex + ' -> ' + methodItem);
+            //logger.debug('method #' + methodIndex + ' -> ' + methodItem);
         
             if (methodItem) {
                 methodItem = methodItem.trim();
