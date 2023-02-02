@@ -18,7 +18,7 @@ const util = require('../util/util');
 const param = require('../util/param');
 const logger = require('../util/logger');
 const Database = require('../database/database_mysql');
-const sqlConfig = require('../database/sql/lion_sql');
+const lionSql = require('../database/sql/lion_sql');
 
 /**
  * @Controller(path="/lion")
@@ -40,9 +40,9 @@ class Lion {
       try {
 
         // get list count
-        let sql = sqlConfig.lion_list.count;
+        let sql = lionSql.lion_list.count;
         if (params.search) {
-          sql = sql + ' ' + util.replace(sqlConfig.lion_list.where, "#", params.search + " like '%" + params.searchValue + "%'", 0);
+          sql = sql + ' ' + util.replace(lionSql.lion_list.where, "#", params.search + " like '%" + params.searchValue + "%'", 0);
         }
   
         const queryParams = {
@@ -54,23 +54,23 @@ class Lion {
         const total = rows[0].total;
 
         // get list
-        let sql2 = sqlConfig.lion_list.sql;
+        let sql2 = lionSql.lion_list.sql;
 
         // (1) where 여부
         if (params.search) {
-          sql2 = sql2 + ' ' + util.replace(sqlConfig.lion_list.where, "#", params.search + " like '%" + params.searchValue + "%'", 0);
+          sql2 = sql2 + ' ' + util.replace(lionSql.lion_list.where, "#", params.search + " like '%" + params.searchValue + "%'", 0);
         }
         
         // (2) order 여부
         if (params.order) {
-          sql2 = sql2 + ' ' + util.replace(sqlConfig.lion_list.order, '#', params.order + ' ' + params.orderDirection, 0);
+          sql2 = sql2 + ' ' + util.replace(lionSql.lion_list.order, '#', params.order + ' ' + params.orderDirection, 0);
         }
         
         // (3) page 여부
         if (params.page) {
           const curPage = Number(params.page);
           const curPerPage = Number(params.perPage);
-          sql2 = sql2 + ' ' + util.replace(sqlConfig.lion_list.page, '#', (curPage-1) * curPerPage + ', ' + curPerPage, 0);
+          sql2 = sql2 + ' ' + util.replace(lionSql.lion_list.page, '#', (curPage-1) * curPerPage + ', ' + curPerPage, 0);
         }
                 
         const queryParams2 = {
