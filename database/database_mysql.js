@@ -213,13 +213,13 @@ class DatabaseMySQL {
  
 
     executeRaw(executeParams, retryCount, callback) {
-        logger.debug('executeRaw called.');
+        //logger.debug('executeRaw called.');
         
         const executeParamsText = JSON.stringify(executeParams);
         if (executeParamsText && executeParamsText.length < 1000) {
-            logger.debug('Execute Params -> ' + executeParamsText);
+            //logger.debug('Execute Params -> ' + executeParamsText);
         } else {
-            logger.debug('Execute Params -> over 1000 characters.');
+            //logger.debug('Execute Params -> over 1000 characters.');
         }
 
         const sqlName = executeParams.sqlName;
@@ -297,9 +297,9 @@ class DatabaseMySQL {
             }
 
             if (sql && sql.length < 1000) {
-                logger.debug('current SQL -> ' + sql);
+                //logger.debug('current SQL -> ' + sql);
             } else {
-                logger.debug('current SQL -> over 1000 characters');
+                //logger.debug('current SQL -> over 1000 characters');
             }
 
             // apply sqlReplaces
@@ -341,7 +341,7 @@ class DatabaseMySQL {
 
             // : style parameter
             if (paramType) {
-                logger.debug('Parameter is of colon style.');
+                //logger.debug('Parameter is of colon style.');
 
                 // change sql to upper case
                 sql = changeColonToUpperCase(sql);
@@ -359,9 +359,9 @@ class DatabaseMySQL {
                         }
 
                         if (curValue.length > 500) {
-                            logger.debug('mapping #' + i + ' [' + curKey + '] -> ' + 'Length is too big to print : ' + curValue.length);
+                            //logger.debug('mapping #' + i + ' [' + curKey + '] -> ' + 'Length is too big to print : ' + curValue.length);
                         } else {
-                            logger.debug('mapping #' + i + ' [' + curKey + '] -> [' + curValue + ']');
+                            //logger.debug('mapping #' + i + ' [' + curKey + '] -> [' + curValue + ']');
                         }
 
                         //let replaced = sql.replaceAll(':' + curKey.toUpperCase(), curValue);
@@ -381,7 +381,7 @@ class DatabaseMySQL {
 
                 sqlParams = [];
             } else {
-                logger.debug('Parameter is of normal style.');
+                //logger.debug('Parameter is of normal style.');
             }
 
             const query = conn.query(sql, sqlParams, (err, rows) => {
@@ -410,7 +410,7 @@ class DatabaseMySQL {
     }
 
     applyMapper(mapper, rows) {
-        logger.debug('applyMapper called.');
+        //logger.debug('applyMapper called.');
 
         let results = [];
          
@@ -423,7 +423,7 @@ class DatabaseMySQL {
                 Object.keys(mapper).forEach((key, position) => {
                     try {
                         if (index == 0) {
-                            logger.debug('mapping #' + position + ' [' + key + '] -> [' + mapper[key] + ']');
+                            //logger.debug('mapping #' + position + ' [' + key + '] -> [' + mapper[key] + ']');
                         }
                         
                         outputItem[key] = item[mapper[key]];
@@ -434,12 +434,12 @@ class DatabaseMySQL {
                         logger.debug('mapping error : ' + JSON.stringify(err2));
                     }
                 });
-                logger.debug('OUTPUT ITEM -> ' + JSON.stringify(outputItem));
+                //logger.debug('OUTPUT ITEM -> ' + JSON.stringify(outputItem));
 
                 results.push(outputItem);
             });
         } else {
-            logger.debug('mapper not found. query result will be set to output.');
+            //logger.debug('mapper not found. query result will be set to output.');
             results = rows;
         }
 
