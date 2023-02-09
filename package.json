@@ -1,7 +1,7 @@
 {
      "name": "ubiaccess-framework",
      "version": "1.2.1",
-     "description": "Ubiaccess Web Service Framework, https://github.com/mike-jung/ubiaccess-framework ",
+     "description": "Ubiaccess Web Service Framework, https://github.com/mike-jung/ubiaccess-framework",
      "main": "index.js",
      "scripts": {
           "start": "node index.js",
