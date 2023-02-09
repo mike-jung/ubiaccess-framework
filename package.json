@@ -4,7 +4,8 @@
      "description": "Ubiaccess Web Service Framework, https://github.com/mike-jung/ubiaccess-framework",
      "main": "index.js",
      "scripts": {
-          "start": "node index.js"
+          "start": "node index.js",
+          "test": "node index.js"
      },
      "keywords": [],
      "author": "Mike",
