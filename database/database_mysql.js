@@ -1,6 +1,6 @@
 'use strict';
 
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const mysqlUtilities = require('mysql-utilities');
 
 const path = require('path');

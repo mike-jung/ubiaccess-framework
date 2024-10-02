@@ -9,294 +9,339 @@
 const socketio_loader = {};
 
 const config = require('../config/config');
-const socketioConfig = require('../config/socketio_config');
-
+ 
 // logger
 const logger = require('../util/logger');
 
-const util = require('../util/socketio_util');
-const socketioFolder = '../socketio';
+const redis = require("redis");
 
+// 레디스 수신자 클래스 불러오기
+const RedisService = require('./socketio/redis_service');
 
-const Database = require('../database/database_mysql');
-const database = new Database('database_mysql');
+// 소켓IO 클래스 불러오기
+const SocketIOService = require('./socketio/socketio_service');
 
+const redisConfig = config.redis;
 
-const fs = require('fs');
-const path = require("path");
+let redisService;
+let socketIOService;
+  
 
-
-//===== Redis =====//
-
-const redisAdapter = require('socket.io-redis');
-
-// sentinels를 사용하는 경우와 사용하지 않는 경우 구분
-let pubClient;
-let subClient; 
-
-let store;
-let pub;
-let sub;
-
-// 일반 redis (sentinels 사용하지 않는 경우)
-if (typeof(config.redis.failover) == 'undefined' || config.redis.failover == false) {
-    const redis = require('redis');
-
-    pubClient = redis.createClient(config.redis);
-    subClient = redis.createClient(config.redis);
-
-    store = redis.createClient(config.redis);
-    pub = redis.createClient(config.redis);
-    sub = redis.createClient(config.redis);
-
-} else {  // Failover redis (sentinels 사용하는 경우)
-    const ioRedis = require('ioredis');
+// userId -> Map
+//const userRequestCodeMap = new Map();
  
-    pubClient = new ioRedis(config.redis);
-    subClient = new ioRedis(config.redis);
 
-    store = new ioRedis(config.redis);
-    pub = new ioRedis(config.redis);
-    sub = new ioRedis(config.redis);
-    
-}
-
-pubClient.on('error', (err) => {
-    logger.debug('pubClient error -> ' + err);
-});
-
-subClient.on('error', (err) => {
-    logger.debug('subClient error -> ' + err);
-});
- 
-store.on('error', (err) => {
-    logger.debug('store error -> ' + err);
-});
-
-pub.on('error', (err) => {
-    logger.debug('pub error -> ' + err);
-});
-
-sub.on('error', (err) => {
-    logger.debug('sub error -> ' + err);
-});
-
-const channel = 'myapp_message';
 
 socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespace) => {
-	logger.debug('socketio_loader.load called.');
+	logger.debug('socketio_loader::load called.');
     
-    const namespaceFilename = './socketio.pid';
-
-    // reset old presence information
-    let contents;
 
     try {
-        // read in namespace file
-        contents = fs.readFileSync(namespaceFilename, {encoding:'utf8'});
-        logger.debug('read namespace file -> ' + contents);
+    
+        // 레디스 수신자 객체 만들기
+        redisService = new RedisService(redisConfig, redisConfig.channelNames, redisConfig.pollInterval, onRedisMessageReceived);
+     
+        // 소켓IO 객체 만들기
+        socketIOService = new SocketIOService(server, redisService, onSocketLogin, onSocketLogout, onSocketEventReceived, onSocketAckEventReceived);
+
+        // app에 등록
+        app.redisService = redisService;
+        app.socketIOService = socketIOService;
+
     } catch(err) {
-        logger.debug('Error in reading namespace file -> ' + err);
+        console.error(`socketio_loader::Error in executing : ${err}`)
     }
-
-    try {
-        if (contents && contents.length > 0) {
-            const params = {
-                namespace: contents
-            };
-
-            const queryParams = {
-				sqlName: 'chat_reset_presence',
-				params: params
-			}
-
-            const rows = await database.execute(queryParams);
-            logger.debug('chat_reset_presence sql executed.');
-        }
-    } catch(err) {
-        logger.debug('Error in executing sql -> ' + err);
-    }
-
-
-    // starting socket.io server
-    const io = socketio.listen(
-        server, 
-        config.socketio
-    );
      
 
-    // save namespace to config/socketio.namespace
-    try {
-        fs.writeFileSync(namespaceFilename, namespace, {encoding:'utf8'});
-        
-        logger.debug('namespace file saved to -> ' + namespaceFilename);
-        logger.debug('write namespace file -> ' + namespace);
-    } catch(err) {
-        logger.debug('Error in saving file -> ' + err);
-    }
-    
-
-    app.io = io;
-    io.app = app;
-    logger.info('socket.io service started.');
-
-
-    io.use((socket, next) => {
-        sessionMiddleware(socket.request, {}, next);
-    });
-
-        
-    io.adapter(redisAdapter({
-        pubClient: pubClient,
-        subClient: subClient
-    }));
- 
-    sub.subscribe(channel);
-    logger.debug('redis subscribed -> ' + channel);
-    
-    const redis = {
-        store: store,
-        pub: pub,
-        sub: sub
-    }
-
-    io.namespace = namespace;
-    io.redis = redis;
-
-
-    // event processing for connection
-    io.sockets.on('connection', async (socket) => {
-        logger.debug('connection -> ' + JSON.stringify(socket.request.connection._peername));
-        logger.debug('socket id -> ' + socket.id);
- 
-        // save this connection event in chat.connection table
-        try {
-            const params = {
-                socket_id: socket.id,
-                namespace: namespace
-            };
-            
-            const queryParams = {
-				sqlName: 'chat_save_connection',
-				params: params
-            }
-            
-			const rows = await database.execute(queryParams);
-            logger.debug('chat_save_connection sql executed.');
-		} catch(err) {
-			logger.debug('Error in executing sql -> ' + err);
-		}
-
-        // disconnect event
-        socket.on('disconnect', async (reason) => {
-            logger.debug('disconnect called. -> ' + socket.id);
-            //logger.debug('disconnect called. -> ' + socket.userId + ', ' + socket.id);
-            logger.debug('reason -> ' + reason);
-
-
-            // save this disconnect event in chat.connection table
-            try {
-                const params = {
-                    socket_id: socket.id
-                };
-                    
-                const queryParams = {
-                    sqlName: 'chat_save_disconnect',
-                    params: params
-                }
-                
-                const rows = await database.execute(queryParams);
-                logger.debug('chat_save_disconnect sql executed.');
-            } catch(err) {
-                logger.debug('Error in executing sql -> ' + err);
-            }
-
-
-            
-            if (socket.userId) {
-                const curUserId = socket.userId;
-                delete socket.userId;
-
-                store.hdel('myapp_user', curUserId, (err) => {  
-                    if (err) {
-                        logger.debug('Error in redis hdel for userId -> ' + curUserId);
-                        return;
-                    }
-
-                    logger.debug('redis hdel success for userId -> ' + curUserId);
-                });
-                
-            }
-            
-
-        });
-
-        // load handlers
-        loadHandlers(io, server, app, socket, namespace, redis);
-
-        // send response
-        util.sendResponse(io, socket, 'initialized', '200', 'initialized success.', socket.id);
-    });
-
-
-    sub.on('message', (channel, data) => {
-        logger.debug('message received from sub in channel -> ' + channel);
-        logger.debug('INPUT -> ' + data);
-    
-        const input = JSON.parse(data);
-        const event = input.$event;
-        util.sendData(io, event, input, namespace, redis, false);
-    })
-    
-
 };
+ 
 
-// Handler processing in socketioConfig 
-function loadHandlers(io, server, app, socket, namespace, redis) {
-	const infoLen = socketioConfig.length;
-	logger.debug('Count of event handler in socketio_config  : %d', infoLen);
-  
-	for (var i = 0; i < infoLen; i++) {
-		const curItem = socketioConfig[i];
-			
-		// create filename
-        const filename = path.join(__dirname, socketioFolder, curItem.file);
-        logger.debug('filename #' + i + ' : ' + filename);
-        
-        loadModule(io, socket, filename, curItem, namespace, redis);
-        
-	}
-}
+///
+/// 레디스 메시지 수신 시 자동 호출되는 함수
+///
+function onRedisMessageReceived(input, channel) {
+    logger.debug(`socketio_loader::레디스 메시지 수신함 -> 채널명 : ${channel}, 데이터 : ${JSON.stringify(input)}`);
 
+    if (input.channelType == 'SocketIO') {
+ 
+        // 소켓으로 전송
+        if (input.command == 'send') {      // 일대일 전송
+            socketIOService.send(input.sender, input.receiver, input);
+            
+            /*
+            // 맵에 추가 (응답 못받을 경우 재전송용)
+            let requestCodeMap = null;
+            if (!userRequestCodeMap.has(input.receiver)) {
+                requestCodeMap = new Map();
+            } else {
+                requestCodeMap = userRequestCodeMap.get(input.receiver);
+            }
+            requestCodeMap.set(input.requestCode, input);
+            userRequestCodeMap.set(input.receiver, requestCodeMap);
+            */
 
+        } else {
+            console.error('socketio_loader::알 수 없는 command : ' + input.command);
+        }
 
-function loadModule(io, socket, filename, curItem, namespace, redis) {
-    const exists = fs.existsSync(filename + '.js');
-    if (exists) {
-        const Handler = require(filename);
-        const handler = new Handler();
-
-        logger.debug('Socket.io handler loaded from %s.', curItem.file);
-
-        // register handler function
-        registerHandler(io, socket, handler, curItem, namespace, redis);
     } else {
-        logger.warn('No file %s -> not loaded.', filename + '.js');
+
+        console.debug(`socketio_loader::알 수 없는 채널 타입 무시함 -> channelType: ${input.channelType}`);
+
     }
 
 }
 
-function registerHandler(io, socket, curHandler, curItem, namespace, redis) {
-    socket.on(curItem.event, (input) => {
-        logger.debug(`${curItem.event} event received.`);
-        logger.debug('INPUT -> ' + JSON.stringify(input));
 
-        curHandler[curItem.method](io, socket, curItem.event, input, namespace, redis);
-    });
+///
+/// 소켓IO에서 로그인 시 자동 호출되는 함수
+///
+async function onSocketLogin(socket, inputJson) {
+    const input = JSON.parse(inputJson);
+    logger.debug('onSocketLogin -> ' + JSON.stringify(input));
+     
+    // 로그인 과정이 필요함
+    const userId = input.id;
+    const socketId = socket.id;
+    logger.debug(`userid: ${userId}, socketId: ${socketId}`);
+
+    redisService.setSocketMap(userId, socketId);
+    logger.debug('redis에 로그인 id를 등록했습니다. : ' + userId + ' -> ' + socketId);
+
+    const output = {
+        requestCode: input.requestCode,
+        command: input.command,
+        id: input.id,
+        code: 200,
+        message: 'OK'
+    }
+
+    socket.emit('response', output);
+
+
+    // 전송 안된 메시지들을 재전송 (0.2초 후)
+    /*
+    setTimeout(() => {
+
+        const requestCodeMap = userRequestCodeMap.get(input.id);
+        if (requestCodeMap) {
+            const keys = requestCodeMap.keys();
+            for (let key of keys) {
+                logger.debug(`retrying to send -> requestCode : ${key}`);
+                socket.emit('message', requestCodeMap.get(key));
     
-    logger.debug('Socket.io handler registered [%s] -> [%s]', curItem.event, curItem.method);
+                requestCodeMap.delete(key);
+            }
+            userRequestCodeMap.set(input.id, requestCodeMap);
+        }
+        
+    }, 200);
+    */
+
 }
+
+
+///
+/// 소켓IO에서 로그아웃 시 자동 호출되는 함수
+///
+async function onSocketLogout(socket, inputJson) {
+    const input = JSON.parse(inputJson);
+    logger.debug('onSocketLogout -> ' + JSON.stringify(input));
+
+    // 레디스에서 사용자 정보 삭제
+    const socketId = socket.id;
+
+    let result = null;
+
+    try {
+        result = await socketIOService.deleteUserFromRedis(socketId);
+            
+        const output = {
+            requestCode: input.requestCode,
+            command: input.command,
+            id: input.id,
+            code: 200,
+            message: 'OK'
+        }
+
+        socket.emit('response', output);
+        
+    } catch(err) {
+
+        const output = {
+            requestCode: input.requestCode,
+            command: input.command,
+            id: input.id,
+            code: 400,
+            message: err
+        }
+    
+        socket.emit('response', output);
+
+    }
+
+}
+
+
+///
+/// 소켓IO에서 데이터 수신 시 자동 호출되는 함수
+///
+async function onSocketEventReceived(socket, inputJson) {
+    logger.debug(`소켓 메시지 수신함 -> ${inputJson}`);
+
+    const input = JSON.parse(inputJson);
+     
+    if (input.command == 'poll') {      // 폴링 무시
+     
+    } else if (input.command == 'send') {      // 일대일 전송
+        
+        try {
+            await this.redisService.publisher.publish(input.channel, inputJson);
+            logger.debug(`송신자가 데이터 보냄 -> 채널 : ${input.channel}`);
+
+
+            // WebRtc 세션인 경우 처리
+            if (input.commandType == 'session') {
+                if (input.method == 'invite') {
+                    
+                    const params = {
+                        requestCode: generateRequestCode(),
+                        channelType: 'SocketIO',
+                        channel: input.channel,
+                        command: 'send',
+                        commandType: 'session', 
+                        userId: input.sender, 
+                        sender: input.receiver, 
+                        receiver: input.sender, 
+                        method: 'trying',
+                        code: '110',
+                        category: input.category,
+                        data: ''
+                    }
+                    
+                    socket.emit('message', params);
+
+                    logger.debug('송신자에게 TRYING 응답보냄.');
+
+                }
+            }
+
+
+
+            // 응답 전송
+            const output = {
+                requestCode: input.requestCode,
+                command: input.command,
+                channel: input.channel,
+                sender: input.sender,
+                receiver: input.receiver,
+                code: 200,
+                message: 'OK'
+            }
+    
+            socket.emit('response', output);
+            
+        } catch(err) {
+            console.error(`송신자 전송 중 에러 : ${err}`);
+
+            const output = {
+                requestCode: input.requestCode,
+                command: input.command,
+                channel: input.channel,
+                sender: input.sender,
+                receiver: input.receiver,
+                code: 400,
+                message: `송신자 전송 중 에러 : ${err}`
+            }
+        
+            socket.emit('response', output);
+
+        }
+
+    } else {
+        logger.debug('알 수 없는 command : ' + input.command);
+    }
+
+}
+
+
+
+///
+/// 소켓IO에서 데이터 수신 시 자동 호출되는 함수
+///
+async function onSocketAckEventReceived(socket, inputJson) {
+    logger.debug(`소켓 ACK 메시지 수신함 -> ${inputJson}`);
+
+    const input = JSON.parse(inputJson);
+     
+    if (input.command == 'ack') {      // 수신자로부터의 ack
+        
+        try {
+            /*
+            // 응답으로 받은 전송코드라면 전송안된 데이터에서 삭제하기 (재전송 여부 판단용)
+            const requestCodeMap = userRequestCodeMap.get(input.receiver);
+            if (requestCodeMap) {
+                if (requestCodeMap.size > 100) { // 100개가 넘으면 모두 삭제
+                    requestCodeMap.clear();
+                }
+                requestCodeMap.delete(input.requestCode);
+                userRequestCodeMap.set(input.receiver, requestCodeMap);
+            }
+            */
+        } catch(err) {
+            console.error(`Error -> ${err}`);
+        }
+    
+    } else {
+        logger.debug('알 수 없는 command : ' + input.command);
+    }
+
+}
+
+
+//===== 요청 코드 =====//
+
+let seqCode = 0;
  
+///
+/// 요청 코드 생성
+///
+function generateRequestCode() {
+    const date = new Date();
+
+    const seqCodeStr = getSeqCode();
+
+    const components = [
+        date.getFullYear(),
+        ("0" + (date.getMonth() + 1)).slice(-2),
+        date.getDate(),
+        date.getHours(),
+        date.getMinutes(),
+        date.getSeconds(),
+        date.getMilliseconds(),
+        seqCodeStr
+    ];
+
+    const curCode = components.join("");
+    return curCode;
+}
+
+/// 
+/// 시퀀스 코드 (01 ~ 99)
+///
+function getSeqCode() {
+    seqCode += 1;
+    if (seqCode > 99) {
+        seqCode = 0;
+    }
+    let seqCodeStr = String(seqCode);
+    if (seqCodeStr.length == 1) {
+        seqCodeStr = '0' + seqCodeStr;
+    }
+
+    return seqCodeStr;
+}
+
 
 
 module.exports = socketio_loader;

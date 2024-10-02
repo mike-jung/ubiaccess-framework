@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Socket.IO 클라이언트 샘플</title>
+
+
+        <style>
+
+            * {
+                margin:0;
+                padding:0;
+            }
+
+            body {
+                padding: 1em;
+            }
+
+            p {
+                margin-top: 0.5em;
+            }
+
+            button {
+                padding: 0.3em 1em;
+            }
+
+        </style>
+
+    </head>
+    <body>
+         
+        <h3>Socket.IO 클라이언트 샘플 (채팅) 1</h3>
+        <br>
+        <div>
+            <div>
+                <span>서버 Host : </span>
+                <input type="text" value="localhost" id="hostInput">
+            </div>
+
+            <div>
+                <span>서버 Port : </span>
+                <input type="text" value="8001" id="portInput">
+            </div>
+
+            <div>
+                <span>클라이언트 아이디 : </span>
+                <input type="text" value="test01" id="clientIdInput">
+            </div>
+            <div>
+                <span>클라이언트 비밀번호 : </span>
+                <input type="text" value="123456" id="clientSecretInput">
+            </div>
+            <br>
+
+            <button onclick="connect()">0. 연결하기</button>
+        </div>
+        <br>
+        <!--
+        <div>
+            <button onclick="login()">1. 로그인</button>
+        </div>
+        -->
+        <br>
+        <div>
+            <div>
+                <span>보내는 사람 : </span>
+                <input type="text" value="test01" id="senderInput">
+            </div>
+
+            <div>
+                <span>받는 사람 : </span>
+                <input type="text" value="test02" id="receiverInput">
+            </div>
+
+            <div>
+                <span>채널 : </span>
+                <input type="text" value="CH_01" id="channelInput">
+            </div>
+
+            <br>
+            <div>
+                <span>제목 : </span>
+                <textarea id="titleInput">인사</textarea>
+            </div>
+            <br>
+            <div>
+                <span>내용 : </span>
+                <textarea id="contentsInput">안녕하세요!!! 오랜만이예요.</textarea>
+            </div>
+            <br>
+
+            <button onclick="send()">2. 전송</button>
+        </div>
+        <br>
+        <div>
+            <button onclick="logout()">3. 로그아웃</button>
+        </div>
+         
+        <br>
+        <p>[상태]</p>
+        <br>
+        <div id="status">
+
+        </div>
+        <br>
+        <p>[메시지]</p>
+        <div id="message">
+
+        </div>
+  
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+        <script src="socket.io.min.js"></script>
+
+
+        <script>
+   
+            const pollInterval = 50000;
+            let pollId = null;
+            let pollErrorCount = 0;
+
+            let hostInput;
+            let portInput;
+
+            let clientIdInput;
+            let clientSecretInput;
+
+            let channelInput;
+            let titleInput;
+            let contentsInput;
+ 
+            let statusDiv;
+            let messageDiv;
+   
+
+            //===== Socket.IO 변수 START =====//
+            let protocol = 'http';
+            let host;
+            let port;
+            let socket;
+            
+            let seqCode = 0;
+
+            let connected = false;
+
+            let clientId;
+            let clientSecret;
+
+            const autoLogin = true;
+
+            //===== Socket.IO 변수 START =====//
+
+ 
+            window.addEventListener('DOMContentLoaded', () => {
+                console.log(`loaded called.`);
+
+                hostInput = document.querySelector('#hostInput');
+                portInput = document.querySelector('#portInput');
+
+                clientIdInput = document.querySelector('#clientIdInput');
+                clientSecretInput = document.querySelector('#clientSecretInput');
+
+                channelInput = document.querySelector('#channelInput');
+                titleInput = document.querySelector('#titleInput');
+                contentsInput = document.querySelector('#contentsInput');
+ 
+                statusDiv = document.querySelector('#status');
+                messageDiv = document.querySelector('#message');
+ 
+            })
+
+
+			/**
+             * Socket.IO 서버 연결
+             */ 
+             function connectToServer() {
+
+                // 옵션 설정
+                const options = {
+                    transports: ["websocket"],
+                    forceNew: false,
+                    multiplex: true,
+                    closeOnBeforeunload: true
+                }
+
+                // 소켓 객체 생성
+                const url = `${protocol}://${host}:${port}`;
+                socket = io(url, options);
+                console.log(`Trying to connect to ${url}`);
+
+                // connect 이벤트 
+                socket.on('connect', () => {
+                    printStatus(`Server is connected to ${url}`);
+
+                    // 서버 연결됨으로 상태 설정
+                    connected = true;
+
+                    // 자동 로그인
+                    if (autoLogin) {
+                        login();
+                    }
+
+
+                    // 폴링 시작                    
+                    pollId = setInterval(() => {
+                        requestPoll();
+                    }, pollInterval);
+
+                });
+
+                // reconnect_attempt 이벤트
+                socket.on('reconnect_attempt', () => {
+                    socket.io.opts.transports = ['websocket'];
+                });
+
+                // disconnect 이벤트
+                socket.on('disconnect', () => {
+                    printStatus(`Server disconnected.`);
+
+                    // 서버 연결 종료됨으로 상태 설정
+                    connected = false;
+                });
+
+                // message 이벤트
+                socket.on('message', (message) => {
+                    console.log(JSON.stringify(message));
+
+                    println(`message received -> requestCode: ${message.requestCode}, channelType: ${message.channelType}, command: ${message.command}, sender: ${message.sender}, receiver: ${message.receiver}, data: ${JSON.stringify(message.data)}`);
+                
+                });
+
+                // response 이벤트
+                socket.on('response', (response) => {
+                    console.log(JSON.stringify(response));
+                    console.log(`response received -> requestCode: ${response.requestCode}, command: ${response.command}, code: ${response.code}, message: ${response.message}`);
+
+                    // command 체크
+                    if (response.command == 'login') {
+                        console.log(`login response for requestCode : ${response.requestCode}`);
+                                
+                        if (response.code == '200') {
+                            printStatus(`로그인 성공 -> id: ${response.id}`);
+                        } else {
+                            printStatus(`로그인 실패 -> id: ${response.id}, message: ${response.message}`);
+                        }
+
+                    } else if (response.command == 'logout') {
+                        console.log(`logout response for requestCode : ${response.requestCode}`);
+                        
+                        if (response.code == '200') {
+                            printStatus(`로그아웃 성공 -> id: ${response.id}`);
+                        } else {
+                            printStatus(`로그아웃 실패 -> id: ${response.id}, message: ${response.message}`);
+                        }
+                        
+                    } else if (response.command == 'send') {
+                        console.log(`send response for requestCode : ${response.requestCode}`);
+                        
+                        if (response.code == '200') {
+                            printStatus(`전송 성공 -> id: ${response.sender}`);
+                        } else {
+                            printStatus(`전송 실패 -> id: ${response.sender}, message: ${response.message}`);
+                        }
+                        
+                    } else {
+                        console.log(`알 수 없는 응답 구분 -> ${response.command}`);
+                    }
+
+                });
+
+            }
+
+
+
+            ///
+            /// 연결하기 요청
+            ///
+            function connect() {
+            
+                host = hostInput.value;
+                port = portInput.value;
+
+                try {
+                  
+                    // 서버 연결하기
+                    if (connected) {
+                        console.log(`server is already connected`);
+                        return;
+                    }
+
+                    connectToServer();
+                  
+ 
+                } catch(err) {
+                    console.error(`에러 발생 : ${err}`);
+
+                }
+
+            }
+ 
+            ///
+            /// 로그인 요청
+            ///
+            function login() {
+                
+                clientId = clientIdInput.value;
+                clientSecret = clientSecretInput.value;
+
+                try {
+                
+                    // 서버 연결 여부 확인
+                    if (!connected) {
+                        console.log(`Please connect to the server first.`);
+                        return;
+                    }
+
+                    
+                    const sender = senderInput.value;
+                    
+                    // 데이터 송신하기
+                    const data = {
+                        requestCode: 'L1001',
+                        command: 'login',
+                        id: clientId,
+                        sender: clientId,
+                        secret: clientSecret,
+                        data: {}
+                    }
+                    
+                    socket.emit('login', JSON.stringify(data));
+                    console.log(`서버로 로그인 전송됨 -> ${JSON.stringify(data)}`);                
+
+                } catch(err) {
+                    console.error(`에러 발생 : ${err}`);
+
+                }
+
+            }
+
+            ///
+            /// 로그아웃 요청
+            ///
+            function logout() {
+                
+                clientId = clientIdInput.value;
+                clientSecret = clientSecretInput.value;
+
+                try {
+                
+                    // 서버 연결 여부 확인
+                    if (!connected) {
+                        console.log(`Please connect to the server first.`);
+                        return;
+                    }
+
+                    
+                    const sender = senderInput.value;
+                     
+                    // 데이터 송신하기
+                    const data = {
+                        requestCode: 'L1002',
+                        command: 'logout',
+                        id: clientId,
+                        sender: clientId, 
+                        data: {}
+                    }
+                    
+                    socket.emit('logout', JSON.stringify(data));
+                    console.log(`서버로 로그아웃 전송됨 -> ${JSON.stringify(data)}`);                
+
+                } catch(err) {
+                    console.error(`에러 발생 : ${err}`);
+
+                }
+
+            }
+
+
+            ///
+            /// 폴링 요청
+            ///
+            function requestPoll() {
+                console.log(`requestPoll 호출됨.`);  
+
+                // 에러 카운트 확인
+                if (pollErrorCount > 10) {
+                    println('폴링 에러 수가 10 이상입니다. 폴링을 중지합니다.');
+
+                    // 폴링 중지
+                    clearInterval(pollId);
+
+                    return;
+                }
+ 
+                try {
+                    
+                    sendPoll();
+
+                } catch(err) {
+                    console.error(`에러 발생 : ${err}`);
+                    println(`에러 발생 : ${err}`);
+
+                    pollErrorCount += 1;
+                }
+
+            }
+ 
+
+            function sendPoll() {
+                
+                const sender = senderInput.value;
+                 
+                // 데이터 송신하기
+                const data = {
+                    requestCode: 'P1001',
+                    command: 'poll',
+                    sender: sender,
+                    data: {}
+                }
+                
+                socket.emit('poll', JSON.stringify(data));
+                console.log(`서버로 폴링 전송됨 -> ${JSON.stringify(data)}`);                
+
+            }
+
+            function send() {
+                
+                const sender = senderInput.value;
+                const receiver = receiverInput.value;
+
+                const channel = channelInput.value;
+                const title = titleInput.value;
+                const contents = contentsInput.value;
+                 
+                // 데이터 송신하기
+                const data = {
+                    requestCode: 'M1001',
+                    channelType: 'SocketIO',
+                    channel: channel,
+                    command: 'send',
+                    sender: sender,
+                    receiver: receiver,
+                    data: {
+                        action: 'message',
+                        type: '1',
+                        title: title,
+                        contents: contents
+                    }
+                }
+                
+                sendMessage(data);
+            }
+
+            ///
+            /// 메시지 전송하기
+            ///
+            function sendMessage(data) {
+                
+                socket.emit('message', JSON.stringify(data));
+                console.log(`서버로 전송됨 -> ${JSON.stringify(data)}`);
+
+            }
+ 
+
+            ///
+            /// 화면에 상태 출력
+            ///
+            function printStatus(message) {
+                const now = moment().format('YYYY-MM-DD HH:mm:ss');
+                statusDiv.innerHTML = `<p>[${now}] ${message}</p>`;
+            }
+
+            ///
+            /// 화면에 로그 출력
+            ///
+            function println(message) {
+                const now = moment().format('YYYY-MM-DD HH:mm:ss');
+                messageDiv.innerHTML += `<p>[${now}] ${message}</p>`;
+            }
+ 
+        </script>
+
+    </body>
+</html>

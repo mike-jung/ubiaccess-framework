@@ -58,110 +58,30 @@ thisModule.send = async (io, input) => {
 
 // Send response to the recipient
 thisModule.sendData = async (io, event, input, namespace, redis, resend) => {
-    logger.debug('sendData called. this server namespace -> ' + namespace);
-    
-    if (resend) {
-        
-        // save this message event in chat.message table
-        try {
-            let inputType = input.type;
-            if (typeof(input.type) == 'undefined') {
-                inputType = input.method;
-            }
+    logger.debug('sendData called. this server namespace -> ' + namespace + ', resend : ' + resend);
+     
 
-            const params = {
-                id: input.requestCode,
-                sender: input.sender,
-                receiver: input.receiver,
-                command: input.command,
-                type: inputType,
-                data: input.data,
-                namespace: namespace,
-                status: '100'
-            };
-            
-            const queryParams = {
-				sqlName: 'chat_save_message',
-                params: params,
-                paramType:{}
-            }
+    // redis에서 매핑 값 가져오기
+    try {
+        const senderId = input.sender
+        const receiverId = input.receiver
 
-            const rows = await database.execute(queryParams);
-            logger.debug('chat_save_message sql executed.');
-        } catch(err) {
-            logger.debug('Error in executing sql -> ' + err);
+        const socketId = await redis.storeClient.hGet('user-socket', receiverId)  
+        console.log('found socketId : ' + socketId);
+
+        if (socketId && socketId.length > 1) {
+            console.log('redis에서 가져온 값 : ' + receiverId + ' -> ' + socketId)
+
+            io.of('/').to(socketId).emit('message', input);
+            console.log(`클라이언트로 전송됨 : ${senderId} -> ${receiverId}`)
+        } else {
+            console.log('socket id is not found')
         }
-
+    } catch(err) {
+        console.log('redis에서 값을 가져와 전송하는 중 에러 : ' + err)
+        return
     }
 
-
-    // get mapping data from redis
-    redis.store.hget('myapp_user', input.receiver, async (err, userSocketUrl) => {  
-        if (err) {
-            logger.debug('Error in hget from redis : ' + err);
-            return;
-        }
-
-        if (userSocketUrl) {
-            logger.debug('value from redis : ' + input.receiver + ' -> ' + userSocketUrl);
-
-            const inNamespace = path.dirname(userSocketUrl);
-            const inSocketId = path.basename(userSocketUrl);
-            logger.debug('parsed socket id : ' + inNamespace + ', ' + inSocketId);
-
-            if (namespace === inNamespace) {
-
-                if (io.sockets.connected[inSocketId]) {
-                    logger.debug('event -> ' + event);
-                    io.sockets.connected[inSocketId].emit(event, input);
-                    logger.debug('sent to the client of this namespace.');
-
-            
-                    // save this message sent event in chat.message table
-                    try {
-                        const params = {
-                            id: input.requestCode,
-                            status: '200'
-                        };
-                                    
-                        const queryParams = {
-                            sqlName: 'chat_save_message_status',
-                            params: params,
-                            paramType:{}
-                        }
-
-                        const rows = await database.execute(queryParams);
-                        logger.debug('chat_save_message_status sql executed.');
-                    } catch(err) {
-                        logger.debug('Error in executing sql -> ' + err);
-                    }
-
-
-                } else {
-                    logger.debug('client not found in this namespace.');
-
-                    if (resend) {
-                        input.$event = event;
-                        redis.pub.publish(channel, JSON.stringify(input));
-                        logger.debug('redis publish called to channel -> ' + channel);
-                    } else {
-                        logger.debug('publish is not called because of resend flag is false.');
-                    }
-                }
-            } else {
-                logger.debug('client is considered to be in other namespace.');
-
-                if (resend) {
-                    input.$event = event;
-                    redis.pub.publish(channel, JSON.stringify(input));
-                    logger.debug('redis publish called to channel -> ' + channel);
-                } else {
-                    logger.debug('publish is not called because of resend flag is false.');
-                }
-            }
-
-        }
-    })
 }
  
 // Send broadcast response
@@ -181,10 +101,15 @@ thisModule.sendBroadcast = (io, socket, event, input, namespace, redis, resend) 
 }
 
 // Send response
-thisModule.sendResponse = (io, socket, command, code, message, userid) => {
+thisModule.sendResponse = (io, socket, command, code, message, socketId) => {
     logger.debug('sendResponse called.');
 
-	var statusObj = {command: command, code: code, message: message, userid:userid};
+	var statusObj = {
+        command: command, 
+        code: code, 
+        message: message, 
+        data: socketId
+    };
 	socket.emit('response', statusObj);
 }
 

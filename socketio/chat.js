@@ -27,74 +27,20 @@ class ChatHandler {
         logger.debug('login called. this server namespace -> ' + namespace);
 
         // store mapping from user id to socket url
-        const userSocketUrl = path.join(namespace, socket.id);
-        redis.store.hset('myapp_user', input.id, userSocketUrl);
-        logger.debug('added to redis : ' + input.id + ' -> ' + userSocketUrl);
-
-        socket.userId = input.id;
-        this.getClientCount(redis);
-        
-        
-        // save this login event in chat.connection table
-        try {
-            const sqlName = 'chat_save_login';
-            const params = {
-                id: input.id,
-                alias: input.alias,
-                today: input.today,
-                socket_id: socket.id
-            };
-			await database.execute(sqlName, params);
-            logger.debug('chat_save_login sql executed.');
-		} catch(err) {
-			logger.debug('Error in executing sql -> ' + err);
-		}
-
-
+        const userId = input.id
+        const socketId = socket.id
+ 
+        if (userId && socketId) {
+            await redis.storeClient.hSet('user-socket', userId, socketId)
+            socket.userId = userId
+            console.log('redis에 로그인 id를 등록했습니다. : ' + userId + ' -> ' + socketId)
+        } else {
+            logger.error('userId 또는 socketId가 null입니다 : ' + userId + ', ' + socketId)
+        }
+ 
         // send response
         util.sendResponse(io, socket, event, '200', 'login success.', input.id);
-    
-        // send previous unsent messages
-        try {
-            const sqlName = 'chat_get_unsent_messages';
-            const params = {
-                receiver: input.id
-            };
-			const rows2 = await database.execute(sqlName, params);
-            logger.debug('chat_get_unsent_messages sql executed.');
-        
-            logger.debug('ROWS -> ' + JSON.stringify(rows2));
-
-            if (rows2 && rows2.length > 0) {
-                
-                for (let i = 0; i < rows2.length; i++) {
-                    if (rows2[i].command === 'chat') {
-                        // send message
-                        const curData = {
-                            requestCode: rows2[i].id,
-                            sender: rows2[i].sender,
-                            receiver: rows2[i].receiver,
-                            command: rows2[i].command,
-                            type: rows2[i].type,
-                            data: rows2[i].data
-                        }
-                        util.sendData(io, 'message', curData, namespace, redis, true);
-                    }
-                }
-
-                const sqlName = 'chat_update_unsent_messages';
-                const params = {
-                    receiver: input.id
-                };
-                await database.execute(sqlName, params);
-                logger.debug('chat_update_unsent_messages sql executed.');
-            
-            }
-
-        } catch(err) {
-			logger.debug('Error in processing unsent messages -> ' + err);
-		}
-
+         
     };
 
     /**
@@ -103,52 +49,53 @@ class ChatHandler {
     async logout(io, socket, event, input, namespace, redis) {
         logger.debug('logout called. this server namespace -> ' + namespace);
 
-        // store mapping from user id to socket url
-        const userSocketUrl = path.join(namespace, socket.id);
-        redis.store.hdel('myapp_user', input.id);
-        logger.debug('removed from redis : ' + input.id);
-
-        //socket.userId = input.id;
-        this.getClientCount(redis);
-
-        
-        // save this logout event in chat.connection table
-        try {
-            const sqlName = 'chat_save_logout';
-            const params = {
-                id: input.id,
-                socket_id: socket.id
-            };
-			const rows = await database.execute(sqlName, params);
-            logger.debug('chat_save_logout sql executed.');
-		} catch(err) {
-			logger.debug('Error in executing sql -> ' + err);
-		}
-
+        // 레디스에서 사용자 정보 삭제
+        const socketId = socket.id
+        this.deleteUserFromRedis(socket, socketId, redis);
+  
 
         // send response
         util.sendResponse(io, socket, event, '200', 'logout success.', input.id);
     };
+ 
+        
+    async deleteUserFromRedis(socket, socketId, redis) {
+        
+        try {
+            // 레디스에서 소켓ID로 사용자ID 확인
+            //const userId = await redis.storeClient.hGet('socket-user', socketId);
+            const userId = socket.userId;
 
-    getClientCount(redis) {
-        logger.debug(`getClientCount called.`);
-
-        // get count of clients from redis
-        redis.store.hlen('myapp_user', (err, count) => {  
-            if (err) {
-                logger.debug('Error in hlen from redis : ' + err);
-                return;
+            // 레디스에서 사용자ID로 삭제
+            if (userId) {
+                await redis.storeClient.hDel('user-socket', userId);
+                logger.debug('redis hDel success for userId -> ' + userId);
             }
 
-            logger.debug(`Count of clients : ${count}`);
-        });
+        } catch(err) {
+            logger.debug('Error in deleting userId from redis : ' + err);
+        }
+
+        
+        try {
+            // 레디스에서 소켓ID로 삭제
+            if (socketId) {
+                await redis.storeClient.hDel('socket-user', socketId);
+                logger.debug('redis hDel success for socketId -> ' + socketId);
+            }
+
+        } catch(err) {
+            logger.debug('Error in deleting socketId from redis : ' + err);
+        }
+        
 
     }
+
 
     /**
      * Method to handle 'message' event
      */
-    message(io, socket, event, input, namespace, redis) {
+    async message(io, socket, event, input, namespace, redis) {
         if (input.receiver =='ALL') {
             // send to all
             util.sendAll(io, socket, event, input, namespace, redis, true);
@@ -160,7 +107,7 @@ class ChatHandler {
             if (input.command === 'chat') {
                 // send message
                 util.sendData(io, event, input, namespace, redis, true);
-
+                
                 // send response
                 util.sendResponse(io, socket, event, '200', 'sendData requested.', input.userId);
             } else if (input.command === 'groupchat') {
@@ -170,32 +117,7 @@ class ChatHandler {
                 // send response
                 util.sendResponse(io, socket, event, '200', 'sendBroadcast requested.', input.userId);
             
-            } else if (input.command === 'session') {
-                // send message
-                util.sendData(io, event, input, namespace, redis, true);
-
-                // send back trying
-                if (input.method == 'invite') {
-                    const output = {
-                        sessionId: input.sessionId,
-                        requestCode: input.requestCode,
-                        userId: input.userId,
-                        sender: input.sender,
-                        receiver: input.receiver,
-                        command: 'session',
-                        method: 'trying',
-                        code: '110',
-                        category: input.category,
-                        data:''
-                    }
-
-                    socket.emit('message', output);
-                }
-
-                // send response
-                util.sendResponse(io, socket, event, '200', 'session requested.', input.userId);
-            }
-
+            } 
         }
     }
     
