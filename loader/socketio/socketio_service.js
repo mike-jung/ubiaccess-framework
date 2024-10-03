@@ -13,7 +13,7 @@ const logger = require('../../util/logger');
 ///
 class SocketIOService {
  
-    constructor(server, redisService, onLogin, onLogout, onEventReceived, onAckEventReceived) {
+    constructor(server, redisService, onLogin, onLogout, onEventReceived, onAckEventReceived, onDisconnected) {
         
         // 네임스페이스
         this.namespace = '';
@@ -25,6 +25,7 @@ class SocketIOService {
         this.onLogout = onLogout;
         this.onEventReceived = onEventReceived;
         this.onAckEventReceived = onAckEventReceived;
+        this.onDisconnected = onDisconnected;
 
         // 초기화
         this.io = null;
@@ -97,6 +98,19 @@ class SocketIOService {
                 logger.debug(`disconnect reason : ${reason}`);
                 //logger.debug('socket id -> ' + socket.id);
             
+                try {
+                    // 레디스에서 소켓ID로 사용자ID 확인
+                    const userId = await this.redisService.storeClient.hGet('socket-user', socket.id);
+                        
+                    // 레디스에서 사용자ID로 삭제
+                    if (userId) {
+                        this.onDisconnected(userId, socket.id);
+                    }
+
+                } catch(err) {
+                    console.log(`Error in checking user id from redis using socket id : ${err}`);
+                }
+
                 //logger.debug(`sockets size : ${this.io.of('/').sockets.size}`);
 
                 try {

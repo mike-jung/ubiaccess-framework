@@ -42,7 +42,7 @@ socketio_loader.load = async (server, app, sessionMiddleware, socketio, namespac
         redisService = new RedisService(redisConfig, redisConfig.channelNames, redisConfig.pollInterval, onRedisMessageReceived);
      
         // 소켓IO 객체 만들기
-        socketIOService = new SocketIOService(server, redisService, onSocketLogin, onSocketLogout, onSocketEventReceived, onSocketAckEventReceived);
+        socketIOService = new SocketIOService(server, redisService, onSocketLogin, onSocketLogout, onSocketEventReceived, onSocketAckEventReceived, onSocketDisconnected);
 
         // app에 등록
         app.redisService = redisService;
@@ -119,8 +119,7 @@ async function onSocketLogin(socket, inputJson) {
     socket.emit('response', output);
 
 
-    // 전송 안된 메시지들을 재전송 (0.2초 후)
-    /*
+    // 전송 안된 메시지들을 재전송 (0.1초 후)
     setTimeout(() => {
 
         const requestCodeMap = userRequestCodeMap.get(input.id);
@@ -135,9 +134,28 @@ async function onSocketLogin(socket, inputJson) {
             userRequestCodeMap.set(input.id, requestCodeMap);
         }
         
-    }, 200);
-    */
+    }, 100);
 
+}
+
+
+///
+/// 소켓IO 연결 종료 시 자동 호출되는 함수
+///
+async function onSocketDisconnected(userId, socketId) {
+    logger.debug(`onSocketDisconnected -> userId: ${userId}, socketId: ${socketId}`);
+    
+    // 전송 안된 메시지들 삭제 (0.1초 후)
+    setTimeout(() => {
+
+        const requestCodeMap = userRequestCodeMap.get(userId);
+        if (requestCodeMap) {
+            requestCodeMap.clear();
+            userRequestCodeMap.set(userId, requestCodeMap);
+        }
+        
+    }, 100);
+    
 }
 
 
@@ -196,6 +214,14 @@ async function onSocketEventReceived(socket, inputJson) {
     } else if (input.command == 'send') {      // 일대일 전송
         
         try {
+            
+            // 채널이 있는지 확인
+            if (config.redis.channelNames.indexOf(input.channel) < 0) {
+                logger.debug(`등록된 레디스 채널 없음 : ${input.channel}`);
+                return;
+            }
+
+            // 레디스 송신 (publish)
             await this.redisService.publisher.publish(input.channel, inputJson);
             logger.debug(`송신자가 데이터 보냄 -> 채널 : ${input.channel}`);
 
