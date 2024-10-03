@@ -63,5 +63,5 @@ module.exports = {
         transports: [
 		    'websocket'
 		]
-    },
+    } 
 }
