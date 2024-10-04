@@ -23,7 +23,7 @@
           "multer": "^1.4.2",
           "mysql": "^2.18.1",
           "mysql-utilities": "^1.1.0-alpha.6",
-          "mysql2": "^3.11.0",
+          "mysql2": "^3.11.3",
           "network": "^0.5.0",
           "node-uuid": "^1.4.8",
           "passport": "^0.4.1",

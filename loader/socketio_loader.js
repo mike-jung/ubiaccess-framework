@@ -28,7 +28,7 @@ let socketIOService;
   
 
 // userId -> Map
-//const userRequestCodeMap = new Map();
+const userRequestCodeMap = new Map();
  
 
 
@@ -68,7 +68,7 @@ function onRedisMessageReceived(input, channel) {
         if (input.command == 'send') {      // 일대일 전송
             socketIOService.send(input.sender, input.receiver, input);
             
-            /*
+            
             // 맵에 추가 (응답 못받을 경우 재전송용)
             let requestCodeMap = null;
             if (!userRequestCodeMap.has(input.receiver)) {
@@ -78,7 +78,7 @@ function onRedisMessageReceived(input, channel) {
             }
             requestCodeMap.set(input.requestCode, input);
             userRequestCodeMap.set(input.receiver, requestCodeMap);
-            */
+            
 
         } else {
             console.error('socketio_loader::알 수 없는 command : ' + input.command);
@@ -303,7 +303,7 @@ async function onSocketAckEventReceived(socket, inputJson) {
     if (input.command == 'ack') {      // 수신자로부터의 ack
         
         try {
-            /*
+            
             // 응답으로 받은 전송코드라면 전송안된 데이터에서 삭제하기 (재전송 여부 판단용)
             const requestCodeMap = userRequestCodeMap.get(input.receiver);
             if (requestCodeMap) {
@@ -313,7 +313,7 @@ async function onSocketAckEventReceived(socket, inputJson) {
                 requestCodeMap.delete(input.requestCode);
                 userRequestCodeMap.set(input.receiver, requestCodeMap);
             }
-            */
+            
         } catch(err) {
             console.error(`Error -> ${err}`);
         }
